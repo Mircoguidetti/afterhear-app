@@ -579,5 +579,96 @@
   "learning": [
    "rammed"
   ]
+ },
+ {
+  "name": "tap during the next sentence: the hard one was before",
+  "learning": [
+   "ballpark figure"
+  ],
+  "truth": 0,
+  "lines": [
+   {
+    "start": 0,
+    "end": 3.2,
+    "text": "Can you give me a ballpark figure for the launch?",
+    "mine": false
+   },
+   {
+    "start": 3.5,
+    "end": 8.5,
+    "text": "We need it before Friday, because the board meets on Monday morning.",
+    "mine": false
+   }
+  ],
+  "taps": [
+   {
+    "at": 4.0,
+    "delay": 2.5,
+    "label": "B+0.5s"
+   },
+   {
+    "at": 4.5,
+    "delay": 2.5,
+    "label": "B+1s"
+   },
+   {
+    "at": 5.5,
+    "delay": 2.5,
+    "label": "B+2s"
+   },
+   {
+    "at": 6.5,
+    "delay": 2.5,
+    "label": "B+3s"
+   },
+   {
+    "at": 4.5,
+    "delay": null,
+    "label": "B+1s-new"
+   },
+   {
+    "at": 5.5,
+    "delay": null,
+    "label": "B+2s-new"
+   }
+  ]
+ },
+ {
+  "name": "tap well into a long sentence: that one",
+  "learning": [
+   "moving the goalposts"
+  ],
+  "truth": 1,
+  "lines": [
+   {
+    "start": 0,
+    "end": 2.5,
+    "text": "Right, so the numbers are in.",
+    "mine": false
+   },
+   {
+    "start": 3.0,
+    "end": 12.0,
+    "text": "The thing is, if we keep moving the goalposts every week, nobody on the team will trust the plan.",
+    "mine": false
+   }
+  ],
+  "taps": [
+   {
+    "at": 8.0,
+    "delay": 2.5,
+    "label": "B+5s"
+   },
+   {
+    "at": 11.0,
+    "delay": 2.5,
+    "label": "B+8s"
+   },
+   {
+    "at": 11.0,
+    "delay": null,
+    "label": "B+8s-new"
+   }
+  ]
  }
 ]

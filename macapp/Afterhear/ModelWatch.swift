@@ -50,7 +50,7 @@ final class ModelWatch: ObservableObject {
     static func eveningLine(_ date: Date = Date()) -> String? {
         let d = day(date)
         guard d.heard > 0 else { return nil }
-        return "Your model today: \(d.heard) hard \(d.heard == 1 ? "line" : "lines") heard, \(d.understood) understood, \(d.maybeNot) maybe not."
+        return d.heard == 1 ? String(localized: "Your model today: 1 hard line heard, \(d.understood) understood, \(d.maybeNot) maybe not.") : String(localized: "Your model today: \(d.heard) hard lines heard, \(d.understood) understood, \(d.maybeNot) maybe not.")
     }
 
     private func count(heard: Int, maybeNot: Int) {
@@ -116,7 +116,7 @@ final class ModelWatch: ObservableObject {
                 spottedKeys = []
                 if current == .call {
                     callMode = CallModes.mode(for: CalendarWatch.shared.current)
-                    panel.show(PanelView(phase: .saved("This call: \(callMode.label). Change it from the menu bar.")), autoHide: 3, width: 360)
+                    panel.show(PanelView(phase: .saved(String(localized: "This call: \(callMode.label). Change it from the menu bar."))), autoHide: 3, width: 360)
                 }
             }
             session?.lastActive = now
@@ -176,9 +176,9 @@ final class ModelWatch: ObservableObject {
         let lines = quiz(since: s.start)
         guard !lines.isEmpty, s.kind != .call else { return }
         let content = UNMutableNotificationContent()
-        let what = s.title ?? (s.kind == .song ? "your music" : "your video")
-        content.title = s.kind == .song ? "\(lines.count) lines you probably missed in \(what)" : "We watched \(what) together"
-        content.body = (Self.eveningLine().map { $0 + " " } ?? "") + "Did you get them? One minute."
+        let what = s.title ?? (s.kind == .song ? String(localized: "your music") : String(localized: "your video"))
+        content.title = s.kind == .song ? String(localized: "\(lines.count) lines you probably missed in \(what)") : String(localized: "We watched \(what) together")
+        content.body = (Self.eveningLine().map { $0 + " " } ?? "") + String(localized: "Did you get them? One minute.")
         content.userInfo = ["kind": "quiz", "since": s.start.timeIntervalSince1970]
         try? await UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: "quiz-\(Int(s.start.timeIntervalSince1970))", content: content, trigger: nil))
     }
@@ -190,7 +190,7 @@ final class ModelWatch: ObservableObject {
     func openQuiz(since: Date) {
         let ids = quiz(since: since).map(\.id)
         guard !ids.isEmpty else { return }
-        AppWindows.show(id: "quiz", title: "Did you get these?", width: 480, height: 520) {
+        AppWindows.show(id: "quiz", title: String(localized: "Did you get these?"), width: 480, height: 520) {
             QuizView(ids: ids).environmentObject(AppModel.shared.store)
         }
     }
@@ -240,7 +240,7 @@ struct QuizView: View {
                 }
             } else {
                 Text("\(right) of \(moments.count) were already yours.").font(.title2.weight(.semibold))
-                Text(right == moments.count ? "Your model will guess harder ones next time." : "The others are in tonight's review, with the real voice.")
+                Text(right == moments.count ? String(localized: "Your model will guess harder ones next time.") : String(localized: "The others are in tonight's review, with the real voice."))
                     .foregroundStyle(.secondary)
                 Spacer(minLength: 0)
             }

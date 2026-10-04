@@ -19,7 +19,7 @@ struct Call: Identifiable, Equatable {
 
     var who: String {
         if !people.isEmpty { return ListFormatter.localizedString(byJoining: people) }
-        return title.isEmpty ? "your call" : title
+        return title.isEmpty ? String(localized: "your call") : title
     }
 }
 
@@ -68,6 +68,9 @@ final class CalendarWatch: NSObject, ObservableObject, UNUserNotificationCenterD
             UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
             return
         }
+        // Google Calendar connected directly (owner, 03/10) is enough on its own: the Calendar app's
+        // permission is asked, but a "no" doesn't stop the prep.
+        let google = GoogleCalendar.shared.connected
         if !isAuthorized {
             let granted: Bool
             if #available(macOS 14.0, *) {
@@ -75,9 +78,12 @@ final class CalendarWatch: NSObject, ObservableObject, UNUserNotificationCenterD
             } else {
                 granted = (try? await events.requestAccess(to: .event)) ?? false
             }
-            guard granted else { access = .denied; return }
+            guard granted || google else { access = .denied; return }
+            access = granted ? .granted : .denied
+        } else {
+            access = .granted
         }
-        access = .granted
+        GoogleCalendar.shared.start()
         _ = try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound])
         CallNotice.registerCategory()
         refresh()
@@ -102,15 +108,23 @@ final class CalendarWatch: NSObject, ObservableObject, UNUserNotificationCenterD
     // MARK: Reading the calendar
 
     func refresh() {
-        guard access == .granted else { return }
+        let google = GoogleCalendar.shared.connected
+        guard enabled, access == .granted || google else { return }
         let now = Date()
         let from = now.addingTimeInterval(-6 * 3600), to = now.addingTimeInterval(36 * 3600)
-        let predicate = events.predicateForEvents(withStart: from, end: to, calendars: nil)
-        let found = events.events(matching: predicate)
-            .filter { !$0.isAllDay && Self.isCall($0) }
-            .map(call)
-            .sorted { $0.start < $1.start }
-        calls = found
+        var found: [Call] = []
+        if access == .granted {
+            let predicate = events.predicateForEvents(withStart: from, end: to, calendars: nil)
+            found = events.events(matching: predicate)
+                .filter { !$0.isAllDay && Self.isCall($0) }
+                .map { call($0) }
+        }
+        // The same meeting from Google and from the Calendar app counts once.
+        for event in GoogleCalendar.shared.events where event.isCall {
+            let twin = found.contains { $0.title == event.title && abs($0.start.timeIntervalSince(event.start)) < 60 }
+            if !twin { found.append(call(event)) }
+        }
+        calls = found.sorted { $0.start < $1.start }
         followCurrentCall()
         schedulePreps()
         sendLessons()
@@ -142,6 +156,17 @@ final class CalendarWatch: NSObject, ObservableObject, UNUserNotificationCenterD
         let id = SHA256.hash(data: Data(raw.utf8)).map { String(format: "%02x", $0) }.joined().prefix(32)
         var call = Call(id: String(id), title: title, start: event.startDate, end: event.endDate, people: people, guests: guests.count)
         call.organizer = event.organizer?.isCurrentUser ?? (guests.isEmpty)
+        return call
+    }
+
+    private func call(_ event: GoogleCalendar.Event) -> Call {
+        let people = store.people.map(\.name).filter { person in
+            event.guests.contains { Self.matches(person, $0) } || Self.mentions(event.title, person)
+        }
+        let raw = "google:\(event.id)|\(Int(event.start.timeIntervalSince1970))"
+        let id = SHA256.hash(data: Data(raw.utf8)).map { String(format: "%02x", $0) }.joined().prefix(32)
+        var call = Call(id: String(id), title: event.title, start: event.start, end: event.end, people: people, guests: event.guests.count)
+        call.organizer = event.organizerIsMe
         return call
     }
 
@@ -182,8 +207,8 @@ final class CalendarWatch: NSObject, ObservableObject, UNUserNotificationCenterD
         let minutes: Int
         var id: Int { minutes }
     }
-    static let leads = [Lead(label: "15 minutes before", minutes: 15), Lead(label: "1 hour before", minutes: 60),
-                        Lead(label: "2 hours before", minutes: 120), Lead(label: "The evening before", minutes: 0)]
+    static let leads = [Lead(label: String(localized: "15 minutes before"), minutes: 15), Lead(label: String(localized: "1 hour before"), minutes: 60),
+                        Lead(label: String(localized: "2 hours before"), minutes: 120), Lead(label: String(localized: "The evening before"), minutes: 0)]
 
     private var leadMinutes: Int {
         defaults.object(forKey: Key.prepLead) == nil ? 120 : defaults.integer(forKey: Key.prepLead)
@@ -227,11 +252,12 @@ final class CalendarWatch: NSObject, ObservableObject, UNUserNotificationCenterD
             let at = max(prepTime(call), now.addingTimeInterval(5))
             guard at < call.start else { continue }
             let content = UNMutableNotificationContent()
-            content.title = "\(call.who) at \(call.start.formatted(date: .omitted, time: .shortened))"
+            content.title = String(localized: "\(call.who) at \(call.start.formatted(date: .omitted, time: .shortened))")
             let pieces = moments.flatMap(\.pieces).map(\.text).prefix(3)
             content.body = pieces.isEmpty
-                ? "\(moments.count) things slipped past you last time. Two minutes to go over them?"
-                : "Last time: \(pieces.joined(separator: ", ")). Two minutes to go over them?"
+                ? (moments.count == 1 ? String(localized: "1 thing slipped past you last time. Two minutes to go over it?")
+                                      : String(localized: "\(moments.count) things slipped past you last time. Two minutes to go over them?"))
+                : String(localized: "Last time: \(pieces.joined(separator: ", ")). Two minutes to go over them?")
             content.userInfo = ["kind": "prep", "call": call.id]
             keep.insert("prep-\(call.id)")
             let parts = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second], from: at)
@@ -249,9 +275,9 @@ final class CalendarWatch: NSObject, ObservableObject, UNUserNotificationCenterD
         guard at > now else { return }
         let mode = CallModes.mode(for: call)
         let content = UNMutableNotificationContent()
-        content.title = "\(call.who) at \(call.start.formatted(date: .omitted, time: .shortened)) · \(mode.label)"
+        content.title = String(localized: "\(call.who) at \(call.start.formatted(date: .omitted, time: .shortened)) · \(mode.label)")
         let recap = CallHistory.last(like: call, before: call.start).map(CallHistory.recap)
-        content.body = (recap.map { $0 + " " } ?? "") + mode.detail + " Change it below."
+        content.body = (recap.map { $0 + " " } ?? "") + mode.detail + " " + String(localized: "Change it below.")
         content.categoryIdentifier = CallNotice.category
         content.userInfo = ["kind": "notice", "call": call.id]
         let id = "notice-\(call.id)"
@@ -283,9 +309,9 @@ final class CalendarWatch: NSObject, ObservableObject, UNUserNotificationCenterD
             guard !moments.isEmpty else { continue }
             lessonsSent.insert(call.id)
             let content = UNMutableNotificationContent()
-            content.title = "Your call with \(call.who): \(moments.count) \(moments.count == 1 ? "moment" : "moments")"
+            content.title = moments.count == 1 ? String(localized: "Your call with \(call.who): 1 moment") : String(localized: "Your call with \(call.who): \(moments.count) moments")
             let pieces = moments.flatMap(\.pieces).map(\.text).prefix(3)
-            content.body = (pieces.isEmpty ? "" : pieces.joined(separator: " · ") + ". ") + "Five minutes now, while it's fresh?"
+            content.body = (pieces.isEmpty ? "" : pieces.joined(separator: " · ") + ". ") + String(localized: "Five minutes now, while it's fresh?")
             content.userInfo = ["kind": "lesson", "call": call.id]
             UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: "lesson-\(call.id)", content: content, trigger: nil))
         }
@@ -319,22 +345,22 @@ final class CalendarWatch: NSObject, ObservableObject, UNUserNotificationCenterD
     }
 
     func openPrep(_ call: Call) {
-        AppWindows.show(id: "prep", title: "Before your call", width: 460, height: 560) {
+        AppWindows.show(id: "prep", title: String(localized: "Before your call"), width: 460, height: 560) {
             PrepView(call: call).environmentObject(AppModel.shared.store)
         }
     }
 
     func openLesson(_ call: Call) {
         let ids = moments(of: call).map(\.id)
-        AppWindows.show(id: "lesson", title: "Your call with \(call.who)", width: 520, height: 640) {
-            ReviewView(only: ids, title: "Your call with \(call.who)").environmentObject(AppModel.shared.store)
+        AppWindows.show(id: "lesson", title: String(localized: "Your call with \(call.who)"), width: 520, height: 640) {
+            ReviewView(only: ids, title: String(localized: "Your call with \(call.who)")).environmentObject(AppModel.shared.store)
         }
     }
 
     func practice(_ call: Call) {
         let ids = prep(for: call).map(\.id)
-        AppWindows.show(id: "lesson", title: "Before your call", width: 520, height: 640) {
-            ReviewView(only: ids, title: "Before \(call.who)").environmentObject(AppModel.shared.store)
+        AppWindows.show(id: "lesson", title: String(localized: "Before your call"), width: 520, height: 640) {
+            ReviewView(only: ids, title: String(localized: "Before \(call.who)")).environmentObject(AppModel.shared.store)
         }
     }
 }
@@ -389,7 +415,7 @@ struct PrepView: View {
                 Text("Nothing slipped past you with \(call.who) yet. Tap whenever something does: it'll be here next time.")
                     .foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             } else {
-                Text(call.people.isEmpty ? "What slipped past you in recent calls" : "What slipped past you last time")
+                Text(call.people.isEmpty ? String(localized: "What slipped past you in recent calls") : String(localized: "What slipped past you last time"))
                     .font(.caption).foregroundStyle(.secondary)
                 ScrollView {
                     VStack(alignment: .leading, spacing: 12) {

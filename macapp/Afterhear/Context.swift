@@ -8,9 +8,9 @@ enum AppContext: String, CaseIterable, Identifiable, Codable {
     var id: String { rawValue }
     var label: String {
         switch self {
-        case .video: "Watching a video"
-        case .call: "In a call"
-        case .other: "Anything else"
+        case .video: String(localized: "Watching a video")
+        case .call: String(localized: "In a call")
+        case .other: String(localized: "Anything else")
         }
     }
 }
@@ -110,12 +110,20 @@ enum MediaKey {
     }
 
     /// Returns false when the permission is missing (and asks for it).
+    /// When Afterhear itself last pressed play/pause: that pause is not yours (pause = tap).
+    private(set) static var pressedAt: Date?
+
+    static var recentlyPressed: Bool {
+        pressedAt.map { Date().timeIntervalSince($0) < 2.5 } ?? false
+    }
+
     @discardableResult
     static func playPause() -> Bool {
         guard allowed else {
             askForPermission()
             return false
         }
+        pressedAt = Date()
         press(down: true)
         press(down: false)
         return true

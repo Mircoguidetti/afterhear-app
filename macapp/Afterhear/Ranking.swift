@@ -39,7 +39,10 @@ enum Ranking {
         var model = 0.4
     }
 
-    /// Their sentences that ended before the tap, best first.
+    /// Their sentences said before the tap, best first, the one still going on at the tap included.
+    /// What counts is when you missed it (the tap minus your reaction time), not the tap itself:
+    /// tapping 1–3 s into the next sentence still means the one before (owner, 03/10); tapping well
+    /// into a long sentence means that one.
     /// - tapAt: seconds of the tap on the same clock as the lines.
     /// - usualDelay: your learned delay between the missed words and the tap.
     /// - freshWithin: only lines that ended at most this many seconds before the tap.
@@ -49,7 +52,7 @@ enum Ranking {
                      hardness: ((String) -> Double)? = nil, likelihood: ((Int) -> Double?)? = nil,
                      weights w: Weights = Weights()) -> [Scored] {
         let theirs = lines.indices.filter {
-            !lines[$0].mine && lines[$0].end <= tapAt + 0.5 && lines[$0].end >= tapAt - (freshWithin ?? .infinity)
+            !lines[$0].mine && lines[$0].start < tapAt && lines[$0].end >= tapAt - (freshWithin ?? .infinity)
         }
         guard !theirs.isEmpty else { return [] }
         let delay = usualDelay ?? 2.5
@@ -67,7 +70,11 @@ enum Ranking {
             let line = lines[i]
             var score = 0.0
             var why: [String] = []
-            let near = exp(-abs(line.end - target) / scale)
+            // How far the moment you missed it is from this sentence: zero inside it. Nobody misses a
+            // sentence in its first second (there isn't enough of it yet), so it counts from there.
+            let from = line.start + min(1.0, (line.end - line.start) / 2)
+            let off = target < from ? from - target : max(0, target - line.end)
+            let near = exp(-off / scale)
             // With your delay learned, timing leads and the reactions only break near-ties;
             // without it, timing is one hint among the others.
             score += (usualDelay == nil ? w.near : 2.0) * near

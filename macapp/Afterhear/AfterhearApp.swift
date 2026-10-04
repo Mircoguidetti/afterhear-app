@@ -4,7 +4,15 @@ import AppKit
 @main
 struct AfterhearApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
-    @StateObject private var model = AppModel.shared
+    @StateObject private var model: AppModel
+
+    init() {
+        // Before anything reads the settings or the moments: what the app had under its old name.
+        OldVersion.bringOver()
+        // Then the language of every word on screen: yours (owner, 03/10).
+        AppLanguage.apply()
+        _model = StateObject(wrappedValue: AppModel.shared)
+    }
 
     var body: some Scene {
         MenuBarExtra {

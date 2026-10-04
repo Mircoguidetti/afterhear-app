@@ -84,7 +84,7 @@ struct TranslationRow: View {
         Group {
             switch status {
             case .ready:
-                LabeledContent("Instant translations", value: "Ready")
+                LabeledContent("Instant translations", value: String(localized: "Ready"))
             case .needsDownload:
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {

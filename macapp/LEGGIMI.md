@@ -39,3 +39,26 @@ Poi **Deployments → Redeploy**. Le chiavi restano solo su Vercel, mai nell'app
 ## Build
 
 Ogni push su `macapp/` fa partire `.github/workflows/macapp.yml`: genera il progetto con XcodeGen, compila per Intel + Apple Silicon e pubblica lo zip nella release `mac-latest`.
+
+## Lingue (7: EN, IT, ES, FR, DE, RU, PT)
+
+L'app parla la lingua scelta in **Impostazioni → La tua lingua** (alla prima apertura: quella del Mac, se è una delle sette, altrimenti inglese). Cambiandola, l'app propone "Riavvia ora".
+
+Ogni parola sullo schermo sta in `macapp/l10n/t1.py` … `t5.py` (inglese + sei traduzioni). Dopo aver cambiato o aggiunto un testo nell'app:
+
+```
+python3 macapp/l10n/make.py --todo   # cosa manca
+python3 macapp/l10n/make.py          # controlla e scrive Afterhear/<lingua>.lproj
+```
+
+Se manca una traduzione, `make.py` si ferma. Un testo nuovo va scritto come `Text("…")`, `Button("…")` ecc. oppure `String(localized: "…")`.
+
+## Impostazioni da sviluppatore (nascoste)
+
+Tester code, Google client ID, Server e Web app non si vedono più nelle Impostazioni (03–04/10: niente cose nostre davanti ai tester). Per mostrarle sotto "Advanced", nel Terminale:
+
+```
+defaults write app.afterhear.mac developer -bool YES
+```
+
+e riapri le Impostazioni. Per nasconderle di nuovo: `-bool NO`. I valori già salvati (per esempio il tuo tester code) restano attivi anche quando sono nascosti.

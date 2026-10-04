@@ -87,7 +87,7 @@ final class Sync: ObservableObject {
             lastSync = Date()
             status = nil
         } catch {
-            status = "Couldn't sync. Will try again soon."
+            status = String(localized: "Couldn't sync. Will try again soon.")
         }
     }
 

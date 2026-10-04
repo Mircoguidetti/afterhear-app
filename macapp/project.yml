@@ -2,6 +2,8 @@
 # so nobody needs Xcode on a slow Mac. See macapp/LEGGIMI.md.
 name: Afterhear
 options:
+  # The app's words in seven languages (Afterhear/<language>.lproj, from macapp/l10n/make.py).
+  developmentLanguage: en
   bundleIdPrefix: app.afterhear
   deploymentTarget:
     # 14: FluidAudio (Parakeet on the device) needs it; the audio-only tap needs 14.2 anyway.
@@ -52,6 +54,7 @@ targets:
       path: Afterhear/Info.plist
       properties:
         CFBundleDisplayName: Afterhear
+        CFBundleDevelopmentRegion: en
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSUIElement: true

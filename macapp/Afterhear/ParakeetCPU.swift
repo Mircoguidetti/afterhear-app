@@ -72,16 +72,22 @@ final class ParakeetCPU: @unchecked Sendable {
         guard count > 0, let tokens = r.tokens_arr, let times = r.timestamps else { return [] }
         let total = Double(samples.count) / 16_000
         // Pieces of words: a new word starts where a piece starts with a space (or "▁").
+        // A bare "▁" (it comes before numbers) still means "a new word starts here": it used to be
+        // dropped and the number stuck to the word before it ("after12", owner 03/10).
         var out: [(word: String, start: Double, end: Double)] = []
+        var startsWord = false
         for i in 0..<count {
             guard let raw = tokens[i] else { continue }
             let piece = String(cString: raw)
             let start = Double(times[i])
             let end = r.durations.map { start + Double($0[i]) } ?? (i + 1 < count ? Double(times[i + 1]) : total)
-            let newWord = piece.hasPrefix(" ") || piece.hasPrefix("▁") || out.isEmpty
             let text = piece.replacingOccurrences(of: "▁", with: " ").trimmingCharacters(in: .whitespaces)
+            // A number right after letters is its own word too.
+            let afterLetters = out.last?.word.last?.isLetter == true && text.first?.isNumber == true
+            let newWord = piece.hasPrefix(" ") || piece.hasPrefix("▁") || out.isEmpty || startsWord || afterLetters
             if newWord {
-                guard !text.isEmpty else { continue }
+                guard !text.isEmpty else { startsWord = true; continue }
+                startsWord = false
                 out.append((text, start, end))
             } else if let last = out.last {
                 out[out.count - 1] = (last.word + text, last.start, max(last.end, end))

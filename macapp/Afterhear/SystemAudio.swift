@@ -15,8 +15,17 @@ final class SampleRing: @unchecked Sendable {
 
     init(seconds: Double) { self.seconds = seconds }
 
+    private var lastAppend = Date.distantPast
+
+    /// Seconds since sound last arrived: when a player pauses, the capture may simply stop sending.
+    var idleSeconds: Double {
+        lock.lock(); defer { lock.unlock() }
+        return Date().timeIntervalSince(lastAppend)
+    }
+
     func append(_ source: UnsafePointer<Float>, count: Int, rate newRate: Double) {
         lock.lock(); defer { lock.unlock() }
+        lastAppend = Date()
         if newRate != rate || samples.isEmpty {
             rate = newRate
             samples = [Float](repeating: 0, count: max(1, Int(seconds * newRate)))
@@ -54,7 +63,7 @@ final class SampleRing: @unchecked Sendable {
 
 enum CaptureError: LocalizedError {
     case noDisplay
-    var errorDescription: String? { "Nessuno schermo da cui catturare l'audio." }
+    var errorDescription: String? { String(localized: "There's no screen to capture the sound from.") }
 }
 
 /// Captures the sound of the whole Mac (Teams, Meet, WhatsApp, FaceTime, a film…).

@@ -106,7 +106,7 @@ struct ChooseView: View {
             Text("«\(moment.translation)»").font(.callout).foregroundStyle(.secondary)
             HStack {
                 Spacer()
-                Button(confirmed || moment.delay != nil ? "Thanks, Afterhear is learning your timing" : "Yes, that's the one") {
+                Button(confirmed || moment.delay != nil ? String(localized: "Thanks, Afterhear is learning your timing") : String(localized: "Yes, that's the one")) {
                     AppModel.shared.confirm(momentID)
                     confirmed = true
                 }

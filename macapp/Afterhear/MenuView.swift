@@ -95,8 +95,8 @@ struct MenuView: View {
             }
 
             if model.waiting > 0 {
-                Text(model.lowBattery ? "Battery low: \(model.waiting) saved, explained when you charge"
-                                      : "\(model.waiting) saved, explained as soon as possible")
+                Text(model.lowBattery ? String(localized: "Battery low: \(model.waiting) saved, explained when you charge")
+                                      : String(localized: "\(model.waiting) saved, explained as soon as possible"))
                     .font(.caption).foregroundStyle(.secondary)
             }
             Divider()
@@ -104,7 +104,7 @@ struct MenuView: View {
                 Button("Review (\(store.reviewQueue.count))") { open("review") }
                     .disabled(store.reviewQueue.isEmpty)
                 Button("Progress") {
-                    AppWindows.show(id: "progress", title: "Your progress", width: 480, height: 520) { ProgressStoryView() }
+                    AppWindows.show(id: "progress", title: String(localized: "Your progress"), width: 480, height: 520) { ProgressStoryView() }
                 }
                 Button("Settings") { open("settings") }
                 Menu("More") {
@@ -112,7 +112,7 @@ struct MenuView: View {
                     Button("Your week") { Podcast.shared.open() }
                     if quizCount > 0 { Button("Quiz (\(quizCount))") { ModelWatch.shared.openAllQuiz() } }
                     Divider()
-                    Button(model.state == .paused ? "Resume listening" : "Pause listening") {
+                    Button(model.state == .paused ? String(localized: "Resume listening") : String(localized: "Pause listening")) {
                         Task { await model.togglePause() }
                     }
                     .disabled(model.state == .starting)
@@ -134,10 +134,10 @@ struct MenuView: View {
     }
 
     private var syncLine: String {
-        guard account.signedIn else { return "Not signed in" }
+        guard account.signedIn else { return String(localized: "Not signed in") }
         if let status = sync.status { return status }
-        if let last = sync.lastSync { return "Synced \(last.formatted(date: .omitted, time: .shortened))" }
-        return "Syncing…"
+        if let last = sync.lastSync { return String(localized: "Synced \(last.formatted(date: .omitted, time: .shortened))") }
+        return String(localized: "Syncing…")
     }
 
     static let version: String = {
@@ -155,7 +155,7 @@ struct MenuView: View {
                 Picker("", selection: Binding(get: { model.talkingWith ?? "" }, set: { model.talkingWith = $0.isEmpty ? nil : $0 })) {
                     Text("Not set").tag("")
                     ForEach(store.people) { person in
-                        Text("\(person.name) · \(person.accent)").tag(person.name)
+                        Text(verbatim: "\(person.name) · \(Person.label(person.accent))").tag(person.name)
                     }
                 }
                 .labelsHidden()
@@ -170,7 +170,7 @@ struct MenuView: View {
                 HStack {
                     TextField("Name (e.g. Sarah, Marketing team)", text: $newName)
                     Picker("", selection: $newAccent) {
-                        ForEach(Person.accents, id: \.self) { Text($0).tag($0) }
+                        ForEach(Person.accents, id: \.self) { Text(Person.label($0)).tag($0) }
                     }
                     .labelsHidden()
                     .frame(width: 110)
@@ -193,7 +193,7 @@ struct MenuView: View {
     @ViewBuilder private var accentSuggestions: some View {
         ForEach(AccentGuess.pending.sorted { $0.key < $1.key }, id: \.key) { pair in
             HStack {
-                Text("\(pair.key) sounds \(pair.value)").font(.caption).lineLimit(2)
+                Text("\(pair.key) sounds \(Person.label(pair.value))").font(.caption).lineLimit(2)
                 Spacer()
                 Button("Yes") { AccentGuess.accept(pair.key); store.objectWillChange.send() }.controlSize(.small)
                 Button("No") { AccentGuess.reject(pair.key); store.objectWillChange.send() }.controlSize(.small)
@@ -203,14 +203,14 @@ struct MenuView: View {
 
     /// The song playing, and "What's this song?" for music from a speaker (§ 17.1).
     @ViewBuilder private var songRow: some View {
-        if UserDefaults.standard.bool(forKey: Key.songs) {
+        if NowPlaying.following {
             HStack {
-                Label(songLine ?? NowPlaying.current()?.label ?? "No song playing", systemImage: "music.note")
+                Label(songLine ?? NowPlaying.current()?.label ?? String(localized: "No song playing"), systemImage: "music.note")
                     .font(.caption).lineLimit(1)
                 Spacer()
                 Button("What's this song?") {
-                    songLine = "Listening…"
-                    Task { songLine = await NowPlaying.identify()?.label ?? "Not recognised" }
+                    songLine = String(localized: "Listening…")
+                    Task { songLine = await NowPlaying.identify()?.label ?? String(localized: "Not recognised") }
                 }
                 .controlSize(.small)
             }
@@ -220,7 +220,8 @@ struct MenuView: View {
     /// Today's taps against time listened: the number that should go down.
     private var stats: some View {
         let minutes = Int(store.listeningToday / 60)
-        let perHour = store.listeningToday > 600 ? String(format: " · %.1f per hour", Double(store.tapsToday) / (store.listeningToday / 3600)) : ""
+        let rate = String(format: "%.1f", Double(store.tapsToday) / max(store.listeningToday / 3600, 0.01))
+        let perHour = store.listeningToday > 600 ? String(localized: " · \(rate) per hour") : ""
         return Text("Today: \(store.tapsToday) moments in \(minutes) min of listening\(perHour)")
             .font(.caption).foregroundStyle(.secondary)
     }

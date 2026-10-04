@@ -41,6 +41,7 @@ final class AppModel: ObservableObject {
     private var catchUpKey: HotKey?
     private var nowKey: HotKey?
     private var powerTimer: Timer?
+    private var pauseTimer: Timer?
     /// Below 20% and not charging: no live transcription, marks are kept as sound (Power).
     @Published private(set) var lowBattery = false
     @Published private(set) var waiting = PendingMark.all.count
@@ -98,6 +99,10 @@ final class AppModel: ObservableObject {
         vocabularyTimer = Timer.scheduledTimer(withTimeInterval: 120, repeats: true) { _ in
             Task { @MainActor in AppModel.shared.refreshVocabulary() }
         }
+        // Pause = tap (owner, 03/10): a song or a video you pause mid-line.
+        pauseTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
+            Task { @MainActor in AppModel.shared.watchPauses() }
+        }
         checkPower()
         powerTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { _ in
             Task { @MainActor in
@@ -133,7 +138,7 @@ final class AppModel: ObservableObject {
             state = .listening
             applyTriggers()
         } catch {
-            state = .needsPermission("Afterhear needs the \"Screen & System Audio Recording\" permission. Once it's on, reopen Afterhear.")
+            state = .needsPermission(String(localized: "Afterhear needs the \"Screen & System Audio Recording\" permission. Once it's on, reopen Afterhear."))
         }
     }
 
@@ -215,11 +220,17 @@ final class AppModel: ObservableObject {
     /// With the whole two minutes it took ~4.5 s and lost the race against a 4 s wait (02/10).
     static let quickCloudSeconds: Double = 45
 
+    /// The sentence the last "now" showed, so a second tap right after moves on to another one.
+    private var lastShown: (text: String, date: Date)?
+
     /// The gesture: explain what I just missed.
     /// A mark (⌥⌥, ⌃⌥A, "sorry?") never stops anything: a small "Marked" and the rest waits
     /// for tonight. "Now" (right ⌥⌥, ⌃⌥D) pauses the video and explains, or shows one line in a call.
-    func captureMoment(trigger: String = "tap", now: Bool = false) async {
-        if videoPaused {
+    /// `pausedAt`: you paused the video yourself and asked for the explanation (§ pause = tap): the
+    /// moment is when you paused, nothing gets paused again, and Continue plays it.
+    func captureMoment(trigger: String = "tap", now: Bool = false, pausedAt: Date? = nil) async {
+        if pausedAt != nil { Self.offered = false } // the offer was taken: nothing to hide later
+        if videoPaused, pausedAt == nil {
             resumeVideo()
             return
         }
@@ -238,19 +249,25 @@ final class AppModel: ObservableObject {
         if mode != .silent, !Parakeet.isDownloaded(settings.heard) {
             Task { await Parakeet.shared.prepare(settings.heard) }
             if case .downloading(let percent) = Parakeet.status {
-                notReady = "Marked. The private model is downloading (\(percent)%): explained as soon as it's ready."
+                notReady = String(localized: "Marked. The private model is downloading (\(percent)%): explained as soon as it's ready.")
             } else {
-                notReady = "Marked. The private model isn't downloaded yet: Settings → Private transcription."
+                notReady = String(localized: "Marked. The private model isn't downloaded yet: Settings → Private transcription.")
             }
             mode = .silent
         }
         // The sentence you tapped on may still be ending: keep listening a moment after the tap, so
         // the clip (and Replay) has it whole. A mark lets the video run 2 s more; "now" pauses after 1 s.
-        let after: Double = automatic ? 0 : (mode == .silent ? 2 : 1)
+        var after: Double = automatic ? 0 : (mode == .silent ? 2 : 1)
         var paused = false
         // A song playing (Spotify, Music, or recognised by Shazam): the moment is from a song (§ 17).
         let song = context == .call ? nil : NowPlaying.current()
         let source = song.map { "song: \($0.title) by \($0.artist)" } ?? (context == .video ? ContextDetector.show().map { "video: \($0)" } ?? "" : "")
+        // A song with timed lyrics: the line comes from the lyrics at the song's position, not from the
+        // singer's voice (owner, 03/10). No timed lyrics: the usual way, from the sound.
+        if song != nil, !automatic, state == .listening,
+           await songMoment(trigger: trigger, mode: mode, started: started, settings: settings) {
+            return
+        }
         let known = Array(store.known) + Memory.shared.knownWell + Memory.shared.dictionary
         var overlap = false
         do {
@@ -267,22 +284,55 @@ final class AppModel: ObservableObject {
             switch mode {
             case .silent:
                 if let notReady { panel.show(PanelView(phase: .saved(notReady)), autoHide: 6, width: 400) }
-                else if hold { break } else if !automatic { panel.show(PanelView(phase: .saved(trigger == "sorry" ? "Marked: you said \"sorry?\"" : "Marked")), autoHide: 1.5, width: 220) }
+                else if hold { break } else if !automatic { panel.show(PanelView(phase: .saved(trigger == "sorry" ? String(localized: "Marked: you said \"sorry?\"") : String(localized: "Marked"))), autoHide: 1.5, width: 220) }
             case .glance, .full, .pause: progress(step)
             }
-            if after > 0 { try? await Task.sleep(nanoseconds: UInt64(after * 1_000_000_000)) }
+            if let pausedAt {
+                // Already paused by you: the sentence is the one before your pause.
+                after = Date().timeIntervalSince(pausedAt)
+            } else if mode != .silent {
+                // "Now" lets the sentence finish (owner, 03/10): you often tap while they're still
+                // talking, and half a sentence explained makes no sense. It waits for about 0.7 s of
+                // quiet, at most 4 s in a video (then it pauses, at the end of the line) and 6 s
+                // elsewhere, and shows the words as they come so nothing looks stuck.
+                let longest: Double = context == .video ? 4 : 6
+                let begun = Date()
+                var quietSince: Date? = nil
+                while true {
+                    try? await Task.sleep(nanoseconds: 100_000_000)
+                    let elapsed = Date().timeIntervalSince(begun)
+                    let (recent, _) = audio.ring.last(0.2)
+                    if Clip.loudness(recent) < 0.01 { quietSince = quietSince ?? Date() } else { quietSince = nil }
+                    if elapsed >= 0.4, let quiet = quietSince, Date().timeIntervalSince(quiet) >= 0.7 { break }
+                    if elapsed >= longest { break }
+                    let soFar = live.text(last: 8)
+                    if !soFar.isEmpty, soFar != step.heardSoFar {
+                        step.heardSoFar = soFar
+                        progress(step)
+                    }
+                }
+                after = Date().timeIntervalSince(begun)
+            } else if after > 0 {
+                try? await Task.sleep(nanoseconds: UInt64(after * 1_000_000_000))
+            }
             // In a video, then stop it: nobody is waiting for you, so take the time to understand.
             // With the AirPods squeeze on, the play/pause key comes to Afterhear: the video isn't paused.
-            paused = mode == .pause && !RemoteTap.shared.isOn && state == .listening && MediaKey.playPause()
+            paused = pausedAt != nil || (mode == .pause && !RemoteTap.shared.isOn && state == .listening && MediaKey.playPause())
             if mode == .pause {
                 step.paused = paused
-                step.pauseFailed = !paused && !RemoteTap.shared.isOn
+                step.pauseFailed = !paused && !RemoteTap.shared.isOn && pausedAt == nil
                 progress(step)
             }
             // In a call the tap can come a minute or two after the missed words; in a video or
             // anywhere else it comes within two minutes (§ 19.1).
-            let window = context == .call ? LiveTranscriber.memorySeconds : Self.tapWindow
-            let (samples, rate) = audio.ring.last(window + after)
+            var window = context == .call ? LiveTranscriber.memorySeconds : Self.tapWindow
+            var (samples, rate) = audio.ring.last(window + after)
+            // Quiet for two minutes, but somebody spoke before: go back to them, never "nothing"
+            // when there was something to miss (owner, 03/10).
+            if Clip.loudness(samples) <= 0.002, window < LiveTranscriber.memorySeconds {
+                window = LiveTranscriber.memorySeconds
+                (samples, rate) = audio.ring.last(window + after)
+            }
             guard Clip.loudness(samples) > 0.002 else { throw AfterhearError.silence }
             let clipLength = rate > 0 ? Double(samples.count) / rate : 0
             let clipStart = Date().addingTimeInterval(-clipLength)
@@ -354,7 +404,7 @@ final class AppModel: ObservableObject {
             }
             if words == nil {
                 // The model couldn't load: kept, explained once it can (never another recogniser).
-                keepForLater("Marked. The private model couldn't start: explained as soon as it's ready.")
+                keepForLater(String(localized: "Marked. The private model couldn't start: explained as soon as it's ready."))
                 return
             }
             let conversation = Conversation.turns(others: words ?? [], mine: sorry?.live.timedWords(since: clipStart) ?? [], clipStart: clipStart)
@@ -370,7 +420,14 @@ final class AppModel: ObservableObject {
             var turns: [Turn]? = nil
             var chosen: Int? = nil
             var alternative: Int? = nil
+            // Two taps close together are two different sentences: the second never brings back the
+            // one the first just showed (owner, 03/10).
+            if let last = lastShown, Date().timeIntervalSince(last.date) < 30, ranked.count > 1,
+               conversation[ranked[0].index].text == last.text {
+                ranked.removeFirst()
+            }
             if let best = ranked.first {
+                lastShown = (conversation[best.index].text, Date())
                 turns = conversation
                 chosen = best.index
                 alternative = ranked.dropFirst().first?.index
@@ -422,6 +479,7 @@ final class AppModel: ObservableObject {
                     explanation = Explanation(transcript: nil, translation: quickTranslation ?? "", intent: nil, pieces: [],
                                               provider: nil, model: nil, ms: nil)
                     step.savedOffline = true
+                    step.savedReason = Self.whySaved(nil)
                     progress(step)
                 }
                 offline = true
@@ -439,6 +497,7 @@ final class AppModel: ObservableObject {
                         explanation = Explanation(transcript: nil, translation: quickTranslation ?? "", intent: nil, pieces: [],
                                                   provider: nil, model: nil, ms: nil)
                         step.savedOffline = true
+                        step.savedReason = Self.whySaved(error)
                         progress(step)
                     }
                     offline = true
@@ -459,6 +518,7 @@ final class AppModel: ObservableObject {
                 transcribedBy: transcribedBy
             )
             if offline { moment.offline = true }
+            if mode != .silent, pausedAt == nil { moment.waitMs = Int(after * 1000) }
             moment.quickTranslation = quickTranslation
             moment.meant = explanation.meant
             if !tone.isEmpty { moment.tone = tone }
@@ -527,6 +587,152 @@ final class AppModel: ObservableObject {
         } catch {
             if paused { MediaKey.playPause() }
             if !automatic { panel.show(PanelView(phase: .failed(error.localizedDescription)), autoHide: 5, width: 300) }
+        }
+    }
+
+    /// The tap during a song: the line being sung a moment before it, from the synced lyrics, with its
+    /// translation and explanation (owner, 03/10). False when the song has no timed lyrics.
+    /// "Now" pauses the song (Continue, or the next tap, plays it again) and always shows the whole card,
+    /// never the one-line glance (owner, 03/10). `pausedByYou`: you paused it yourself (the AirPods,
+    /// the space bar), that pause was the tap.
+    private func songMoment(trigger: String, mode: HelpMode, started: Date, settings: AppSettings,
+                            pausedByYou: Bool = false) async -> Bool {
+        guard let playing = NowPlaying.playing() else { return false }
+        // The song simply ended: that's not a pause.
+        if pausedByYou, let duration = playing.duration, playing.position > duration - 2 { return false }
+        guard let lines = await Lyrics.synced(playing.song, duration: playing.duration), !lines.isEmpty else { return false }
+        // You react a moment after the line: the one sung about 1.5 s before the tap.
+        let target = max(0, playing.position - 1.5)
+        let index = lines.lastIndex { $0.start <= target } ?? 0
+        let turns = lines.indices.map { i in
+            Turn(who: "loro", start: lines[i].start,
+                 end: i + 1 < lines.count ? lines[i + 1].start : lines[i].start + 4, text: lines[i].text)
+        }
+        let transcript = lines[index].text
+        let source = "song: \(playing.song.title) by \(playing.song.artist)"
+        // The music stops while you read, as a video does.
+        var paused = pausedByYou
+        if mode != .silent, !pausedByYou, playing.isPlaying {
+            NowPlaying.pause(playing.app)
+            paused = true
+        }
+        if paused {
+            songPaused = playing.app
+            videoPaused = true
+        }
+        var step = PanelView.Progress(onDevice: true)
+        step.song = true
+        step.paused = paused
+        func progress() { panel.show(PanelView(phase: .progress(step)), autoHide: nil, width: 380) }
+        if mode == .silent {
+            panel.show(PanelView(phase: .saved(String(localized: "Marked"))), autoHide: 1.5, width: 220)
+        } else {
+            if index > 0 { step.before = lines[index - 1].text }
+            step.sentence = transcript
+            progress()
+        }
+        let heardLanguage = settings.heard, nativeLanguage = settings.native
+        let quickTranslation = await withDeadline(2, { await Translator.translate(transcript, from: heardLanguage, to: nativeLanguage) })
+        if mode != .silent, let quickTranslation {
+            step.translation = quickTranslation
+            progress()
+        }
+        let sent = Redactor.redact(transcript)
+        let known = Array(store.known) + Memory.shared.knownWell + Memory.shared.dictionary
+        let serverStart = Date()
+        var explanation: Explanation? = nil
+        var offline = false
+        var problem: Error? = nil
+        if Reachability.shared.isOnline {
+            do {
+                explanation = try await ExplainClient.explain(sent, settings: settings, known: known, struggling: store.struggling,
+                                                              watch: Memory.shared.watch, profile: store.listeningProfile, source: source,
+                                                              overlap: false, tone: "",
+                                                              before: lines[max(0, index - 2)..<index].map(\.text),
+                                                              after: lines[(index + 1)..<min(lines.count, index + 3)].map(\.text))
+            } catch {
+                problem = error
+            }
+        }
+        if explanation == nil {
+            explanation = await OfflineExplainer.explain(transcript, settings: settings, source: source)
+            offline = true
+        }
+        let result = explanation ?? Explanation(transcript: nil, translation: quickTranslation ?? "", intent: nil, pieces: [],
+                                                provider: nil, model: nil, ms: nil)
+        var moment = Moment(date: started, transcript: transcript, sent: sent, translation: result.translation,
+                            pieces: result.pieces, clipFile: nil, provider: result.model ?? settings.provider.rawValue,
+                            latencyMs: Int(Date().timeIntervalSince(started) * 1000), transcribeMs: nil,
+                            serverMs: Int(Date().timeIntervalSince(serverStart) * 1000), transcribedBy: "lyrics")
+        if offline { moment.offline = true }
+        moment.quickTranslation = quickTranslation
+        moment.meant = result.meant
+        if let intent = result.intent?.trimmingCharacters(in: .whitespaces), !intent.isEmpty { moment.intent = intent }
+        moment.trigger = trigger
+        moment.turns = turns
+        moment.chosen = index
+        moment.alternative = index > 0 ? index - 1 : nil
+        moment.tapAt = playing.position
+        moment.context = "song"
+        moment.show = String(playing.song.label.prefix(200))
+        store.add(moment)
+        Memory.shared.tapped()
+        Memory.shared.record("tap", pieces: moment.pieces, moment: moment)
+        if mode == .silent { return true }
+        // Nothing to explain it with: say why, the real reason (owner, 03/10), and the song goes on.
+        if explanation == nil {
+            step.savedOffline = true
+            step.savedReason = Self.whySaved(problem)
+            if paused { resumeVideo() }
+            panel.show(PanelView(phase: .progress(step)), autoHide: 6, width: 380)
+            return true
+        }
+        panel.show(PanelView(phase: paused ? .video(moment, paused: true) : .result(moment)), autoHide: paused ? nil : 30)
+        return true
+    }
+
+    /// You paused a video right after people spoke: "Didn't get that?", one click for the line.
+    /// Small and gone in a few seconds, since you also pause for the door or the phone (owner, 03/10).
+    func offerExplain(pausedAt: Date) {
+        panel.show(PanelView(phase: .offer(pausedAt)), autoHide: 8, width: 300)
+    }
+
+    /// The app whose song Afterhear paused (or you paused, as a tap): Continue plays it again.
+    private var songPaused: String?
+    private var lineStop: Task<Void, Never>?
+
+    /// "Play this line": the song again from just before the line, then it stops at the line's end
+    /// while the card is open (owner, 03/10: Replay and Slow meant nothing without the audio).
+    func playSongLine(_ moment: Moment) {
+        guard let turns = moment.turns, let chosen = moment.chosen, turns.indices.contains(chosen),
+              let playing = NowPlaying.playing(), moment.show == String(playing.song.label.prefix(200)) else { return }
+        let line = turns[chosen]
+        NowPlaying.play(playing.app, from: line.start - 0.4)
+        songPaused = playing.app
+        videoPaused = true
+        lineStop?.cancel()
+        lineStop = Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: UInt64((line.end - line.start + 0.8) * 1_000_000_000))
+            guard !Task.isCancelled, let self, self.videoPaused, self.songPaused == playing.app else { return }
+            NowPlaying.pause(playing.app)
+        }
+    }
+
+    /// Why a moment was saved for later instead of explained: the real reason, never "offline" when
+    /// the Mac is online (owner, 03/10).
+    static func whySaved(_ error: Error?) -> String {
+        if !Reachability.shared.isOnline { return String(localized: "You're offline: saved. The explanation will be waiting for you tonight.") }
+        switch error as? AfterhearError {
+        case .signIn?, .missingCode?:
+            return String(localized: "Saved. To get explanations, sign in: Settings → Account.")
+        case .server(let code)?:
+            switch code {
+            case "bad_code", "bad_token", "sign_in": return String(localized: "Saved. Sign in again to get explanations: Settings → Account.")
+            case "not_tester": return String(localized: "Saved. Your account isn't on the testers' list yet: explained once it is.")
+            default: return String(localized: "Saved. Our server isn't answering right now: explained as soon as it's back.")
+            }
+        default:
+            return String(localized: "Saved. Our server isn't answering right now: explained as soon as it's back.")
         }
     }
 
@@ -673,7 +879,7 @@ final class AppModel: ObservableObject {
             }
             return
         }
-        panel.show(PanelView(phase: .saved(left.isEmpty ? "Done: \(done) transcribed, in tonight's review" : "\(done) transcribed, \(left.count) still waiting")), autoHide: 4, width: 340)
+        panel.show(PanelView(phase: .saved(left.isEmpty ? String(localized: "Done: \(done) transcribed, in tonight's review") : String(localized: "\(done) transcribed, \(left.count) still waiting"))), autoHide: 4, width: 340)
     }
 
     private var draining = false
@@ -683,7 +889,13 @@ final class AppModel: ObservableObject {
 
     func resumeVideo() {
         panel.hide()
-        if videoPaused { MediaKey.playPause() }
+        lineStop?.cancel()
+        if let app = songPaused {
+            NowPlaying.resume(app)
+        } else if videoPaused {
+            MediaKey.playPause()
+        }
+        songPaused = nil
         videoPaused = false
     }
 
@@ -774,7 +986,7 @@ final class AppModel: ObservableObject {
         guard var moment = store.moments.first(where: { $0.id == momentID }) else { return }
         if !moment.pieces.contains(where: { Memory.key($0.text) == item.key }) {
             let piece = Piece(text: item.text, heardAs: nil, gloss: item.gloss, meaning: item.meaning ?? "",
-                              note: "You knew this before: it slipped away again, so it's back in your lessons.",
+                              note: String(localized: "You knew this before: it slipped away again, so it's back in your lessons."),
                               cause: item.cause ?? "unknown_word", level: item.level)
             moment.pieces.insert(piece, at: 0)
             store.update(moment)
@@ -792,7 +1004,7 @@ final class AppModel: ObservableObject {
         var seen = Set<String>()
         let words = before.filter { seen.insert($0.lowercased()).inserted }.prefix(4)
         guard words.count >= 2 else { return }
-        panel.show(PanelView(phase: .saved("Last time in \(show): " + words.joined(separator: " · "))), autoHide: 7, width: 380)
+        panel.show(PanelView(phase: .saved(String(localized: "Last time in \(show): ") + words.joined(separator: " · "))), autoHide: 7, width: 380)
     }
 
     func refreshVocabulary() {
@@ -898,7 +1110,7 @@ final class AppModel: ObservableObject {
         let view = ChooseView(momentID: momentID).environmentObject(store)
         let window = chooser ?? NSWindow(contentRect: NSRect(x: 0, y: 0, width: 520, height: 640),
                                          styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
-        window.title = "What did you miss?"
+        window.title = String(localized: "What did you miss?")
         window.contentViewController = NSHostingController(rootView: view)
         window.isReleasedWhenClosed = false
         window.center()
@@ -966,6 +1178,80 @@ final class AppModel: ObservableObject {
                 if !Task.isCancelled { player?.stop() }
             }
         }
+    }
+}
+
+/// Pause = tap (owner, 03/10). The AirPods' press, the space bar or the play key go to the app that
+/// plays, never to Afterhear: so the pause itself is the signal. A song you pause mid-line: its line,
+/// explained at once. A video you pause right after people spoke: a small "Didn't get that?",
+/// because you also pause for the door or the phone.
+extension AppModel {
+    private static var songWasPlaying: Bool?
+    private static var lastLoud: Date?
+    private static var silentSince: Date?
+    private static var offered = false
+
+    var pauseIsTap: Bool {
+        UserDefaults.standard.object(forKey: Key.pauseTap) == nil || UserDefaults.standard.bool(forKey: Key.pauseTap)
+    }
+
+    func watchPauses() {
+        guard state == .listening, pauseIsTap, !busy, !videoPaused else {
+            Self.songWasPlaying = nil
+            Self.silentSince = nil
+            return
+        }
+        // Spotify or Music: paused by you, not by us, with lyrics to read the line from.
+        if let app = NowPlaying.runningPlayer(), let playing = NowPlaying.isPlaying(app) {
+            let wasPlaying = Self.songWasPlaying
+            Self.songWasPlaying = playing
+            if wasPlaying == true, !playing, !NowPlaying.recentlyChangedByUs {
+                Task { await self.songPausedByYou() }
+                return
+            }
+            if playing { return }
+        } else {
+            Self.songWasPlaying = nil
+        }
+        watchVideoPause()
+    }
+
+    private func songPausedByYou() async {
+        guard !busy else { return }
+        busy = true
+        defer { busy = false }
+        _ = await songMoment(trigger: "pause", mode: .full, started: Date(), settings: AppSettings.current, pausedByYou: true)
+    }
+
+    /// A video stops: the sound goes from voices to nothing at all (a paused player is perfectly
+    /// silent, a quiet scene never is), and nobody pressed play/pause for us.
+    private func watchVideoPause() {
+        guard ContextDetector.current() == .video else {
+            Self.silentSince = nil
+            Self.lastLoud = nil
+            return
+        }
+        let now = Date()
+        let (recent, _) = audio.ring.last(0.3)
+        let peak = recent.reduce(Float(0)) { max($0, abs($1)) }
+        let stopped = audio.ring.idleSeconds > 0.4 || (!recent.isEmpty && peak < 0.0003)
+        if !stopped, peak > 0.02 {
+            Self.lastLoud = now
+            Self.silentSince = nil
+            if Self.offered { Self.offered = false; panel.hide() } // it plays again: the offer goes
+            return
+        }
+        guard stopped else { Self.silentSince = nil; return }
+        let since = Self.silentSince ?? now
+        Self.silentSince = since
+        guard !Self.offered, now.timeIntervalSince(since) >= 0.5,
+              let loud = Self.lastLoud, since.timeIntervalSince(loud) < 0.8,
+              !MediaKey.recentlyPressed else { return }
+        // Voices just before the stop: the last seconds were someone talking, not a song or silence.
+        guard Clip.loudness(audio.ring.last(4).samples) > 0.01 else { return }
+        Self.offered = true
+        Self.lastLoud = nil
+        offerExplain(pausedAt: since)
     }
 }
 

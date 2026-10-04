@@ -23,10 +23,10 @@ actor Parakeet {
 
         var label: String {
             switch self {
-            case .missing: "Not downloaded yet"
-            case .downloading(let percent): "Downloading \(percent)% (about 0.5 GB, once)…"
-            case .ready: "Ready · stays on your device"
-            case .failed(let why): "Download failed: \(why)"
+            case .missing: String(localized: "Not downloaded yet")
+            case .downloading(let percent): String(localized: "Downloading \(percent)% (about 0.5 GB, once)…")
+            case .ready: String(localized: "Ready · stays on your device")
+            case .failed(let why): String(localized: "Download failed: \(why)")
             }
         }
     }

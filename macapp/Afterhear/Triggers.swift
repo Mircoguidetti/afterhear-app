@@ -8,8 +8,8 @@ import ApplicationServices
 /// (preferred, via an event tap) or "Accessibility" (via NSEvent monitors).
 final class DoubleTapOption {
     /// Left ⌥⌥ marks the moment (nothing stops), right ⌥⌥ asks for help now.
-    static let label = "left ⌥⌥"
-    static let nowLabel = "right ⌥⌥"
+    static let label = String(localized: "left ⌥⌥")
+    static let nowLabel = String(localized: "right ⌥⌥")
     private static let rightOption: UInt16 = 61
     private static let leftOption: UInt16 = 58
     /// Diagnostics for the menu: the last modifier key seen, to know events arrive.
@@ -180,6 +180,8 @@ final class SorryDetector {
         .esES: #"\b(perdón\?|cómo\?|puedes repetir|puede repetir)"#,
         .deDE: #"\b(wie bitte|entschuldigung\?|kannst du das wiederholen|können sie das wiederholen)"#,
         .ruRU: #"(извините\?|что\?|повторите|можешь повторить)"#,
+        .ptPT: #"\b(desculpe\?|desculpa\?|como\?|o quê\?|pode repetir|podes repetir)"#,
+        .ptBR: #"\b(desculpa\?|desculpe\?|como\?|o quê\?|pode repetir|você pode repetir)"#,
     ]
 
     var isRunning: Bool { engine.isRunning }

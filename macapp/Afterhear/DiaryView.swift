@@ -51,7 +51,7 @@ struct DiaryView: View {
                 }
             }
             Spacer()
-            Button(copied ? "Copied" : "Copy report") {
+            Button(copied ? String(localized: "Copied") : String(localized: "Copy report")) {
                 NSPasteboard.general.clearContents()
                 NSPasteboard.general.setString(store.report(), forType: .string)
                 copied = true

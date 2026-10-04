@@ -17,6 +17,8 @@ struct PanelView: View {
         /// "Now", step by step: the sentence as soon as it's heard, and the place where the
         /// explanation is coming, so nobody takes the sentence for the whole answer (owner, 02/10).
         case progress(Progress)
+        /// You paused a video right after people spoke: "Didn't get that?" (pause = tap, owner 03/10).
+        case offer(Date)
     }
 
     struct Progress {
@@ -31,6 +33,12 @@ struct PanelView: View {
         var translation: String? = nil
         /// Offline and nothing to explain it with: saved, explained tonight.
         var savedOffline = false
+        /// While the sentence is still being said: the words so far, in grey.
+        var heardSoFar: String? = nil
+        /// Why it was saved instead of explained, said as it is (offline, signed out, server down).
+        var savedReason: String? = nil
+        /// A line of a song: "Song paused", not "Video paused".
+        var song = false
     }
 
     let phase: Phase
@@ -39,7 +47,7 @@ struct PanelView: View {
         switch phase {
         case .saved(let text):
             HStack(spacing: 8) {
-                if text.hasPrefix("Marked") {
+                if text.hasPrefix(String(localized: "Marked")) {
                     // A tap: the logo's thread, tied.
                     KnotMark(color: Brand.accent, lineWidth: 1.6).frame(width: 20)
                 } else {
@@ -54,6 +62,26 @@ struct PanelView: View {
             .foregroundStyle(Brand.paper)
         case .glance(let moment):
             glance(moment)
+        case .offer(let pausedAt):
+            HStack(spacing: 8) {
+                KnotMark(color: Brand.accent, lineWidth: 1.6).frame(width: 20)
+                Text("Didn't get that?").font(.system(size: 13, weight: .medium))
+                Spacer(minLength: 6)
+                Button {
+                    Task { @MainActor in await AppModel.shared.captureMoment(trigger: "pause", now: true, pausedAt: pausedAt) }
+                } label: {
+                    Text("Explain").font(.system(size: 12, weight: .semibold))
+                        .padding(.horizontal, 12).padding(.vertical, 5)
+                        .background(Capsule().fill(Brand.accent))
+                        .foregroundStyle(Brand.onyx)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(RoundedRectangle(cornerRadius: 12).fill(Brand.onyx))
+            .foregroundStyle(Brand.paper)
         case .waiting(let count):
             HStack(spacing: 8) {
                 KnotMark(color: Brand.accent, lineWidth: 1.6).frame(width: 20)
@@ -62,7 +90,7 @@ struct PanelView: View {
                     Text("Sound kept. Transcribed when you charge.").font(.system(size: 11)).foregroundStyle(Brand.paper.opacity(0.6))
                 }
                 Spacer(minLength: 6)
-                Button(count > 1 ? "Transcribe now (\(count))" : "Transcribe now") {
+                Button(count > 1 ? String(localized: "Transcribe now (\(count))") : String(localized: "Transcribe now")) {
                     Task { @MainActor in await AppModel.shared.transcribeWaiting() }
                 }
                 .controlSize(.small)
@@ -148,13 +176,13 @@ struct PanelView: View {
         guard let mac = moment.transcribeMs, let server = moment.serverMs else { return seconds(moment.latencyMs) }
         if moment.transcribedBy == "gemini-audio" { return "\(seconds(moment.latencyMs)) · Gemini audio" }
         let by = moment.transcribedBy ?? ""
-        let where_ = by.hasPrefix("cloud:") ? String(by.dropFirst(6).split(separator: ":").first ?? "cloud") : by.hasPrefix("parakeet") ? "on device" : by == "apple-new" ? "Mac (new)" : by == "mac-live" || by == "apple-old" ? "Mac live" : "Mac"
+        let where_ = by.hasPrefix("cloud:") ? String(by.dropFirst(6).split(separator: ":").first ?? "cloud") : by.hasPrefix("parakeet") ? String(localized: "on device") : by == "apple-new" ? "Mac (new)" : by == "mac-live" || by == "apple-old" ? "Mac live" : "Mac"
         return "\(seconds(moment.latencyMs)) · \(where_) \(seconds(mac)) · AI \(seconds(server))"
     }
 
     @ViewBuilder private var content: some View {
         switch phase {
-        case .saved, .glance, .waiting:
+        case .saved, .glance, .waiting, .offer:
             EmptyView()
         case .working:
             HStack(spacing: 10) {
@@ -174,16 +202,20 @@ struct PanelView: View {
             explanation(moment)
             if paused {
                 HStack {
-                    Text("Video paused · \(DoubleTapOption.label) to continue").font(.system(size: 11)).foregroundStyle(Brand.paper.opacity(0.5))
+                    // Short, never cut (owner, 03/10): the shortcut lives in the Continue button's tooltip.
+                    Text(moment.context == "song" ? String(localized: "Song paused") : String(localized: "Video paused")).font(.system(size: 11)).foregroundStyle(Brand.paper.opacity(0.5))
+                        .lineLimit(1).fixedSize()
                     Spacer()
-                    Button { AppModel.shared.rewindVideo() } label: {
-                        Text("⟲ Back 10 s").font(.system(size: 12, weight: .semibold))
-                            .padding(.horizontal, 10).padding(.vertical, 6)
-                            .background(Capsule().stroke(Brand.accent.opacity(0.6)))
-                            .foregroundStyle(Brand.accent)
+                    if moment.context != "song" {
+                        Button { AppModel.shared.rewindVideo() } label: {
+                            Text("⟲ Back 10 s").font(.system(size: 12, weight: .semibold))
+                                .padding(.horizontal, 10).padding(.vertical, 6)
+                                .background(Capsule().stroke(Brand.accent.opacity(0.6)))
+                                .foregroundStyle(Brand.accent)
+                        }
+                        .buttonStyle(.plain)
+                        .help("Rewind the video and play: hear the real voice again")
                     }
-                    .buttonStyle(.plain)
-                    .help("Rewind the video and play: hear the real voice again")
                     Button { AppModel.shared.resumeVideo() } label: {
                         Text("Continue ▸").font(.system(size: 12, weight: .semibold))
                             .padding(.horizontal, 12).padding(.vertical, 6)
@@ -191,11 +223,12 @@ struct PanelView: View {
                             .foregroundStyle(Brand.onyx)
                     }
                     .buttonStyle(.plain)
+                    .help("Or \(DoubleTapOption.label)")
                 }
                 .controlSize(.small)
             } else {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Couldn't pause the video. uhside presses play/pause for you: it needs Accessibility (System Settings → Privacy & Security). Or turn off \"Pause the video\" in Settings.")
+                    Text("Couldn't pause the video. Afterhear presses play/pause for you: it needs Accessibility (System Settings → Privacy & Security). Or turn off \"Pause the video\" in Settings.")
                         .font(.system(size: 12)).foregroundStyle(Brand.paper.opacity(0.7))
                         .fixedSize(horizontal: false, vertical: true)
                     Button("Open Accessibility") { MediaKey.openSettings() }.controlSize(.small)
@@ -223,6 +256,14 @@ struct PanelView: View {
     /// the explanation below a line. Few buttons, no labels about who did what.
     @ViewBuilder private func explanation(_ moment: Moment) -> some View {
         Group {
+            // A tap long after the words: say when they were said (owner, 03/10).
+            if let turns = moment.turns, let chosen = moment.chosen, turns.indices.contains(chosen),
+               let tapAt = moment.tapAt, tapAt - turns[chosen].end >= 30 {
+                let ago = Int(tapAt - turns[chosen].end)
+                Text(ago >= 90 ? String(localized: "Said \(Int((Double(ago) / 60).rounded())) min ago") : String(localized: "Said \(ago) s ago"))
+                    .font(.system(size: 11))
+                    .foregroundStyle(Brand.paper.opacity(0.45))
+            }
             if let turns = moment.turns, let chosen = moment.chosen, chosen > 0, turns.indices.contains(chosen - 1),
                moment.alternative != chosen - 1 {
                 Text(turns[chosen - 1].text)
@@ -254,7 +295,7 @@ struct PanelView: View {
                         HStack(alignment: .firstTextBaseline) {
                             Text(piece.text).font(.system(size: 18, weight: .semibold)).foregroundStyle(Brand.accent)
                             Spacer(minLength: 8)
-                            Text(piece.guess == true ? "Maybe this one?" : piece.causeLabel)
+                            Text(piece.guess == true ? String(localized: "Maybe this one?") : piece.causeLabel)
                                 .font(.system(size: 11)).foregroundStyle(Brand.paper.opacity(0.5))
                         }
                         Text(piece.gloss.map { "\($0) · \(piece.meaning)" } ?? piece.meaning).font(.system(size: 14))
@@ -268,12 +309,12 @@ struct PanelView: View {
                     .fixedSize(horizontal: false, vertical: true)
                 }
                 if moment.pieces.isEmpty, moment.offline == true {
-                    Text("You're offline: saved. The explanation will be waiting for you tonight.")
+                    Text("Saved. The explanation will be waiting for you tonight.")
                         .font(.system(size: 12)).foregroundStyle(Brand.paper.opacity(0.6))
                 } else if moment.offline == true {
                     HStack(alignment: .firstTextBaseline, spacing: 6) {
                         Image(systemName: "airplane").font(.system(size: 11))
-                        Text("Quick explanation · offline. The full one arrives when you're back online.").font(.system(size: 12))
+                        Text("Quick explanation from this Mac. The full one comes as soon as our server answers.").font(.system(size: 12))
                     }
                     .foregroundStyle(Brand.paper.opacity(0.55))
                     .fixedSize(horizontal: false, vertical: true)
@@ -290,6 +331,21 @@ struct PanelView: View {
                 .buttonStyle(.plain)
                 .help("Explain this sentence instead")
             }
+            // Two hard sentences in a row: the one before has something you're learning too, so it's
+            // one tap away instead of hidden behind the arrow (owner, 03/10).
+            if let turns = moment.turns, let chosen = moment.chosen,
+               let before = AppModel.neighbor(turns, from: chosen, by: -1), before != moment.alternative,
+               Memory.shared.hardness(turns[before].text) >= 1 {
+                Button { Task { await AppModel.shared.jump(moment.id, to: before) } } label: {
+                    (Text("Also before: ").foregroundColor(Brand.paper.opacity(0.5)) + Text(turns[before].text).foregroundColor(Brand.paper.opacity(0.8)))
+                        .font(.system(size: 12))
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .buttonStyle(.plain)
+                .help("Explain the sentence before")
+            }
             HStack(spacing: 8) {
                 if let turns = moment.turns, let chosen = moment.chosen {
                     Button { Task { await AppModel.shared.step(moment.id, by: -1) } } label: { Image(systemName: "chevron.left") }
@@ -299,8 +355,14 @@ struct PanelView: View {
                         .disabled(AppModel.neighbor(turns, from: chosen, by: 1) == nil)
                         .help("The sentence after")
                 }
-                Button("Replay") { AppModel.shared.play(moment, slow: false) }
-                Button("Slow") { AppModel.shared.play(moment, slow: true) }
+                if moment.context == "song" && moment.clipFile == nil {
+                    // A song has no recording of ours: the song itself, from that line (owner, 03/10).
+                    Button("Play this line") { AppModel.shared.playSongLine(moment) }
+                        .help("The song again from this line, in Spotify or Music")
+                } else {
+                    Button("Replay") { AppModel.shared.play(moment, slow: false) }
+                    Button("Slow") { AppModel.shared.play(moment, slow: true) }
+                }
                 Spacer()
             }
             .controlSize(.small)
@@ -405,11 +467,11 @@ private struct ProgressSteps: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 14) {
-                stage(step.sentence == nil ? "Listening back…" : "Heard", done: step.sentence != nil, active: step.sentence == nil)
+                stage(step.sentence == nil ? String(localized: "Listening back…") : String(localized: "Heard"), done: step.sentence != nil, active: step.sentence == nil)
                 if step.savedOffline {
-                    stage("Saved for tonight", done: true, active: false)
+                    stage(String(localized: "Saved for tonight"), done: true, active: false)
                 } else if explains {
-                    stage("Explaining", done: false, active: step.sentence != nil)
+                    stage(String(localized: "Explaining"), done: false, active: step.sentence != nil)
                 }
                 Spacer(minLength: 0)
             }
@@ -433,6 +495,13 @@ private struct ProgressSteps: View {
                         .fixedSize(horizontal: false, vertical: true)
                         .transition(.opacity)
                 }
+            } else if let soFar = step.heardSoFar {
+                Text(soFar)
+                    .font(.system(size: 15))
+                    .foregroundStyle(Brand.paper.opacity(0.45))
+                    .lineLimit(2)
+                    .truncationMode(.head)
+                    .fixedSize(horizontal: false, vertical: true)
             } else {
                 ghost(width: 0.9)
             }
@@ -440,7 +509,7 @@ private struct ProgressSteps: View {
                 // Offline: the knot ties itself, "saved", and nobody waits for what can't come (owner, 02/10).
                 HStack(spacing: 10) {
                     KnotMark(color: Brand.accent, tied: tied, lineWidth: 1.6).frame(width: 22, height: 21)
-                    Text("You're offline: saved. The explanation will be waiting for you tonight.")
+                    Text(step.savedReason ?? String(localized: "You're offline: saved. The explanation will be waiting for you tonight."))
                         .font(.system(size: 13)).foregroundStyle(Brand.paper.opacity(0.75))
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -457,7 +526,7 @@ private struct ProgressSteps: View {
                     Label("Stays on your device", systemImage: "lock.fill")
                 }
                 if step.paused {
-                    Label("Video paused", systemImage: "pause.fill")
+                    Label(step.song ? String(localized: "Song paused") : String(localized: "Video paused"), systemImage: "pause.fill")
                 }
                 Spacer(minLength: 0)
             }

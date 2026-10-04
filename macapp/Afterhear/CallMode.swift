@@ -11,17 +11,17 @@ enum CallMode: String, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .mark: "Just mark"
-        case .suggestions: "Suggestions"
-        case .withMe: "With me"
+        case .mark: String(localized: "Just mark")
+        case .suggestions: String(localized: "Suggestions")
+        case .withMe: String(localized: "With me")
         }
     }
 
     var detail: String {
         switch self {
-        case .mark: "Nothing on screen. It's all in the report after."
-        case .suggestions: "Now and then a hard word."
-        case .withMe: "Every help: hard words, the question they asked you, how to start."
+        case .mark: String(localized: "Nothing on screen. It's all in the report after.")
+        case .suggestions: String(localized: "Now and then a hard word.")
+        case .withMe: String(localized: "Every help: hard words, the question they asked you, how to start.")
         }
     }
 
@@ -69,9 +69,9 @@ enum CallNotice: String, CaseIterable, Identifiable {
     var id: String { rawValue }
     var label: String {
         switch self {
-        case .all: "All calls"
-        case .hard: "Only the hard ones"
-        case .never: "Never"
+        case .all: String(localized: "All calls")
+        case .hard: String(localized: "Only the hard ones")
+        case .never: String(localized: "Never")
         }
     }
     static var current: CallNotice { CallNotice(rawValue: UserDefaults.standard.string(forKey: Key.callNotice) ?? "") ?? .all }
@@ -105,13 +105,13 @@ enum CallHistory {
     static func recap(_ r: SavedReport) -> String {
         var parts: [String] = []
         let taps = r.taps ?? AppModel.shared.store.moments.filter { $0.date >= r.start && $0.date <= r.end.addingTimeInterval(60) }.count
-        if taps > 0 { parts.append("\(taps) \(taps == 1 ? "thing" : "things") slipped past you") }
-        if let n = r.report?.hesitations.filter(\.language).count, n > 0 { parts.append("you hesitated \(n) \(n == 1 ? "time" : "times")") }
-        if let first = r.report?.requests.first { parts.append("they asked you to \(first.request.prefix(60))") }
+        if taps > 0 { parts.append(taps == 1 ? String(localized: "1 thing slipped past you") : String(localized: "\(taps) things slipped past you")) }
+        if let n = r.report?.hesitations.filter(\.language).count, n > 0 { parts.append(n == 1 ? String(localized: "you hesitated once") : String(localized: "you hesitated \(n) times")) }
+        if let first = r.report?.requests.first { parts.append(String(localized: "they asked you to \(String(first.request.prefix(60)))")) }
         let pieces = AppModel.shared.store.moments.filter { $0.date >= r.start && $0.date <= r.end.addingTimeInterval(60) }
             .flatMap(\.pieces).map(\.text).prefix(2)
         if !pieces.isEmpty { parts.append(pieces.joined(separator: ", ")) }
-        return parts.isEmpty ? "Last time went smoothly." : "Last time: " + parts.joined(separator: " · ") + "."
+        return parts.isEmpty ? String(localized: "Last time went smoothly.") : String(localized: "Last time: ") + parts.joined(separator: " · ") + "."
     }
 
     /// A call worth a notice when you chose "only the hard ones": it went badly last time,
@@ -128,12 +128,12 @@ enum CallHistory {
         guard let previous else { return [] }
         var out: [String] = []
         let before = previous.taps ?? AppModel.shared.store.moments.filter { $0.date >= previous.start && $0.date <= previous.end.addingTimeInterval(60) }.count
-        if before > taps { out.append("\(taps) \(taps == 1 ? "tap" : "taps") instead of \(before)") }
-        if now.score > previous.score { out.append("\(now.score)% followed, up from \(previous.score)%") }
+        if before > taps { out.append(taps == 1 ? String(localized: "1 tap instead of \(before)") : String(localized: "\(taps) taps instead of \(before)")) }
+        if now.score > previous.score { out.append(String(localized: "\(now.score)% followed, up from \(previous.score)%")) }
         let then = Set(AppModel.shared.store.moments.filter { $0.date >= previous.start && $0.date <= previous.end.addingTimeInterval(60) }
             .flatMap(\.pieces).map { Memory.key($0.text) })
         let gotIt = Memory.shared.smooth(from: now.start, to: now.end.addingTimeInterval(120)).filter { then.contains(Memory.key($0)) }
-        for text in gotIt.prefix(2) { out.append("“\(text)”: you got it by yourself") }
+        for text in gotIt.prefix(2) { out.append(String(localized: "“\(text)”: you got it by yourself")) }
         return out
     }
 }

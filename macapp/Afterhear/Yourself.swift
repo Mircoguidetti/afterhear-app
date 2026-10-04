@@ -19,7 +19,7 @@ enum Yourself {
         for saved in Reports.shared.all {
             guard let r = saved.report else { continue }
             for g in r.good_phrases ?? [] { add(g.phrase, g.situation) }
-            for c in r.corrections { add(c.better, "instead of “\(c.you_said)”") }
+            for c in r.corrections { add(c.better, String(localized: "instead of “\(c.you_said)”")) }
             for m in r.missing_phrases { add(m.phrase, m.situation) }
             for w in r.words_you_looked_for ?? [] { add(w.word, w.meaning) }
         }
@@ -59,7 +59,7 @@ struct YourselfCard: View {
                     ForEach(facts, id: \.self) { f in
                         HStack(alignment: .firstTextBaseline) {
                             Text(f.text).font(.system(size: 13, weight: .semibold))
-                            Text(f.decided ? "decided" : "you said").font(.caption).foregroundStyle(.secondary)
+                            Text(f.decided ? String(localized: "decided") : String(localized: "you said")).font(.caption).foregroundStyle(.secondary)
                         }
                     }
                 }

@@ -66,7 +66,7 @@ struct PrepCard: View {
                 HStack { ProgressView().controlSize(.small); Text("Preparing your card…").font(.caption).foregroundStyle(.secondary) }
             }
             let accent = call.people.compactMap { store.accent(of: $0) }.first
-            Button("Warm up your ear · 2 min\(accent.map { " of \($0) voices" } ?? "")") {
+            Button(accent.map { String(localized: "Warm up your ear · 2 min · \(Person.label($0))") } ?? String(localized: "Warm up your ear · 2 min")) {
                 NSWorkspace.shared.open(Watch.url(accent: accent, cause: nil))
             }
             .controlSize(.small)
@@ -96,6 +96,8 @@ struct PrepCard: View {
 final class Podcast: ObservableObject {
     static let shared = Podcast()
     @Published private(set) var status: String?
+    /// The episode couldn't be made: said once, the spinner stops, "Try again" (owner, 03/10).
+    @Published private(set) var failed = false
     @Published private(set) var script: Script?
     private var player: AVAudioPlayer?
 
@@ -116,7 +118,7 @@ final class Podcast: ObservableObject {
     }
 
     func open() {
-        AppWindows.show(id: "podcast", title: "Your week, in three minutes", width: 480, height: 560) { PodcastView() }
+        AppWindows.show(id: "podcast", title: String(localized: "Your week, in three minutes"), width: 480, height: 560) { PodcastView() }
         Task { await prepare() }
     }
 
@@ -131,20 +133,22 @@ final class Podcast: ObservableObject {
         let store = AppModel.shared.store
         let week = store.moments.filter { $0.date > Date().addingTimeInterval(-7 * 86_400) && $0.label != .badAudio && $0.label != .notAMiss }
         let pieces = Array(Dictionary(week.flatMap(\.pieces).map { (Memory.key($0.text), $0) }, uniquingKeysWith: { a, _ in a }).values.prefix(10))
-        guard !pieces.isEmpty else { status = "Tap a few moments this week, and your episode will be made from them."; return }
+        failed = false
+        guard !pieces.isEmpty else { status = String(localized: "Tap a few moments this week, and your episode will be made from them."); failed = true; return }
         // The accent that costs you the most taps.
         let accent = store.byPerson().compactMap { $0.accent }.first ?? "British"
         do {
-            status = "Writing your episode…"
+            status = String(localized: "Writing your episode…")
             let s: Script = try await CoachClient.post("api/podcast", ["mode": "script", "expressions": pieces.map { ["text": $0.text, "meaning": $0.meaning] }, "accent": accent])
             script = s
-            status = "Recording the voices…"
+            status = String(localized: "Recording the voices…")
             let wav = try await Self.audio(lines: s.lines, accent: accent)
             try wav.write(to: audio)
             try JSONEncoder().encode(s).write(to: text)
             status = nil
         } catch {
-            status = "Couldn't make the episode right now: \(error.localizedDescription)"
+            status = String(localized: "Couldn't make the episode right now: \(error.localizedDescription)")
+            failed = true
         }
     }
 
@@ -153,9 +157,10 @@ final class Podcast: ObservableObject {
         guard let base = URL(string: settings.server) else { throw AfterhearError.server("url") }
         var request = URLRequest(url: base.appendingPathComponent("api/podcast"))
         request.httpMethod = "POST"
-        request.timeoutInterval = 150
+        // Two voices for three minutes: the server can take up to five minutes.
+        request.timeoutInterval = 300
         request.setValue("application/json", forHTTPHeaderField: "content-type")
-        request.setValue(settings.code.trimmingCharacters(in: .whitespaces), forHTTPHeaderField: "x-afterhear-code")
+        try await ServerAccess.authorize(&request, settings: settings)
         request.httpBody = try JSONSerialization.data(withJSONObject: ["mode": "audio", "accent": accent,
                                                                        "lines": lines.map { ["speaker": $0.speaker, "text": $0.text] }])
         let (data, response) = try await URLSession.shared.data(for: request)
@@ -182,7 +187,7 @@ struct PodcastView: View {
             if let script = podcast.script {
                 Text(script.title).font(.title2.weight(.semibold))
                 if podcast.status == nil {
-                    Button(podcast.isPlaying ? "Pause" : "▶ Play") { podcast.play() }
+                    Button(podcast.isPlaying ? String(localized: "Pause") : String(localized: "▶ Play")) { podcast.play() }
                         .buttonStyle(.borderedProminent).tint(Brand.accent).foregroundStyle(Brand.onyx)
                 }
                 ScrollView {
@@ -197,7 +202,13 @@ struct PodcastView: View {
                 }
             }
             if let status = podcast.status {
-                HStack { ProgressView().controlSize(.small); Text(status).foregroundStyle(.secondary) }
+                HStack(alignment: .firstTextBaseline) {
+                    if !podcast.failed { ProgressView().controlSize(.small) }
+                    Text(status).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                }
+                if podcast.failed, podcast.script == nil || status.hasPrefix("Couldn't") {
+                    Button("Try again") { Task { await podcast.prepare() } }
+                }
             }
             Spacer(minLength: 0)
         }

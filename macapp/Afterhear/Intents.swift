@@ -25,7 +25,7 @@ struct UhsideShortcuts: AppShortcutsProvider {
     }
 }
 
-/// A squeeze on the AirPods stem (or the play/pause key) marks the moment (§ 14.4, opt-in).
+/// A squeeze on the AirPods stem (or the play/pause key): help me now (§ 14.4, opt-in).
 /// While it's on, Afterhear is the "now playing" app, so the press reaches it instead of the
 /// video; videos are then not paused automatically.
 @MainActor
@@ -40,13 +40,14 @@ final class RemoteTap {
         let wanted = UserDefaults.standard.bool(forKey: Key.airpods)
         if wanted, target == nil {
             let handler: (MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus = { _ in
-                Task { @MainActor in await AppModel.shared.captureMoment(trigger: "airpods") }
+                // A squeeze is "help me now" (owner, 03/10): it reaches Afterhear when nothing else plays.
+                Task { @MainActor in await AppModel.shared.captureMoment(trigger: "airpods", now: true) }
                 return .success
             }
             target = center.togglePlayPauseCommand.addTarget(handler: handler)
             center.playCommand.addTarget(handler: handler)
             center.pauseCommand.addTarget(handler: handler)
-            MPNowPlayingInfoCenter.default().nowPlayingInfo = [MPMediaItemPropertyTitle: "Afterhear is listening with you"]
+            MPNowPlayingInfoCenter.default().nowPlayingInfo = [MPMediaItemPropertyTitle: String(localized: "Afterhear is listening with you")]
             MPNowPlayingInfoCenter.default().playbackState = .playing
         } else if !wanted, target != nil {
             center.togglePlayPauseCommand.removeTarget(nil)

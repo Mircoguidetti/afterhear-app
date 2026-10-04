@@ -37,13 +37,13 @@ enum CoachClient {
 
     static func post<T: Decodable>(_ path: String, _ body: [String: Any]) async throws -> T {
         let settings = AppSettings.current
-        guard !settings.code.trimmingCharacters(in: .whitespaces).isEmpty else { throw AfterhearError.missingCode }
         guard let base = URL(string: settings.server.trimmingCharacters(in: .whitespaces)) else { throw AfterhearError.server("url") }
         var request = URLRequest(url: base.appendingPathComponent(path))
         request.httpMethod = "POST"
-        request.timeoutInterval = path == "api/report" ? 90 : 15
+        // Writing a report or an episode takes the model a while (owner, 03/10: the episode timed out at 15 s).
+        request.timeoutInterval = path == "api/report" || path == "api/podcast" || path == "api/story" ? 90 : 15
         request.setValue("application/json", forHTTPHeaderField: "content-type")
-        request.setValue(settings.code.trimmingCharacters(in: .whitespaces), forHTTPHeaderField: "x-afterhear-code")
+        try await ServerAccess.authorize(&request, settings: settings)
         var full = body
         full["heard"] = settings.heard.rawValue
         full["native"] = settings.native.rawValue
@@ -52,7 +52,10 @@ enum CoachClient {
         request.httpBody = try JSONSerialization.data(withJSONObject: full)
         let (data, response) = try await URLSession.shared.data(for: request)
         let status = (response as? HTTPURLResponse)?.statusCode ?? 0
-        guard status == 200 else { throw AfterhearError.server("HTTP \(status)") }
+        guard status == 200 else {
+            let code = (try? JSONSerialization.jsonObject(with: data) as? [String: Any])?["error"] as? String
+            throw AfterhearError.server(code ?? "HTTP \(status)")
+        }
         return try JSONDecoder().decode(T.self, from: data)
     }
 }
@@ -120,14 +123,14 @@ final class CallCoach: ObservableObject {
     func catchUp() async {
         let turns = AppModel.shared.recentTurns(seconds: 180)
         guard !turns.isEmpty else {
-            panel.show(CatchUpView(lines: ["Nothing heard in the last few minutes."], points: []), autoHide: 3, width: 420)
+            panel.show(CatchUpView(lines: [String(localized: "Nothing heard in the last few minutes.")], points: []), autoHide: 3, width: 420)
             return
         }
-        panel.show(CatchUpView(lines: ["Catching up…"], points: []), autoHide: nil, width: 420)
+        panel.show(CatchUpView(lines: [String(localized: "Catching up…")], points: []), autoHide: nil, width: 420)
         do {
             let answer: CoachClient.CatchUp = try await CoachClient.post("api/catchup", ["turns": Self.payload(turns), "mode": "catchup"])
             var lines = [answer.topic]
-            if !answer.last_question.isEmpty { lines.append("Last question: \(answer.last_question)") }
+            if !answer.last_question.isEmpty { lines.append(String(localized: "Last question: \(answer.last_question)")) }
             panel.show(CatchUpView(lines: lines, points: answer.points), autoHide: 10, width: 420)
         } catch {
             panel.show(CatchUpView(lines: [error.localizedDescription], points: []), autoHide: 4, width: 420)
@@ -148,7 +151,7 @@ final class CallCoach: ObservableObject {
         if inCall {
             if session == nil {
                 let call = CalendarWatch.shared.current
-                session = Session(id: call?.id ?? "ctx-\(Int(now.timeIntervalSince1970))", title: call?.title ?? "Call",
+                session = Session(id: call?.id ?? "ctx-\(Int(now.timeIntervalSince1970))", title: call?.title ?? String(localized: "Call"),
                                   people: call?.people ?? [], start: now, lastInCall: now)
             }
             session?.lastInCall = now
@@ -237,8 +240,8 @@ final class CallCoach: ObservableObject {
                 "phrases": Yourself.phrases(limit: 20).map(\.phrase),
             ])
             guard !answer.question_to_you.isEmpty else { return }
-            var lines = ["They asked you: \(answer.question_to_you)"]
-            if !answer.opener.isEmpty { lines.append("You could start: “\(answer.opener)”") }
+            var lines = [String(localized: "They asked you: \(answer.question_to_you)")]
+            if !answer.opener.isEmpty { lines.append(String(localized: "You could start: “\(answer.opener)”")) }
             panel.show(CatchUpView(lines: lines, points: []), autoHide: 10, width: 440)
         } catch {}
     }
@@ -283,21 +286,21 @@ final class CallCoach: ObservableObject {
 
         let content = UNMutableNotificationContent()
         let who = s.people.isEmpty ? s.title : ListFormatter.localizedString(byJoining: s.people)
-        content.title = "Your call with \(who): \(score)% understood"
+        content.title = String(localized: "Your call with \(who): \(score)% understood")
         var body: [String] = []
         // What got better since last time comes first: that's what you want to know (§ 19.16).
-        if let first = improved.first { body.append("Better than last time: \(first)") }
-        if tapped > 0 { body.append("\(tapped) \(tapped == 1 ? "thing" : "things") slipped past you") }
-        if let n = report?.requests.count, n > 0 { body.append("\(n) \(n == 1 ? "thing" : "things") they asked you to do") }
-        if let n = report?.corrections.count, n > 0 { body.append("\(n) \(n == 1 ? "phrase" : "phrases") to say better") }
-        content.body = (body.isEmpty ? "The report is ready." : body.joined(separator: " · ") + ".") + " Five minutes now?"
+        if let first = improved.first { body.append(String(localized: "Better than last time: \(first)")) }
+        if tapped > 0 { body.append(tapped == 1 ? String(localized: "1 thing slipped past you") : String(localized: "\(tapped) things slipped past you")) }
+        if let n = report?.requests.count, n > 0 { body.append(n == 1 ? String(localized: "1 thing they asked you to do") : String(localized: "\(n) things they asked you to do")) }
+        if let n = report?.corrections.count, n > 0 { body.append(n == 1 ? String(localized: "1 phrase to say better") : String(localized: "\(n) phrases to say better")) }
+        content.body = (body.isEmpty ? String(localized: "The report is ready.") : body.joined(separator: " · ") + ".") + " " + String(localized: "Five minutes now?")
         content.userInfo = ["kind": "report", "call": s.id]
         try? await UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: "report-\(s.id)", content: content, trigger: nil))
     }
 
     func openReport(_ id: String) {
         guard let saved = Reports.shared.find(id) else { return }
-        AppWindows.show(id: "report", title: "Your call report", width: 520, height: 680) {
+        AppWindows.show(id: "report", title: String(localized: "Your call report"), width: 520, height: 680) {
             ReportView(saved: saved).environmentObject(AppModel.shared.store)
         }
     }
@@ -395,7 +398,7 @@ struct ReportView: View {
                     Text(saved.start.formatted(date: .abbreviated, time: .shortened)).font(.caption).foregroundStyle(.secondary)
                     Text(saved.people.isEmpty ? saved.title : ListFormatter.localizedString(byJoining: saved.people)).font(.title2.weight(.semibold))
                     HStack(alignment: .firstTextBaseline, spacing: 6) {
-                        Text("\(saved.score)%").font(.system(size: 34, weight: .semibold)).foregroundStyle(Brand.accent)
+                        Text(verbatim: "\(saved.score)%").font(.system(size: 34, weight: .semibold)).foregroundStyle(Brand.accent)
                         Text("of the call followed").foregroundStyle(.secondary)
                     }
                     if let summary = saved.report?.summary, !summary.isEmpty { Text(summary) }
@@ -409,16 +412,16 @@ struct ReportView: View {
                     }
                 }
                 if let r = saved.report {
-                    section("They asked you to", r.requests.map { ($0.request, $0.when) })
-                    section("Questions that slipped past you", r.missed_questions.map { ($0.question, "\($0.simple) · \($0.why)") })
-                    section("You answered something else", r.off_topic.map { ("“\($0.your_answer)”", "They asked: \($0.they_asked)") })
-                    section("Say it like a native", r.corrections.map { ("\($0.better)", "You said “\($0.you_said)” · \($0.why)") })
-                    section("The phrase you needed", r.missing_phrases.map { ($0.phrase, "\($0.meaning) · \($0.situation)") })
-                    section("Pauses", r.hesitations.filter(\.language).map { ($0.question, $0.note) })
-                    section("The word you were looking for", (r.words_you_looked_for ?? []).map { ($0.word, "\($0.meaning) · you said “\($0.you_said)”") })
-                    section("Decided", (r.decisions ?? []).map { ($0, "") })
-                    section("You said", (r.facts_you_said ?? []).map { ($0, "") })
-                    section("Your phrasebook", (r.good_phrases ?? []).map { ($0.phrase, $0.situation) })
+                    section(String(localized: "They asked you to"), r.requests.map { ($0.request, $0.when) })
+                    section(String(localized: "Questions that slipped past you"), r.missed_questions.map { ($0.question, "\($0.simple) · \($0.why)") })
+                    section(String(localized: "You answered something else"), r.off_topic.map { ("“\($0.your_answer)”", String(localized: "They asked: \($0.they_asked)")) })
+                    section(String(localized: "Say it like a native"), r.corrections.map { ("\($0.better)", String(localized: "You said “\($0.you_said)” · \($0.why)")) })
+                    section(String(localized: "The phrase you needed"), r.missing_phrases.map { ($0.phrase, "\($0.meaning) · \($0.situation)") })
+                    section(String(localized: "Pauses"), r.hesitations.filter(\.language).map { ($0.question, $0.note) })
+                    section(String(localized: "The word you were looking for"), (r.words_you_looked_for ?? []).map { ($0.word, String(localized: "\($0.meaning) · you said “\($0.you_said)”")) })
+                    section(String(localized: "Decided"), (r.decisions ?? []).map { ($0, "") })
+                    section(String(localized: "You said"), (r.facts_you_said ?? []).map { ($0, "") })
+                    section(String(localized: "Your phrasebook"), (r.good_phrases ?? []).map { ($0.phrase, $0.situation) })
                 } else {
                     Text("The detailed report couldn't be made this time (no connection or no tester code).").foregroundStyle(.secondary)
                 }
@@ -429,8 +432,8 @@ struct ReportView: View {
                             CalendarWatch.shared.openLesson(call)
                         } else {
                             let ids = AppModel.shared.store.moments.filter { $0.date >= saved.start && $0.date <= saved.end.addingTimeInterval(60) }.map(\.id)
-                            AppWindows.show(id: "lesson", title: "Your call", width: 520, height: 640) {
-                                ReviewView(only: ids, title: "Your call").environmentObject(AppModel.shared.store)
+                            AppWindows.show(id: "lesson", title: String(localized: "Your call"), width: 520, height: 640) {
+                                ReviewView(only: ids, title: String(localized: "Your call")).environmentObject(AppModel.shared.store)
                             }
                         }
                     }

@@ -63,8 +63,8 @@ struct ReviewView: View {
 
     private func context(_ moment: Moment) -> String {
         var parts = [moment.date.formatted(date: .abbreviated, time: .shortened)]
-        if let with = moment.with { parts.append("with \(with)") }
-        if moment.trigger == "sorry" { parts.append("you said \"sorry?\"") }
+        if let with = moment.with { parts.append(String(localized: "with \(with)")) }
+        if moment.trigger == "sorry" { parts.append(String(localized: "you said \"sorry?\"")) }
         if (moment.step ?? 0) > 0 || moment.review == .again { parts.append("review") }
         return parts.joined(separator: " · ")
     }
@@ -183,7 +183,7 @@ struct ReviewView: View {
 
     private var done: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text(only == nil ? "Done for today." : "Done.").font(.largeTitle.weight(.semibold))
+            Text(only == nil ? String(localized: "Done for today.") : String(localized: "Done.")).font(.largeTitle.weight(.semibold))
             if queue.isEmpty {
                 Text("Nothing to review right now.").foregroundStyle(.secondary)
             } else {

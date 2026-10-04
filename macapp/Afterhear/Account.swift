@@ -52,13 +52,13 @@ final class Account: ObservableObject {
             URLQueryItem(name: "code_challenge", value: challenge),
             URLQueryItem(name: "code_challenge_method", value: "s256"),
         ]
-        message = "Finish signing in in your browser."
+        message = String(localized: "Finish signing in in your browser.")
         if let url = parts.url { NSWorkspace.shared.open(url) }
     }
 
     func sendMagicLink(email: String) async {
         let email = email.trimmingCharacters(in: .whitespaces)
-        guard email.contains("@") else { message = "Enter a valid email."; return }
+        guard email.contains("@") else { message = String(localized: "Enter a valid email."); return }
         let challenge = newChallenge()
         working = true
         defer { working = false }
@@ -69,9 +69,9 @@ final class Account: ObservableObject {
                 "email": email, "create_user": true,
                 "code_challenge": challenge, "code_challenge_method": "s256",
             ])
-            message = "We sent a link to \(email). Open it on this Mac."
+            message = String(localized: "We sent a link to \(email). Open it on this Mac.")
         } catch {
-            message = "We couldn't send the link. Try again in a minute."
+            message = String(localized: "We couldn't send the link. Try again in a minute.")
         }
     }
 
@@ -84,7 +84,7 @@ final class Account: ObservableObject {
             try store(data)
             message = nil
         } catch {
-            message = "Wrong email or password."
+            message = String(localized: "Wrong email or password.")
         }
     }
 
@@ -98,7 +98,7 @@ final class Account: ObservableObject {
             return
         }
         guard let code = value("code"), let verifier else {
-            message = "That link didn't work. Try signing in again."
+            message = String(localized: "That link didn't work. Try signing in again.")
             return
         }
         Task {
@@ -112,7 +112,7 @@ final class Account: ObservableObject {
                 message = nil
                 NSApp.activate(ignoringOtherApps: true)
             } catch {
-                message = "That link has expired or was already used. Try again."
+                message = String(localized: "That link has expired or was already used. Try again.")
             }
         }
     }
@@ -143,7 +143,7 @@ final class Account: ObservableObject {
         } catch AccountError.http(let status) where status == 400 || status == 401 {
             // The session was revoked (signed out elsewhere, account deleted).
             signOut()
-            message = "You were signed out. Sign in again to keep syncing."
+            message = String(localized: "You were signed out. Sign in again to keep syncing.")
             return nil
         } catch {
             return nil

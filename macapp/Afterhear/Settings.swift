@@ -3,8 +3,25 @@ import Foundation
 /// The language spoken around you: what the recognizer listens for.
 enum HeardLanguage: String, CaseIterable, Identifiable, Codable {
     case enGB = "en-GB", enUS = "en-US", itIT = "it-IT", frFR = "fr-FR", esES = "es-ES", deDE = "de-DE", ruRU = "ru-RU"
+    // Portuguese too (owner, 03/10: the same seven languages everywhere).
+    case ptPT = "pt-PT", ptBR = "pt-BR"
     var id: String { rawValue }
+    /// In the app's language, for the screens.
     var label: String {
+        switch self {
+        case .enGB: String(localized: "English (UK)")
+        case .enUS: String(localized: "English (US)")
+        case .itIT: String(localized: "Italian")
+        case .frFR: String(localized: "French")
+        case .esES: String(localized: "Spanish")
+        case .deDE: String(localized: "German")
+        case .ruRU: String(localized: "Russian")
+        case .ptPT: String(localized: "Portuguese (Portugal)")
+        case .ptBR: String(localized: "Portuguese (Brazil)")
+        }
+    }
+    /// Always in English, for the instructions to the model.
+    var english: String {
         switch self {
         case .enGB: "English (UK)"
         case .enUS: "English (US)"
@@ -13,23 +30,42 @@ enum HeardLanguage: String, CaseIterable, Identifiable, Codable {
         case .esES: "Spanish"
         case .deDE: "German"
         case .ruRU: "Russian"
+        case .ptPT: "Portuguese (Portugal)"
+        case .ptBR: "Portuguese (Brazil)"
         }
     }
 }
 
-/// The language explanations are written in: yours.
+/// The language explanations are written in: yours. The app speaks it too (owner, 03/10).
 enum NativeLanguage: String, CaseIterable, Identifiable {
     case it, en, ru, es, fr, de, pt
     var id: String { rawValue }
+    /// The Mac's language when it is one of ours, otherwise English.
+    static var system: NativeLanguage {
+        NativeLanguage(rawValue: String((Locale.preferredLanguages.first ?? "en").prefix(2))) ?? .en
+    }
+    /// Each language in its own words, so anyone finds theirs.
     var label: String {
         switch self {
-        case .it: "Italiano (Italian)"
+        case .it: "Italiano"
         case .en: "English"
         case .ru: "Русский"
         case .es: "Español"
         case .fr: "Français"
         case .de: "Deutsch"
         case .pt: "Português"
+        }
+    }
+    /// Always in English, for the instructions to the model.
+    var english: String {
+        switch self {
+        case .it: "Italian"
+        case .en: "English"
+        case .ru: "Russian"
+        case .es: "Spanish"
+        case .fr: "French"
+        case .de: "German"
+        case .pt: "Portuguese"
         }
     }
 }
@@ -39,7 +75,7 @@ enum Transcription: String, CaseIterable, Identifiable {
     case mac, gemini
     var id: String { rawValue }
     var label: String {
-        self == .mac ? "On the Mac (private)" : "Gemini listens to the audio (more accurate, the voice leaves the Mac)"
+        self == .mac ? String(localized: "On the Mac (private)") : String(localized: "Gemini listens to the audio (more accurate, the voice leaves the Mac)")
     }
 }
 
@@ -47,14 +83,6 @@ enum Transcription: String, CaseIterable, Identifiable {
 enum HelpMode: String, CaseIterable, Identifiable {
     case silent, glance, full, pause
     var id: String { rawValue }
-    var label: String {
-        switch self {
-        case .glance: "Quick help: one line (e.g. dodgy → shady), good for videos"
-        case .silent: "Just mark it (best in calls): nothing to read, it's all in tonight's review"
-        case .full: "Full explanation"
-        case .pause: "Pause the video and explain"
-        }
-    }
 }
 
 enum Provider: String, CaseIterable, Identifiable {
@@ -111,6 +139,8 @@ enum Key {
     static let pauseVideo = "pauseVideo"
     static let songs = "followSongs"
     static let airpods = "airpodsTap"
+    /// Pause = tap (owner, 03/10): you pause a song or a video mid-line, Afterhear offers that line.
+    static let pauseTap = "pauseIsTap"
 }
 
 struct AppSettings {
@@ -136,7 +166,7 @@ struct AppSettings {
             Key.server: defaultServer,
             Key.code: "",
             Key.heard: HeardLanguage.enGB.rawValue,
-            Key.native: NativeLanguage.it.rawValue,
+            Key.native: NativeLanguage.system.rawValue,
             Key.level: "B2",
             Key.provider: Provider.gemini.rawValue,
             Key.nowExplain: true,
@@ -147,6 +177,7 @@ struct AppSettings {
             Key.mode: HelpMode.silent.rawValue,
             Key.compareCloud: false,
             Key.pauseVideo: true,
+            Key.pauseTap: true,
             Key.sorry: true,
             Key.doubleTap: true,
             Key.webApp: defaultWebApp,
@@ -164,7 +195,7 @@ struct AppSettings {
             server: d.string(forKey: Key.server) ?? defaultServer,
             code: d.string(forKey: Key.code) ?? "",
             heard: HeardLanguage(rawValue: d.string(forKey: Key.heard) ?? "") ?? .enGB,
-            native: NativeLanguage(rawValue: d.string(forKey: Key.native) ?? "") ?? .it,
+            native: NativeLanguage(rawValue: d.string(forKey: Key.native) ?? "") ?? .system,
             level: d.string(forKey: Key.level) ?? "B2",
             // The AI is ours: always Gemini, never chosen nor shown (owner, 02/10, § 19.27).
             provider: .gemini,
@@ -179,26 +210,13 @@ struct AppSettings {
 }
 
 extension AppSettings {
-    static func key(for context: AppContext) -> String {
-        switch context {
-        case .video: Key.helpVideo
-        case .call: Key.helpCall
-        case .other: Key.helpOther
-        }
-    }
-
-    /// What shows up after a tap, in this context. Pausing only makes sense for videos.
-    static func mode(for context: AppContext) -> HelpMode {
-        let mode = HelpMode(rawValue: UserDefaults.standard.string(forKey: key(for: context)) ?? "") ?? .glance
-        return mode == .pause && context != .video ? .full : mode
-    }
-
-    /// What "now" (three taps) does here: your choice, but never just a mark, since you asked for help.
+    /// What "help me now" does here (owner, 04/10: settings without doubles). The visible choices
+    /// decide it: in a video, pause it while you read (or not); in a call or anywhere else, one line
+    /// you read at a glance. With or without the explanation is "Show" in Settings (Key.nowExplain).
     static func nowMode(for context: AppContext) -> HelpMode {
-        var mode = mode(for: context)
-        if mode == .silent { mode = context == .video ? .pause : .glance }
-        // "Keep the video playing" (Settings): the explanation shows up, the video goes on.
-        if mode == .pause && !UserDefaults.standard.bool(forKey: Key.pauseVideo) { mode = .full }
-        return mode
+        switch context {
+        case .video: UserDefaults.standard.bool(forKey: Key.pauseVideo) ? .pause : .full
+        case .call, .other: .glance
+        }
     }
 }

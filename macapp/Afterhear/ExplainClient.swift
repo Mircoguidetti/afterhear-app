@@ -1,5 +1,17 @@
 import Foundation
 
+/// Who may use the AI: your account (owner, 03/10: the account replaces the tester code; the server
+/// checks the account against the testers' list) or, still, a tester code from Settings → Advanced.
+enum ServerAccess {
+    static func authorize(_ request: inout URLRequest, settings: AppSettings) async throws {
+        let code = settings.code.trimmingCharacters(in: .whitespaces)
+        let token = await Account.shared.accessToken()
+        guard !code.isEmpty || token != nil else { throw AfterhearError.signIn }
+        if !code.isEmpty { request.setValue(code, forHTTPHeaderField: "x-afterhear-code") }
+        if let token { request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization") }
+    }
+}
+
 /// Talks to Afterhear's server (api/explain.ts on Vercel), which holds the AI keys.
 enum ExplainClient {
     private struct Body: Encodable {
@@ -29,7 +41,6 @@ enum ExplainClient {
                         struggling: [String] = [], watch: [String] = [], profile: String = "",
                         source: String = "", overlap: Bool = false, focus: String = "", tone: String = "",
                         before: [String] = [], after: [String] = []) async throws -> Explanation {
-        guard !settings.code.trimmingCharacters(in: .whitespaces).isEmpty else { throw AfterhearError.missingCode }
         guard let base = URL(string: settings.server.trimmingCharacters(in: .whitespaces)) else {
             throw AfterhearError.server("url")
         }
@@ -38,7 +49,7 @@ enum ExplainClient {
         // Offline is found at the tap (Reachability); this only caps a slow server.
         request.timeoutInterval = 15
         request.setValue("application/json", forHTTPHeaderField: "content-type")
-        request.setValue(settings.code.trimmingCharacters(in: .whitespaces), forHTTPHeaderField: "x-afterhear-code")
+        try await ServerAccess.authorize(&request, settings: settings)
         request.httpBody = try JSONEncoder().encode(Body(
             text: text,
             audio: audio?.base64EncodedString(),

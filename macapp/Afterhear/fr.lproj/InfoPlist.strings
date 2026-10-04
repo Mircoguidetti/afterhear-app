@@ -1,0 +1,7 @@
+/* Written by macapp/l10n/make.py from strings.py: edit there. */
+
+"NSMicrophoneUsageDescription" = "Afterhear écoute votre voix uniquement sur ce Mac, pour savoir à quoi vous répondiez et remarquer quand vous dites « sorry? ». Rien n’est enregistré.";
+"NSAudioCaptureUsageDescription" = "Afterhear écoute le son de votre Mac (un appel, un film) pour retrouver la phrase qui vous a échappé. Les voix ne quittent jamais ce Mac.";
+"NSCalendarsUsageDescription" = "Afterhear lit votre agenda pour vous préparer avant les appels et vous donner la leçon juste après. Seuls le titre, l’heure et les personnes suivies quittent ce Mac.";
+"NSAppleEventsUsageDescription" = "Afterhear demande à Spotify et Musique quelle chanson joue (titre et artiste seulement), pour expliquer les paroles de cette chanson.";
+"NSCalendarsFullAccessUsageDescription" = "Afterhear lit votre agenda pour vous préparer avant les appels et vous donner la leçon juste après. Seuls le titre, l’heure et les personnes suivies quittent ce Mac.";

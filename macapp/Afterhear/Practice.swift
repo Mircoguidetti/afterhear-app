@@ -60,7 +60,7 @@ struct PracticeView: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text("Say it yourself").font(.caption.weight(.semibold)).foregroundStyle(.secondary)
                 HStack {
-                    Button(listening ? "Listening…" : "Say it") { Task { await shadow() } }.disabled(listening)
+                    Button(listening ? String(localized: "Listening…") : String(localized: "Say it")) { Task { await shadow() } }.disabled(listening)
                     if let said {
                         let score = Self.overlap(said, moment.transcript)
                         Text("\(Int(score * 100))% of the words · “\(said)”").font(.callout).foregroundStyle(score > 0.7 ? Brand.accent : .secondary).lineLimit(2)
@@ -69,7 +69,7 @@ struct PracticeView: View {
             }
             // The enriched lesson.
             if lessons.isEmpty {
-                Button(loading ? "Loading…" : "More examples") { Task { await load() } }.disabled(loading || moment.pieces.isEmpty)
+                Button(loading ? String(localized: "Loading…") : String(localized: "More examples")) { Task { await load() } }.disabled(loading || moment.pieces.isEmpty)
                 if let error { Text(error).font(.caption).foregroundStyle(.secondary) }
             }
             ForEach(lessons, id: \.self) { lesson in
@@ -79,7 +79,7 @@ struct PracticeView: View {
                         Text("“\(e.sentence)”").font(.callout)
                         Text(e.translation).font(.caption).foregroundStyle(.secondary)
                     }
-                    if !lesson.variants.isEmpty { Text("Also: " + lesson.variants.joined(separator: " · ")).font(.caption) }
+                    if !lesson.variants.isEmpty { Text(String(localized: "Also: ") + lesson.variants.joined(separator: " · ")).font(.caption) }
                     if !lesson.usage.isEmpty { Text(lesson.usage).font(.caption).foregroundStyle(.secondary) }
                     if !lesson.careful.isEmpty { Label(lesson.careful, systemImage: "exclamationmark.triangle").font(.caption) }
                 }
@@ -96,7 +96,7 @@ struct PracticeView: View {
 
     /// Plays the line, then listens to you for a few seconds with the microphone already on.
     private func shadow() async {
-        guard AppModel.shared.voiceIsOn else { said = "Turn on “Also listen to my voice” in Settings."; return }
+        guard AppModel.shared.voiceIsOn else { said = String(localized: "Turn on “Also listen to my voice” in Settings."); return }
         listening = true
         AppModel.shared.play(moment, slow: false)
         try? await Task.sleep(nanoseconds: UInt64((Double(moment.transcript.split(separator: " ").count) * 0.45 + 5) * 1_000_000_000))

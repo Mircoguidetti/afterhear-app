@@ -43,8 +43,8 @@ struct OfflineAnswer {
 private enum AppleModel {
     static func explain(_ sentence: String, settings: AppSettings, source: String) async -> Explanation? {
         guard case .available = SystemLanguageModel.default.availability else { return nil }
-        let native = settings.native.label
-        let heard = settings.heard.label
+        let native = settings.native.english
+        let heard = settings.heard.english
         let session = LanguageModelSession(instructions: """
             You help someone who is learning \(heard) and speaks \(native). They just missed a sentence \
             they heard. Explain it in \(native), briefly and simply: the translation, and the words or \

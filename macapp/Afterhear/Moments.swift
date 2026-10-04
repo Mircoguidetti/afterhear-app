@@ -25,15 +25,15 @@ struct Piece: Codable, Hashable {
 
     var causeLabel: String {
         switch cause {
-        case "unknown_word": "New word"
-        case "known_not_recognized": "Known word, not recognised"
-        case "idiom": "Idiom"
-        case "connected_speech": "Connected speech"
-        case "speed_accent": "Speed / accent"
-        case "cultural": "Cultural reference"
-        case "subtext": "What they really meant"
-        case "numbers": "Numbers, dates, prices"
-        case "overlapping_voices": "Voices at the same time"
+        case "unknown_word": String(localized: "New word")
+        case "known_not_recognized": String(localized: "Known word, not recognised")
+        case "idiom": String(localized: "Idiom")
+        case "connected_speech": String(localized: "Connected speech")
+        case "speed_accent": String(localized: "Speed / accent")
+        case "cultural": String(localized: "Cultural reference")
+        case "subtext": String(localized: "What they really meant")
+        case "numbers": String(localized: "Numbers, dates, prices")
+        case "overlapping_voices": String(localized: "Voices at the same time")
         default: cause
         }
     }
@@ -86,15 +86,15 @@ enum MomentLabel: String, CaseIterable, Identifiable, Codable {
     var id: String { rawValue }
     var title: String {
         switch self {
-        case .unknownWord: "A word I didn't know"
-        case .knownNotRecognized: "Known word, not recognised"
-        case .idiom: "Idiom / slang"
-        case .connectedSpeech: "Connected speech"
-        case .speedAccent: "Too fast / accent"
-        case .cultural: "Cultural reference"
-        case .badAudio: "Audio unclear"
-        case .transcriptWrong: "Transcript wrong"
-        case .notAMiss: "False alarm"
+        case .unknownWord: String(localized: "A word I didn't know")
+        case .knownNotRecognized: String(localized: "Known word, not recognised")
+        case .idiom: String(localized: "Idiom / slang")
+        case .connectedSpeech: String(localized: "Connected speech")
+        case .speedAccent: String(localized: "Too fast / accent")
+        case .cultural: String(localized: "Cultural reference")
+        case .badAudio: String(localized: "Audio unclear")
+        case .transcriptWrong: String(localized: "Transcript wrong")
+        case .notAMiss: String(localized: "False alarm")
         }
     }
     /// Stable name for the database.
@@ -143,6 +143,8 @@ struct Moment: Codable, Identifiable {
     /// Time spent recognising speech on the Mac, and waiting for the server.
     var transcribeMs: Int? = nil
     var serverMs: Int? = nil
+    /// "Now": how long it waited for the sentence to end before transcribing (owner, 03/10).
+    var waitMs: Int? = nil
     /// "apple-new" / "apple-old" (the Mac's recogniser, live), "mac-clip", "cloud:<provider>" or "gemini-audio".
     var transcribedBy: String? = nil
     var label: MomentLabel?
@@ -205,6 +207,20 @@ struct Person: Codable, Identifiable, Hashable {
         let old = ["Britannico", "Scozzese", "Irlandese", "Americano", "Australiano", "Indiano", "Altro / non so"]
         if let i = old.firstIndex(of: accent) { return accents[i] }
         return accent
+    }
+
+    /// The accent in the app's language; it's saved and sent in English.
+    static func label(_ accent: String) -> String {
+        switch english(accent) {
+        case "British": String(localized: "British")
+        case "Scottish": String(localized: "Scottish")
+        case "Irish": String(localized: "Irish")
+        case "American": String(localized: "American")
+        case "Australian": String(localized: "Australian")
+        case "Indian": String(localized: "Indian")
+        case "Other / not sure": String(localized: "Other / not sure")
+        default: accent
+        }
     }
 }
 
@@ -317,7 +333,7 @@ final class Store: ObservableObject {
                 seconds += listening[Self.dayKey(day)] ?? 0
                 day = calendar.date(byAdding: .day, value: 1, to: day)!
             }
-            return (back == 0 ? "This week" : "\(back) wk ago", taps, seconds / 3600)
+            return (back == 0 ? String(localized: "This week") : String(localized: "\(back) wk ago"), taps, seconds / 3600)
         }
     }
 
@@ -482,16 +498,41 @@ final class Store: ObservableObject {
             lines.append("By accent: " + accents.sorted { $0.value > $1.value }.map { "\($0.key) \($0.value)" }.joined(separator: " · "))
         }
         if !moments.isEmpty {
-            let latencies = moments.map(\.latencyMs).sorted()
-            lines.append("Median latency: \(latencies[latencies.count / 2]) ms")
-            let mac = moments.compactMap(\.transcribeMs).sorted()
-            let server = moments.compactMap(\.serverMs).sorted()
-            if !mac.isEmpty { lines.append("  of which transcription on the Mac: \(mac[mac.count / 2]) ms") }
-            if !server.isEmpty { lines.append("  of which AI server: \(server[server.count / 2]) ms") }
-            let modes = Set(moments.compactMap(\.transcribedBy)).sorted()
+            func median(_ values: [Int]) -> Int? {
+                let sorted = values.sorted()
+                return sorted.isEmpty ? nil : sorted[sorted.count / 2]
+            }
+            // Only what you asked for and waited on: marks are worked out later, the model's picks aren't taps.
+            let asked = moments.filter { !$0.isModel && $0.latencyMs > 0 }
+            lines.append("This Mac: \(Parakeet.onProcessor ? "Intel (Parakeet on the processor)" : "Apple chip (Parakeet on the Neural Engine)")")
+            if let total = median(asked.map(\.latencyMs)) { lines.append("Median, tap to explanation: \(total) ms") }
+            // Per source, and for voices where the time goes. Songs have nothing to transcribe (owner, 03/10:
+            // their 0 ms pulled the transcription median down to 0).
+            let modes = Set(asked.compactMap(\.transcribedBy)).sorted()
             for mode in modes {
-                let times = moments.filter { $0.transcribedBy == mode }.map(\.latencyMs).sorted()
-                if !times.isEmpty { lines.append("  \(mode): \(times.count) moments, median \(times[times.count / 2]) ms") }
+                let group = asked.filter { $0.transcribedBy == mode }
+                guard let total = median(group.map(\.latencyMs)) else { continue }
+                var parts: [String] = []
+                if mode != "lyrics" {
+                    if let wait = median(group.compactMap(\.waitMs)) { parts.append("waiting for the end of the sentence \(wait)") }
+                    if let mac = median(group.compactMap(\.transcribeMs).filter { $0 > 0 }) { parts.append("transcription \(mac)") }
+                }
+                if let server = median(group.compactMap(\.serverMs)) { parts.append("AI \(server)") }
+                lines.append("  \(mode): \(group.count) moments, median \(total) ms" + (parts.isEmpty ? "" : " (" + parts.joined(separator: " · ") + ")"))
+            }
+            // The last ones, one by one: from one paste it's clear where the time goes.
+            let formatter = DateFormatter()
+            formatter.dateFormat = "dd/MM HH:mm"
+            let recent = asked.sorted { $0.date > $1.date }.prefix(8)
+            if !recent.isEmpty { lines.append("Last moments:") }
+            for m in recent {
+                var times = ["\(m.latencyMs) ms"]
+                if let wait = m.waitMs { times.append("wait \(wait)") }
+                if let mac = m.transcribeMs, mac > 0 { times.append("transcription \(mac)") }
+                if let server = m.serverMs { times.append("AI \(server)") }
+                let source = [m.transcribedBy, m.context, m.trigger].compactMap { $0 }.joined(separator: ", ")
+                let label = m.label.map { " · \($0.title)" } ?? ""
+                lines.append("  \(formatter.string(from: m.date)) [\(source)] \(times.joined(separator: " · "))\(label): \"\(String(m.sent.prefix(90)))\"")
             }
         }
         for label in MomentLabel.allCases {
