@@ -121,6 +121,8 @@ enum StoreChange {
     case known
     case listening
     case deletedAll
+    /// One moment deleted by you (F3): its text, its clip, its row in the account.
+    case momentRemoved(UUID)
 }
 
 enum Review: String, Codable {
@@ -351,6 +353,15 @@ final class Store: ObservableObject {
         moments.insert(moment, at: 0)
         save()
         onChange?(.moment(moment.id))
+    }
+
+    /// "Delete this moment" (F3): gone from this Mac, with its clip, and from your account.
+    func delete(_ id: UUID) {
+        guard let i = moments.firstIndex(where: { $0.id == id }) else { return }
+        if let clip = clipURL(moments[i]) { try? FileManager.default.removeItem(at: clip) }
+        moments.remove(at: i)
+        save()
+        onChange?(.momentRemoved(id))
     }
 
     func update(_ moment: Moment) {

@@ -329,9 +329,16 @@ final class CalendarWatch: NSObject, ObservableObject, UNUserNotificationCenterD
         let info = response.notification.request.content.userInfo
         let kind = info["kind"] as? String, id = info["call"] as? String
         let since = info["since"] as? Double
+        let event = info["event"] as? String
         let action = response.actionIdentifier
         Task { @MainActor in
-            if action.hasPrefix("mode."), let mode = CallMode(rawValue: String(action.dropFirst(5))) {
+            if action == "participants.copy" || (kind == "participants" && action == UNNotificationDefaultActionIdentifier) {
+                ParticipantNotice.copy()
+            } else if action == "calendar.addNotice", let event {
+                await GoogleCalendar.shared.addNotice(to: event)
+            } else if action == "participants.told" {
+                CallGuard.shared.markTold()
+            } else if action.hasPrefix("mode."), let mode = CallMode(rawValue: String(action.dropFirst(5))) {
                 CallModes.set(mode, for: CalendarWatch.shared.calls.first { $0.id == id })
             } else if kind == "quiz" {
                 ModelWatch.shared.openQuiz(since: Date(timeIntervalSince1970: (since ?? 0) - 1))

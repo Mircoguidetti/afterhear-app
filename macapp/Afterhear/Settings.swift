@@ -141,6 +141,12 @@ enum Key {
     static let airpods = "airpodsTap"
     /// Pause = tap (owner, 03/10): you pause a song or a video mid-line, Afterhear offers that line.
     static let pauseTap = "pauseIsTap"
+    /// Telling the others in the call: off, remind (default), required (PIANO.md, block N).
+    static let participantNotice = "participantNotice"
+    /// Calls Afterhear never listens to: "meeting:<title>", "person:<name>", "app:<bundle id>" (F4).
+    static let neverCalls = "neverCalls"
+    /// The report after a call, only about understanding (F5). Off until you turn it on.
+    static let callReport = "callReport"
 }
 
 struct AppSettings {
@@ -186,6 +192,8 @@ struct AppSettings {
             Key.helpOther: HelpMode.glance.rawValue,
             Key.calendar: false,
             Key.prepLead: 120,
+            Key.participantNotice: ParticipantNotice.remind.rawValue,
+            Key.callReport: false,
         ])
     }
 

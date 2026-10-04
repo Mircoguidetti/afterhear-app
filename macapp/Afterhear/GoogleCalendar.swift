@@ -3,10 +3,12 @@ import AuthenticationServices
 import CryptoKit
 import Foundation
 import Security
+import UserNotifications
 
 /// Google Calendar, connected directly (owner, 03/10: many people use Google Calendar only in the
-/// browser, never added to the Calendar app on the Mac). Read only: the calls of the next day and a
-/// half, every few minutes. Google's sign-in for apps (PKCE, no secret in the app); the refresh
+/// browser, never added to the Calendar app on the Mac). It reads the calls of the next day and a
+/// half, every few minutes, and writes only one thing, when you say yes: the line telling the
+/// others that you use Afterhear, in the description of a call you organise (PIANO.md, N2). Google's sign-in for apps (PKCE, no secret in the app); the refresh
 /// token stays in this Mac's Keychain. Like the Calendar app: only the call's title, time and the
 /// people you track reach your account, never the guest list or the notes.
 @MainActor
@@ -15,7 +17,7 @@ final class GoogleCalendar: NSObject, ObservableObject, ASWebAuthenticationPrese
 
     /// An "iOS" OAuth client of Afterhear's Google Cloud project (public, not a secret): docs/OWNER-TODO.md.
     static let clientID = "999371817319-0s9d3e49r0glln3ar6anasdnhnldnpit.apps.googleusercontent.com" // also overridable in Settings → Advanced
-    private static let scope = "https://www.googleapis.com/auth/calendar.readonly"
+    private static let scope = "https://www.googleapis.com/auth/calendar.events"
 
     struct Event: Equatable {
         let id: String
@@ -27,6 +29,8 @@ final class GoogleCalendar: NSObject, ObservableObject, ASWebAuthenticationPrese
         let organizerIsMe: Bool
         /// A video link (Meet, Zoom, Teams…) or other guests: a call.
         let isCall: Bool
+        /// The description already says Afterhear is in the call.
+        var hasNotice = false
     }
 
     @Published private(set) var connected = GoogleKeychain.load() != nil
@@ -183,6 +187,64 @@ final class GoogleCalendar: NSObject, ObservableObject, ASWebAuthenticationPrese
             events = fresh
             CalendarWatch.shared.refresh()
         }
+        await proposeNotice(fresh)
+    }
+
+    // MARK: Writing the line (N2)
+
+    /// Calls you organise that we already offered the line for: offered once, yes or no.
+    private var offered: Set<String> {
+        get { Set(UserDefaults.standard.stringArray(forKey: "noticeOffered") ?? []) }
+        set { UserDefaults.standard.set(Array(newValue.suffix(200)), forKey: "noticeOffered") }
+    }
+
+    /// A call you organise, not started yet, without the line: a notification only for you offers it.
+    private func proposeNotice(_ events: [Event]) async {
+        guard ParticipantNotice.current != .off else { return }
+        let now = Date()
+        for event in events where event.organizerIsMe && event.isCall && !event.hasNotice && event.start > now && !offered.contains(event.id) {
+            offered.insert(event.id)
+            let center = UNUserNotificationCenter.current()
+            _ = try? await center.requestAuthorization(options: [.alert, .sound])
+            let add = UNNotificationAction(identifier: "calendar.addNotice", title: String(localized: "Add it"), options: [])
+            let category = UNNotificationCategory(identifier: "calendarNotice", actions: [add], intentIdentifiers: [])
+            let existing = await center.notificationCategories()
+            center.setNotificationCategories(existing.filter { $0.identifier != category.identifier }.union([category]))
+            let content = UNMutableNotificationContent()
+            content.title = String(localized: "Tell the guests of “\(event.title)” in the invitation?")
+            content.body = ParticipantNotice.message()
+            content.categoryIdentifier = category.identifier
+            content.userInfo = ["kind": "calendarNotice", "event": event.id]
+            try? await center.add(UNNotificationRequest(identifier: "calendarNotice-\(event.id)", content: content, trigger: nil))
+        }
+    }
+
+    /// Adds the line at the end of the event's description, leaving the rest as it is.
+    func addNotice(to eventID: String) async {
+        guard let token = await token(),
+              let id = eventID.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed),
+              let url = URL(string: "https://www.googleapis.com/calendar/v3/calendars/primary/events/\(id)") else { return }
+        var get = URLRequest(url: url, timeoutInterval: 15)
+        get.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        struct Item: Decodable { let description: String? }
+        guard let (data, response) = try? await URLSession.shared.data(for: get),
+              (response as? HTTPURLResponse)?.statusCode == 200,
+              let item = try? JSONDecoder().decode(Item.self, from: data) else { return }
+        let old = item.description ?? ""
+        guard !old.contains("Afterhear") else { return }
+        let line = ParticipantNotice.message()
+        var patch = URLRequest(url: url, timeoutInterval: 15)
+        patch.httpMethod = "PATCH"
+        patch.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        patch.setValue("application/json", forHTTPHeaderField: "content-type")
+        patch.httpBody = try? JSONSerialization.data(withJSONObject: ["description": old.isEmpty ? line : old + "\n\n" + line])
+        let status = ((try? await URLSession.shared.data(for: patch))?.1 as? HTTPURLResponse)?.statusCode ?? 0
+        if status == 403 {
+            // Connected before Afterhear could write: Google needs a yes again.
+            message = String(localized: "To add the line, connect Google Calendar again and allow editing events.")
+        } else if status == 200 {
+            await refresh()
+        }
     }
 
     private struct EventList: Decodable {
@@ -230,7 +292,8 @@ final class GoogleCalendar: NSObject, ObservableObject, ASWebAuthenticationPrese
                      + (item.conferenceData?.entryPoints ?? []).compactMap(\.uri)).joined(separator: " ").lowercased()
         let isCall = !others.isEmpty || callLinks.contains { links.contains($0) }
         return Event(id: item.id, title: item.summary ?? "", start: start, end: end, guests: guests,
-                     organizerIsMe: item.organizer?.isSelf ?? others.isEmpty, isCall: isCall)
+                     organizerIsMe: item.organizer?.isSelf ?? others.isEmpty, isCall: isCall,
+                     hasNotice: item.description?.contains("Afterhear") ?? false)
     }
 
     private static func parse(_ text: String) -> Date? {

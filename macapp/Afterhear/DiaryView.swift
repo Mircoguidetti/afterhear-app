@@ -68,6 +68,7 @@ struct DiaryView: View {
 private struct MomentRow: View {
     @EnvironmentObject private var store: Store
     let moment: Moment
+    @State private var confirmDelete = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -117,6 +118,13 @@ private struct MomentRow: View {
                     .tint(moment.review == .again ? .orange : nil)
                 Button("I know it") { store.setReview(.known, for: moment.id) }
                     .tint(moment.review == .known ? .green : nil)
+                Button(role: .destructive) { confirmDelete = true } label: { Image(systemName: "trash") }
+                    .help(String(localized: "Delete this moment"))
+                    .confirmationDialog("Delete this moment?", isPresented: $confirmDelete) {
+                        Button("Delete", role: .destructive) { store.delete(moment.id) }
+                    } message: {
+                        Text("The sentence, its clip and its explanation go, from this Mac and from your account.")
+                    }
             }
             .controlSize(.small)
             .buttonStyle(.bordered)

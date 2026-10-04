@@ -64,6 +64,16 @@ enum ContextDetector {
         return .other
     }
 
+    /// The call app in use, when there is a call (Google Meet is "meet"): for "Never in these calls".
+    static func callApp() -> String? {
+        guard current() == .call else { return nil }
+        let front = NSWorkspace.shared.frontmostApplication
+        if let id = front?.bundleIdentifier, callApps.contains(id) { return id }
+        if let title = frontTitle(front), matches(["Meet -", "Google Meet"])(title) { return "meet" }
+        let running = NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier)
+        return running.first { callApps.contains($0) } ?? "meet"
+    }
+
     /// The title of the window in front, through Accessibility (no Screen Recording needed).
     static func frontTitle(_ app: NSRunningApplication?) -> String? {
         guard let app, AXIsProcessTrusted() else { return nil }

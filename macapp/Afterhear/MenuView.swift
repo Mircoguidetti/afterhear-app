@@ -78,6 +78,7 @@ struct MenuView: View {
                     }
                 }
                 if watch.kind == .call { callSuggestions }
+                CallGuardRow()
                 nextCall
             }
 
@@ -188,18 +189,6 @@ struct MenuView: View {
     }
 
     private var quizCount: Int { store.moments.filter(\.waitsForQuiz).count }
-
-    /// "Sarah sounds Scottish (rolled r). Right?" (§ 7.3)
-    @ViewBuilder private var accentSuggestions: some View {
-        ForEach(AccentGuess.pending.sorted { $0.key < $1.key }, id: \.key) { pair in
-            HStack {
-                Text("\(pair.key) sounds \(Person.label(pair.value))").font(.caption).lineLimit(2)
-                Spacer()
-                Button("Yes") { AccentGuess.accept(pair.key); store.objectWillChange.send() }.controlSize(.small)
-                Button("No") { AccentGuess.reject(pair.key); store.objectWillChange.send() }.controlSize(.small)
-            }
-        }
-    }
 
     /// The song playing, and "What's this song?" for music from a speaker (§ 17.1).
     @ViewBuilder private var songRow: some View {

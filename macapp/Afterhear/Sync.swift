@@ -56,6 +56,10 @@ final class Sync: ObservableObject {
             Reports.shared.clear()
             Task { await deleteEverythingRemote() }
             return
+        case .momentRemoved(let id):
+            dirty.remove(id)
+            Task { await deleteMomentRemote(id) }
+            return
         case .people, .known, .listening: break
         }
         schedule(after: 3)
@@ -257,6 +261,18 @@ final class Sync: ObservableObject {
     }
 
     /// "Delete everything" on the Mac also empties the account (the web app has its own button too).
+    /// One moment out of the account: its row, its signals, its clip if one was ever uploaded.
+    private func deleteMomentRemote(_ moment: UUID) async {
+        guard let token = await Account.shared.accessToken() else { return }
+        let id = moment.uuidString.lowercased()
+        _ = try? await request("DELETE", "signals?moment_id=eq.\(id)", token: token)
+        _ = try? await request("DELETE", "moments?id=eq.\(id)", token: token)
+        if uploaded.contains(id), let uid = Account.shared.session?.userID {
+            _ = try? await storage("DELETE", "clips/\(uid)/\(id).m4a", token: token)
+            uploaded.remove(id)
+        }
+    }
+
     private func deleteEverythingRemote() async {
         guard let token = await Account.shared.accessToken() else { return }
         for table in ["call_reports?call_id=not.is.null", "signals?id=not.is.null", "items?key=not.is.null", "calendar_events?id=not.is.null", "moments?id=not.is.null", "people?name=not.is.null", "known_items?text=not.is.null", "listening?day=not.is.null"] {

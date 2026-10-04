@@ -249,7 +249,9 @@ final class CallCoach: ObservableObject {
     // MARK: After the call
 
     private func finish(_ s: Session, ended: Date) async {
-        guard !s.pairs.isEmpty || !s.mine.isEmpty || !s.requests.isEmpty || !s.searches.isEmpty else { return }
+        // The report is yours to turn on, and only about understanding (F5, decision 3): what they
+        // asked, what they asked you to do, what was decided. Nothing about how you speak.
+        guard UserDefaults.standard.bool(forKey: Key.callReport), !s.pairs.isEmpty || !s.requests.isEmpty else { return }
         let store = AppModel.shared.store
         let tapped = store.moments.filter { $0.date >= s.start && $0.date <= ended.addingTimeInterval(60) && $0.trigger != "hesitation" }.count
         var report: CoachClient.Report?
@@ -257,9 +259,9 @@ final class CallCoach: ObservableObject {
             report = try await CoachClient.post("api/report", [
                 "pairs": s.pairs.map { ["question": Redactor.redact($0.question), "answer": Redactor.redact($0.answer),
                                         "pause_s": min($0.pause, 120), "fillers": min($0.fillers, 50)] as [String: Any] },
-                "mine": s.mine.map { Redactor.redact($0) },
+                "mine": [String](),
                 "requests": s.requests.map { Redactor.redact($0) },
-                "searches": s.searches.map { Redactor.redact($0) },
+                "searches": [String](),
             ])
         } catch {}
         let missed = tapped + s.hesitations + (report?.off_topic.count ?? 0)
@@ -273,17 +275,6 @@ final class CallCoach: ObservableObject {
         Reports.shared.add(saved)
         Sync.shared.saveCallReport(saved)
 
-        // Your speaking goes into your model: the better way to say it, the phrase you needed.
-        for c in report?.corrections ?? [] {
-            Memory.shared.recordSpeaking(text: c.better, avoid: c.you_said, meaning: c.why)
-        }
-        for p in report?.missing_phrases ?? [] {
-            Memory.shared.recordSpeaking(text: p.phrase, avoid: nil, meaning: "\(p.meaning) · \(p.situation)")
-        }
-        for w in report?.words_you_looked_for ?? [] {
-            Memory.shared.recordSpeaking(text: w.word, avoid: nil, meaning: w.meaning)
-        }
-
         let content = UNMutableNotificationContent()
         let who = s.people.isEmpty ? s.title : ListFormatter.localizedString(byJoining: s.people)
         content.title = String(localized: "Your call with \(who): \(score)% understood")
@@ -292,7 +283,6 @@ final class CallCoach: ObservableObject {
         if let first = improved.first { body.append(String(localized: "Better than last time: \(first)")) }
         if tapped > 0 { body.append(tapped == 1 ? String(localized: "1 thing slipped past you") : String(localized: "\(tapped) things slipped past you")) }
         if let n = report?.requests.count, n > 0 { body.append(n == 1 ? String(localized: "1 thing they asked you to do") : String(localized: "\(n) things they asked you to do")) }
-        if let n = report?.corrections.count, n > 0 { body.append(n == 1 ? String(localized: "1 phrase to say better") : String(localized: "\(n) phrases to say better")) }
         content.body = (body.isEmpty ? String(localized: "The report is ready.") : body.joined(separator: " · ") + ".") + " " + String(localized: "Five minutes now?")
         content.userInfo = ["kind": "report", "call": s.id]
         try? await UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: "report-\(s.id)", content: content, trigger: nil))
@@ -415,13 +405,7 @@ struct ReportView: View {
                     section(String(localized: "They asked you to"), r.requests.map { ($0.request, $0.when) })
                     section(String(localized: "Questions that slipped past you"), r.missed_questions.map { ($0.question, "\($0.simple) · \($0.why)") })
                     section(String(localized: "You answered something else"), r.off_topic.map { ("“\($0.your_answer)”", String(localized: "They asked: \($0.they_asked)")) })
-                    section(String(localized: "Say it like a native"), r.corrections.map { ("\($0.better)", String(localized: "You said “\($0.you_said)” · \($0.why)")) })
-                    section(String(localized: "The phrase you needed"), r.missing_phrases.map { ($0.phrase, "\($0.meaning) · \($0.situation)") })
-                    section(String(localized: "Pauses"), r.hesitations.filter(\.language).map { ($0.question, $0.note) })
-                    section(String(localized: "The word you were looking for"), (r.words_you_looked_for ?? []).map { ($0.word, String(localized: "\($0.meaning) · you said “\($0.you_said)”")) })
                     section(String(localized: "Decided"), (r.decisions ?? []).map { ($0, "") })
-                    section(String(localized: "You said"), (r.facts_you_said ?? []).map { ($0, "") })
-                    section(String(localized: "Your phrasebook"), (r.good_phrases ?? []).map { ($0.phrase, $0.situation) })
                 } else {
                     Text("The detailed report couldn't be made this time (no connection or no tester code).").foregroundStyle(.secondary)
                 }

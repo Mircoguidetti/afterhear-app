@@ -80,7 +80,10 @@ final class AppModel: ObservableObject {
         // The second encounter: what the others said lately, checked against what you learned before.
         // A call starts or ends: the microphone follows (applyMicrophone).
         micTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: true) { _ in
-            Task { @MainActor in AppModel.shared.applyMicrophone() }
+            Task { @MainActor in
+                CallGuard.shared.tick()
+                AppModel.shared.applyMicrophone()
+            }
         }
         memoryTimer = Timer.scheduledTimer(withTimeInterval: 15, repeats: true) { _ in
             Task { @MainActor in
@@ -143,6 +146,7 @@ final class AppModel: ObservableObject {
     }
 
     func togglePause() async {
+        guardPaused = false
         if state == .listening {
             await audio.stop()
             live.stop()
@@ -150,6 +154,26 @@ final class AppModel: ObservableObject {
             applyTriggers()
         } else {
             await start()
+        }
+    }
+
+    /// Paused by CallGuard (an excluded call, or the others not told yet), not by you.
+    private var guardPaused = false
+
+    /// CallGuard changed its mind: stop hearing this call, or hear again once it allows.
+    func guardChanged() {
+        if CallGuard.shared.block != nil {
+            guard state == .listening else { return }
+            guardPaused = true
+            Task {
+                await audio.stop()
+                live.stop()
+                state = .paused
+                applyTriggers()
+            }
+        } else if guardPaused {
+            guardPaused = false
+            if state == .paused { Task { await start() } }
         }
     }
 
@@ -566,7 +590,6 @@ final class AppModel: ObservableObject {
             }
             Memory.shared.tapped()
             if !badAudio { Memory.shared.record("tap", pieces: moment.pieces, moment: moment) }
-            AccentGuess.maybeSuggest(for: moment)
             // Offline and nothing to explain it with: the panel already says it's saved; the video goes on.
             if step.savedOffline {
                 if paused { MediaKey.playPause() }
@@ -1307,6 +1330,8 @@ final class FloatingPanel {
         panel.isOpaque = false
         panel.hasShadow = true
         panel.isMovableByWindowBackground = true
+        // Never in a screen share: the others don't see what you didn't understand (F1).
+        panel.sharingType = .none
         return panel
     }
 }

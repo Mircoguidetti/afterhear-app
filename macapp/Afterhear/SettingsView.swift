@@ -12,6 +12,7 @@ struct SettingsView: View {
     @AppStorage(Key.doubleTap) private var doubleTap = true
     @AppStorage(Key.keyword) private var keyword = ""
     @AppStorage(Key.callsTextOnly) private var callsTextOnly = false
+    @AppStorage(Key.callReport) private var callReport = false
     @AppStorage(Key.myName) private var myName = ""
     @AppStorage(Key.askedMe) private var askedMe = false
     @AppStorage(Key.opener) private var opener = false
@@ -85,6 +86,11 @@ struct SettingsView: View {
                 Text("Voices never leave your devices: everything is transcribed here. Only the text of the sentence you ask about, without names or numbers, goes to our model to explain it. A moment's audio stays on this Mac for \(Store.clipDays) days, then it's deleted.")
                     .font(.caption).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
+                Toggle("A report after each call", isOn: $callReport)
+                Text("Only about understanding: what they asked you, what they asked you to do, what was decided. When the call ends, the questions of the others and your answers, as text without names or numbers, go to our model to write it. Nothing about how you speak.")
+                    .font(.caption).foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                NeverCallsSection()
             }
             AccountSection(webApp: webApp)
             Section {
@@ -212,7 +218,7 @@ private struct CalendarSection: View {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Google Calendar")
-                    Text(google.connected ? String(localized: "Connected · read only") : String(localized: "Connect it if it isn't in the Calendar app on this Mac"))
+                    Text(google.connected ? String(localized: "Connected") : String(localized: "Connect it if it isn't in the Calendar app on this Mac"))
                         .font(.caption).foregroundStyle(.secondary)
                 }
                 Spacer()
