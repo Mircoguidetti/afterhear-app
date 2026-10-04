@@ -1,0 +1,75 @@
+name: Brain bench
+
+# The test bench (docs/BRAIN.md § 19.18): the same Ranking.swift as the apps, on scripted
+# conversations (a gate) and on real open-license meetings (measured, on demand only: the paid calls never run by themselves).
+# Secret, optional: ASAID_TESTER_CODE, to measure explanations through the real server
+# (which already has the AI keys). It stays in GitHub, never in the code.
+
+on:
+  push:
+    paths: ["bench/**", "macapp/Afterhear/Ranking.swift", ".github/workflows/bench.yml"]
+  workflow_dispatch:
+    inputs:
+      paid:
+        description: "Also measure the server's recognisers and explanations (a few cents)"
+        type: boolean
+        default: true
+      private:
+        description: "Also measure the recognisers that run on your own Mac (Whisper large, Parakeet): free, slow"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  scripted:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile the ranking
+        run: swiftc --version && swiftc -O macapp/Afterhear/Ranking.swift bench/main.swift -o rank
+      - name: Scripted conversations
+        run: python3 bench/run.py synthetic
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bench-scripted
+          path: bench/out/*.json
+
+  meetings:
+    if: github.event_name != 'push' || contains(github.event.head_commit.message, '[bench]')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile the ranking
+        run: swiftc -O macapp/Afterhear/Ranking.swift bench/main.swift -o rank
+      - name: Tools
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          pip install --quiet faster-whisper
+          if [ "${{ inputs.private }}" = "true" ]; then pip install --quiet "onnx-asr[cpu,hub]"; fi
+      - name: Audio cache
+        uses: actions/cache@v4
+        with:
+          path: bench/out/audio/*.wav
+          key: bench-ami-v1
+      - name: Real meetings
+        env:
+          # Paid calls (recognisers, explanations, judge) only when launched by hand, never on a push.
+          ASAID_TESTER_CODE: ${{ github.event_name == 'workflow_dispatch' && inputs.paid && secrets.ASAID_TESTER_CODE || '' }}
+          BENCH_PRIVATE: ${{ inputs.private && '1' || '' }}
+        run: python3 bench/run.py audio
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bench-meetings
+          path: bench/out/*.json
+      # Apple's recognisers can't run on GitHub's Macs (no one to allow speech recognition, and the
+      # new model isn't downloadable there): the clips travel with apple.swift, to run on a real Mac.
+      - run: cp bench/apple.swift bench/apple.sh bench/Info.plist bench/out/clips/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bench-clips
+          path: bench/out/clips

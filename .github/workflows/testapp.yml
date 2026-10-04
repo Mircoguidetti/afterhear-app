@@ -1,0 +1,25 @@
+name: Test app build
+
+# Only by hand: automatic builds are the Mac app's alone. Actions → this workflow → Run workflow.
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Xcode version
+        run: xcodebuild -version
+      - name: Generate project
+        run: (command -v xcodegen || brew install xcodegen) && cd testapp && xcodegen generate
+      - name: Build for the simulator
+        run: |
+          cd testapp
+          xcodebuild -project AfterhearTest.xcodeproj -scheme AfterhearTest \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO build | tail -80
+          exit ${PIPESTATUS[0]}

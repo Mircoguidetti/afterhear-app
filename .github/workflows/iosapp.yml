@@ -1,0 +1,34 @@
+name: iPhone and Watch apps
+
+# Only by hand: automatic builds are the Mac app's alone. Actions → this workflow → Run workflow.
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Xcode version
+        run: xcodebuild -version
+      - name: Generate project
+        run: (command -v xcodegen || brew install xcodegen) && cd iosapp && xcodegen generate
+      # No signing yet: this checks that everything compiles. Builds for real devices
+      # (and TestFlight) need the Apple Developer account.
+      - name: Build iPhone app (with the Live Activity)
+        run: |
+          cd iosapp
+          xcodebuild -project afterhear-ios.xcodeproj -scheme Afterhear -configuration Release \
+            -destination 'generic/platform=iOS' -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO CURRENT_PROJECT_VERSION=${{ github.run_number }} build | tail -80
+          exit ${PIPESTATUS[0]}
+      - name: Build Watch app
+        run: |
+          cd iosapp
+          xcodebuild -project afterhear-ios.xcodeproj -scheme AfterhearWatch -configuration Release \
+            -destination 'generic/platform=watchOS' -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO CURRENT_PROJECT_VERSION=${{ github.run_number }} build | tail -60
+          exit ${PIPESTATUS[0]}

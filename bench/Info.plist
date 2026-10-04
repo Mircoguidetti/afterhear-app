@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleIdentifier</key>
+	<string>com.afterhear.bench</string>
+	<key>CFBundleName</key>
+	<string>Afterhear bench</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Transcribes the bench's audio clips to compare Apple's recognisers with the others.</string>
+</dict>
+</plist>

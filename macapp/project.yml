@@ -1,0 +1,66 @@
+# XcodeGen spec for the Mac app. CI generates the project and builds it,
+# so nobody needs Xcode on a slow Mac. See macapp/LEGGIMI.md.
+name: Afterhear
+options:
+  bundleIdPrefix: app.afterhear
+  deploymentTarget:
+    # 14: FluidAudio (Parakeet on the device) needs it; the audio-only tap needs 14.2 anyway.
+    macOS: "14.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    SWIFT_DEFAULT_ACTOR_ISOLATION: nonisolated
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    # Ad-hoc signature: enough to run on any Mac after "Open Anyway".
+    # With the Apple Developer account this becomes Developer ID + notarisation.
+    CODE_SIGN_STYLE: Manual
+    CODE_SIGN_IDENTITY: "-"
+    DEVELOPMENT_TEAM: ""
+    ENABLE_HARDENED_RUNTIME: NO
+    ONLY_ACTIVE_ARCH: NO
+    ARCHS: "arm64 x86_64"
+packages:
+  # Parakeet and the voice detector on the Neural Engine (docs/BRAIN.md § 19.25).
+  FluidAudio:
+    url: https://github.com/FluidInference/FluidAudio
+    exactVersion: 0.17.5
+targets:
+  Afterhear:
+    type: application
+    platform: macOS
+    sources: [Afterhear]
+    dependencies:
+      - package: FluidAudio
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.afterhear.mac
+        PRODUCT_NAME: Afterhear
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        # Parakeet on the processor for Intel Macs (sherpa-onnx, docs/BRAIN.md § 19.25). The
+        # libraries are fetched by CI into vendor/sherpa and copied into the app below.
+        SWIFT_OBJC_BRIDGING_HEADER: Afterhear/Sherpa/Sherpa-Bridging-Header.h
+        LIBRARY_SEARCH_PATHS: $(PROJECT_DIR)/vendor/sherpa/lib
+        OTHER_LDFLAGS: -lsherpa-onnx-c-api
+        LD_RUNPATH_SEARCH_PATHS: "@executable_path/../Frameworks"
+    postBuildScripts:
+      - name: Embed sherpa-onnx
+        script: |
+          mkdir -p "$TARGET_BUILD_DIR/$FRAMEWORKS_FOLDER_PATH"
+          cp -a "$PROJECT_DIR"/vendor/sherpa/lib/*.dylib "$TARGET_BUILD_DIR/$FRAMEWORKS_FOLDER_PATH/"
+    info:
+      path: Afterhear/Info.plist
+      properties:
+        CFBundleDisplayName: Afterhear
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSUIElement: true
+        LSApplicationCategoryType: public.app-category.education
+        NSMicrophoneUsageDescription: Afterhear listens to your voice on this Mac only, to know what you were answering and to notice when you say "sorry?". Nothing is saved.
+        NSAudioCaptureUsageDescription: Afterhear listens to the sound of your Mac (a call, a film) to find the sentence you missed. Voices never leave this Mac.
+        NSCalendarsUsageDescription: Afterhear reads your calendar to prep you before calls and give you the lesson right after. Only the call's title, time and the people you track leave this Mac.
+        NSCalendarsFullAccessUsageDescription: Afterhear reads your calendar to prep you before calls and give you the lesson right after. Only the call's title, time and the people you track leave this Mac.
+        NSAppleEventsUsageDescription: Afterhear asks Spotify and Music which song is playing (title and artist only), to explain the lines of that song.
+        CFBundleURLTypes:
+          - CFBundleURLName: app.afterhear.mac.auth
+            CFBundleURLSchemes: [afterhear]

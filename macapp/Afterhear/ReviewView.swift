@@ -1,0 +1,218 @@
+import SwiftUI
+
+/// The evening: relive each moment. Listen, try, reveal, then "I know it" or "again".
+/// "Again" brings it back tomorrow; "I know it" in 3, 7, then 21 days.
+struct ReviewView: View {
+    /// A fixed set (a call's lesson, a prep) instead of today's queue, due or not.
+    var only: [UUID]? = nil
+    var title: String? = nil
+
+    init(only: [UUID]? = nil, title: String? = nil) {
+        self.only = only
+        self.title = title
+    }
+
+    @EnvironmentObject private var store: Store
+    @State private var queue: [Moment] = []
+    @State private var index = 0
+    @State private var revealed = false
+    @State private var knownCount = 0
+    @State private var againCount = 0
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            if index < queue.count {
+                let moment = queue[index]
+                header(moment)
+                if revealed { reveal(moment) } else { listen(moment) }
+                Spacer(minLength: 0)
+                buttons(moment)
+            } else {
+                done
+            }
+        }
+        .padding(24)
+        .frame(minWidth: 460, minHeight: 560)
+        .onAppear(perform: load)
+    }
+
+    private func load() {
+        if let only {
+            queue = store.moments.filter { only.contains($0.id) }.sorted { $0.date < $1.date }
+        } else {
+            queue = store.reviewQueue
+        }
+        index = 0
+        revealed = false
+        knownCount = 0
+        againCount = 0
+        if let first = queue.first { AppModel.shared.play(first, slow: false) }
+    }
+
+    private func header(_ moment: Moment) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ProgressView(value: Double(index), total: Double(max(queue.count, 1))).tint(Brand.accent)
+            if let title { Text(title).font(.caption.weight(.semibold)).foregroundStyle(Brand.accent) }
+            HStack {
+                Text("\(index + 1) / \(queue.count)").font(.caption.monospacedDigit())
+                Spacer()
+                Text(context(moment)).font(.caption).foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private func context(_ moment: Moment) -> String {
+        var parts = [moment.date.formatted(date: .abbreviated, time: .shortened)]
+        if let with = moment.with { parts.append("with \(with)") }
+        if moment.trigger == "sorry" { parts.append("you said \"sorry?\"") }
+        if (moment.step ?? 0) > 0 || moment.review == .again { parts.append("review") }
+        return parts.joined(separator: " · ")
+    }
+
+    private func listen(_ moment: Moment) -> some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text("Listen again. Can you catch what they said?").font(.title3.weight(.semibold))
+            HStack {
+                Button { AppModel.shared.play(moment, slow: false) } label: { Label("Replay", systemImage: "play.fill") }
+                Button { AppModel.shared.play(moment, slow: true) } label: { Label("Slow", systemImage: "tortoise.fill") }
+            }
+            .controlSize(.large)
+            .disabled(store.clipURL(moment) == nil)
+            if store.clipURL(moment) == nil {
+                Text("The audio for this moment has already been deleted (it's kept \(Store.clipDays) days).")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private func reveal(_ moment: Moment) -> some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 12) {
+                let current = store.moments.first(where: { $0.id == moment.id }) ?? moment
+                Text(current.transcript).font(.system(size: 20))
+                // Test (§ 19.25): the same sentence as ElevenLabs heard it, to see who got it right.
+                if let cloud = current.cloudTranscript, !cloud.isEmpty, cloud != current.transcript {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("On your device: \(current.transcript)").font(.callout)
+                        Text("ElevenLabs: \(cloud)").font(.callout)
+                    }
+                    .foregroundStyle(.secondary)
+                }
+                Text("«\(current.translation)»").foregroundStyle(.secondary)
+                if let intent = current.intent, !intent.isEmpty {
+                    Label(intent, systemImage: "eye").font(.callout.weight(.medium)).foregroundStyle(Brand.accent)
+                }
+                ForEach(Array(current.pieces.enumerated()), id: \.offset) { _, piece in
+                    VStack(alignment: .leading, spacing: 3) {
+                        HStack(alignment: .firstTextBaseline) {
+                            Text(piece.text).font(.headline)
+                            Spacer()
+                            Text(piece.causeLabel).font(.caption).foregroundStyle(.secondary)
+                        }
+                        Text(piece.meaning)
+                        if let subtext = piece.subtext, !subtext.isEmpty { Text("Really means: \(subtext)").font(.callout.weight(.medium)) }
+                        if !piece.note.isEmpty { Text(piece.note).font(.callout).foregroundStyle(.secondary) }
+                    }
+                    .padding(.leading, 10)
+                    .overlay(alignment: .leading) { Rectangle().fill(Brand.accent).frame(width: 3) }
+                }
+                if moment.turns != nil {
+                    Button("Not this one? Pick the right piece") { AppModel.shared.showChooser(moment.id) }
+                }
+                Divider()
+                PracticeView(moment: current).id(current.id)
+                if moment.trigger == "hesitation" {
+                    // Afterhear noticed a long pause after a question. Only you know why (§ 1.7).
+                    HStack {
+                        Text("You paused here. Was it the language?").font(.callout)
+                        Button("Yes, the language") { store.setLabel(nil, for: moment.id) }
+                        Button("No, I was thinking") { notLanguage(moment) }
+                    }
+                    .controlSize(.small)
+                }
+                Picker("Why did it slip past?", selection: Binding(
+                    get: { store.moments.first { $0.id == moment.id }?.label },
+                    set: { store.setLabel($0, for: moment.id) }
+                )) {
+                    Text("Choose…").tag(MomentLabel?.none)
+                    ForEach(MomentLabel.allCases) { Text($0.title).tag(MomentLabel?.some($0)) }
+                }
+                .frame(maxWidth: 360)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    @ViewBuilder private func buttons(_ moment: Moment) -> some View {
+        if revealed {
+            HStack {
+                Button("Again") { answer(.again, moment) }
+                    .keyboardShortcut("1", modifiers: [])
+                Spacer()
+                Button("I know it") { answer(.known, moment) }
+                    .keyboardShortcut("2", modifiers: [])
+                    .tint(Brand.accent)
+            }
+            .controlSize(.large)
+            .buttonStyle(.borderedProminent)
+        } else {
+            Button("Reveal") { revealed = true }
+                .keyboardShortcut(.space, modifiers: [])
+                .controlSize(.large)
+                .buttonStyle(.borderedProminent)
+                .tint(Brand.accent)
+        }
+    }
+
+    /// Not a language problem: it never comes back and your model isn't touched.
+    private func notLanguage(_ moment: Moment) {
+        store.dismiss(moment.id)
+        index += 1
+        revealed = false
+        if index < queue.count { AppModel.shared.play(queue[index], slow: false) }
+    }
+
+    private func answer(_ review: Review, _ moment: Moment) {
+        store.setReview(review, for: moment.id)
+        Memory.shared.record(review == .known ? "review_known" : "review_again", pieces: moment.pieces, moment: moment)
+        if review == .known { knownCount += 1 } else { againCount += 1 }
+        index += 1
+        revealed = false
+        if index < queue.count { AppModel.shared.play(queue[index], slow: false) }
+    }
+
+    private var done: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text(only == nil ? "Done for today." : "Done.").font(.largeTitle.weight(.semibold))
+            if queue.isEmpty {
+                Text("Nothing to review right now.").foregroundStyle(.secondary)
+            } else {
+                Text("\(knownCount) you know · \(againCount) back tomorrow").font(.title3)
+            }
+            weeks
+            Spacer()
+            Button("Start again") { load() }.disabled(only == nil && store.reviewQueue.isEmpty)
+        }
+    }
+
+    /// Taps per hour of listening, week by week: the help that fades.
+    private var weeks: some View {
+        let rows = store.weeklyRates()
+        let rates = rows.map { $0.hours > 0 ? Double($0.taps) / $0.hours : 0 }
+        let top = max(rates.max() ?? 1, 1)
+        return VStack(alignment: .leading, spacing: 8) {
+            Text("Moments per hour of listening").font(.headline)
+            HStack(alignment: .bottom, spacing: 12) {
+                ForEach(Array(rows.enumerated()), id: \.offset) { i, row in
+                    VStack(spacing: 4) {
+                        Text(row.hours > 0 ? String(format: "%.1f", rates[i]) : "–").font(.caption.monospacedDigit())
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(i == rows.count - 1 ? Brand.accent : Color.secondary.opacity(0.3))
+                            .frame(width: 44, height: max(4, 90 * rates[i] / top))
+                        Text(row.label).font(.caption2).foregroundStyle(.secondary)
+                    }
+                }
+            }
+        }
+    }
+}

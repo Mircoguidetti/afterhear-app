@@ -1,0 +1,68 @@
+import Foundation
+
+/// Talks to Afterhear's server (api/explain.ts on Vercel), which holds the AI keys.
+enum ExplainClient {
+    private struct Body: Encodable {
+        let text: String
+        let audio: String?
+        let heard: String
+        let native: String
+        let level: String
+        let known: [String]
+        let struggling: [String]
+        let watch: [String]
+        let profile: String
+        let source: String
+        let overlap: Bool
+        let provider: String
+        let focus: String
+        let tone: String
+        let before: [String]
+        let after: [String]
+    }
+
+    private struct ErrorBody: Decodable {
+        let error: String?
+    }
+
+    static func explain(_ text: String, audio: Data? = nil, settings: AppSettings, known: [String],
+                        struggling: [String] = [], watch: [String] = [], profile: String = "",
+                        source: String = "", overlap: Bool = false, focus: String = "", tone: String = "",
+                        before: [String] = [], after: [String] = []) async throws -> Explanation {
+        guard !settings.code.trimmingCharacters(in: .whitespaces).isEmpty else { throw AfterhearError.missingCode }
+        guard let base = URL(string: settings.server.trimmingCharacters(in: .whitespaces)) else {
+            throw AfterhearError.server("url")
+        }
+        var request = URLRequest(url: base.appendingPathComponent("api/explain"))
+        request.httpMethod = "POST"
+        // Offline is found at the tap (Reachability); this only caps a slow server.
+        request.timeoutInterval = 15
+        request.setValue("application/json", forHTTPHeaderField: "content-type")
+        request.setValue(settings.code.trimmingCharacters(in: .whitespaces), forHTTPHeaderField: "x-afterhear-code")
+        request.httpBody = try JSONEncoder().encode(Body(
+            text: text,
+            audio: audio?.base64EncodedString(),
+            heard: settings.heard.rawValue,
+            native: settings.native.rawValue,
+            level: settings.level,
+            known: Array(known.prefix(500)),
+            struggling: Array(struggling.prefix(200)),
+            watch: Array(watch.prefix(200)),
+            profile: String(profile.prefix(600)),
+            source: String(source.prefix(200)),
+            overlap: overlap,
+            provider: "gemini",
+            focus: String(focus.prefix(120)),
+            tone: String(tone.prefix(400)),
+            before: before.suffix(3).map { String(Redactor.redact($0).prefix(300)) },
+            after: after.prefix(2).map { String(Redactor.redact($0).prefix(300)) }
+        ))
+        let (data, response) = try await URLSession.shared.data(for: request)
+        let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+        guard status == 200 else {
+            let code = (try? JSONDecoder().decode(ErrorBody.self, from: data))?.error ?? "HTTP \(status)"
+            throw AfterhearError.server(code)
+        }
+        return try JSONDecoder().decode(Explanation.self, from: data)
+    }
+}

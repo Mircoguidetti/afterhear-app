@@ -1,0 +1,98 @@
+import Foundation
+
+/// One stretch of speech by the same side: "loro" (the Mac's sound) or "tu" (your microphone).
+struct Turn: Codable, Hashable {
+    var who: String
+    /// Seconds from the start of the moment's clip.
+    var start: Double
+    var end: Double
+    var text: String
+
+    var isMine: Bool { who == "tu" }
+}
+
+/// Builds the last minutes of conversation and guesses which piece you missed.
+/// The tap usually comes late: a few seconds after a video, a minute after
+/// answering the CEO, after you've replied to the waiter. So we look at the
+/// whole conversation, not just the last seconds.
+enum Conversation {
+    /// Silence longer than this starts a new turn.
+    static let gap: TimeInterval = 1.2
+
+    static func turns(others: [TimedWord], mine: [TimedWord], clipStart: Date) -> [Turn] {
+        let theirs = group(others, who: "loro", clipStart: clipStart)
+        // With speakers on, the microphone also hears the others: drop "tu" turns
+        // that mostly repeat what the Mac played at the same time.
+        let ours = group(mine, who: "tu", clipStart: clipStart).filter { turn in
+            let words = Set(normalized(turn.text))
+            guard !words.isEmpty else { return false }
+            let overlapping = theirs.filter { $0.start < turn.end + 2 && $0.end > turn.start - 2 }
+            let heard = Set(overlapping.flatMap { normalized($0.text) })
+            return Double(words.intersection(heard).count) / Double(words.count) < 0.5
+        }
+        return (theirs + ours).sorted { $0.start < $1.start }
+    }
+
+    /// The index of the most likely missed turn (always one of theirs), or nil.
+    /// - tapAt: seconds from clip start when you tapped.
+    /// - usualDelay: your learned delay between the missed words and the tap, if known.
+    /// - freshWithin: when set, only pieces that ended at most this many seconds before the tap.
+    static func guess(_ turns: [Turn], tapAt: Double, usualDelay: Double?, freshWithin: Double? = nil,
+                      hardness: ((String) -> Double)? = nil) -> Int? {
+        rank(turns, tapAt: tapAt, usualDelay: usualDelay, freshWithin: freshWithin, hardness: hardness).first?.index
+    }
+
+    /// Every turn of theirs, best guess first, with the signs that point to it (Ranking).
+    static func rank(_ turns: [Turn], tapAt: Double, usualDelay: Double?, freshWithin: Double? = nil,
+                     hardness: ((String) -> Double)? = nil) -> [Ranking.Scored] {
+        let lines = turns.map { Ranking.Line(start: $0.start, end: $0.end, text: $0.text, mine: $0.isMine) }
+        return Ranking.rank(lines, tapAt: tapAt, usualDelay: usualDelay, freshWithin: freshWithin, hardness: hardness)
+    }
+
+    /// A turn longer than this is cut at the next small pause: one sentence on screen, not a speech.
+    static let longTurnWords = 28
+
+    private static func group(_ words: [TimedWord], who: String, clipStart: Date) -> [Turn] {
+        var turns: [Turn] = []
+        for word in words {
+            let start = word.start.timeIntervalSince(clipStart)
+            let end = word.end.timeIntervalSince(clipStart)
+            // A new piece starts after a pause, after the end of a sentence, or when it gets too long.
+            let sentenceEnded = turns.last.map { endsSentence($0.text) } ?? false
+            let tooLong = turns.last.map { $0.text.split(separator: " ").count >= longTurnWords && start - $0.end > 0.25 } ?? false
+            let wayTooLong = turns.last.map { $0.text.split(separator: " ").count >= longTurnWords * 3 / 2 } ?? false
+            if var last = turns.last, start - last.end < gap, !sentenceEnded, !tooLong, !wayTooLong {
+                last.end = max(last.end, end)
+                last.text += " " + word.text
+                turns[turns.count - 1] = last
+            } else {
+                turns.append(Turn(who: who, start: max(0, start), end: end, text: word.text))
+            }
+        }
+        return turns
+    }
+
+    private static func endsSentence(_ text: String) -> Bool {
+        guard let last = text.trimmingCharacters(in: .whitespaces).last else { return false }
+        return ".?!…。？！".contains(last)
+    }
+
+    /// Splits free text (from a fresh transcription) into sentences.
+    static func sentences(_ text: String) -> [String] {
+        var out: [String] = []
+        var current = ""
+        for word in text.split(separator: " ") {
+            current += (current.isEmpty ? "" : " ") + word
+            if endsSentence(current) || current.split(separator: " ").count >= longTurnWords {
+                out.append(current)
+                current = ""
+            }
+        }
+        if !current.isEmpty { out.append(current) }
+        return out
+    }
+
+    private static func normalized(_ text: String) -> [String] {
+        text.lowercased().split { !$0.isLetter }.map(String.init).filter { $0.count > 2 }
+    }
+}

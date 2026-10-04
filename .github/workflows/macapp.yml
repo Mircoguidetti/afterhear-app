@@ -1,0 +1,112 @@
+name: Mac app
+
+# Built on GitHub's Macs (free for a public repository). macos-26 has Xcode 26, which the app
+# needs (Apple's model and translation on macOS 26); the app is built for Intel and Apple Silicon.
+# No pull_request trigger: nothing from a fork ever runs here with this repository's secrets.
+
+on:
+  push:
+    branches: [main, dev]
+    paths: ["macapp/**", ".github/workflows/macapp.yml"]
+  workflow_dispatch:
+
+concurrency:
+  group: macapp-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Xcode version
+        run: xcodebuild -version
+      # Parakeet on the processor for Intel Macs: sherpa-onnx's prebuilt universal libraries,
+      # made to load from inside the app (@rpath).
+      - name: sherpa-onnx libraries
+        run: |
+          set -e
+          V=v1.13.8
+          N=sherpa-onnx-$V-osx-universal2-shared-lib
+          curl -fsSL -o /tmp/sherpa.tar.bz2 "https://github.com/k2-fsa/sherpa-onnx/releases/download/$V/$N.tar.bz2"
+          mkdir -p macapp/vendor/sherpa
+          tar -xjf /tmp/sherpa.tar.bz2 -C /tmp
+          cp -a /tmp/$N/lib macapp/vendor/sherpa/
+          cd macapp/vendor/sherpa/lib
+          for f in *.dylib; do
+            [ -L "$f" ] && continue
+            install_name_tool -id "@rpath/$f" "$f"
+            for dep in $(otool -L "$f" | tail -n +2 | awk '{print $1}'); do
+              base=$(basename "$dep")
+              if [ -e "$base" ] && [ "$dep" != "@rpath/$base" ]; then install_name_tool -change "$dep" "@rpath/$base" "$f"; fi
+            done
+            install_name_tool -add_rpath @loader_path "$f" 2>/dev/null || true
+            lipo -archs "$f"
+          done
+      - name: Generate project
+        run: (command -v xcodegen || brew install xcodegen) && cd macapp && xcodegen generate
+      - name: Build for Intel + Apple Silicon
+        run: |
+          cd macapp
+          xcodebuild -project Afterhear.xcodeproj -scheme Afterhear -configuration Release \
+            -destination 'generic/platform=macOS' -derivedDataPath build \
+            CURRENT_PROJECT_VERSION=${{ github.run_number }} build | tail -80
+          exit ${PIPESTATUS[0]}
+      # A fixed self-made certificate: macOS ties the audio permission to the signature, so a stable
+      # one survives updates. It lives in the MAC_SIGNING_P12 secret (base64 of a .p12 with password
+      # MAC_SIGNING_PASSWORD), never in the cache: in a public repository the cache is not private.
+      # Without the secret the app keeps its ad-hoc signature (the permission is asked again after
+      # each update).
+      - name: Sign with the fixed certificate
+        env:
+          P12: ${{ secrets.MAC_SIGNING_P12 }}
+          P12_PASSWORD: ${{ secrets.MAC_SIGNING_PASSWORD }}
+        run: |
+          if [ -z "$P12" ]; then echo "::warning::MAC_SIGNING_P12 is missing: ad-hoc signature"; exit 0; fi
+          set -e
+          echo "$P12" | base64 --decode > "$RUNNER_TEMP/afterhear.p12"
+          KC="$RUNNER_TEMP/afterhear-build.keychain-db"
+          security create-keychain -p ci "$KC"
+          security set-keychain-settings "$KC"
+          security unlock-keychain -p ci "$KC"
+          security import "$RUNNER_TEMP/afterhear.p12" -k "$KC" -P "$P12_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k ci "$KC"
+          security list-keychains -d user -s "$KC" $(security list-keychains -d user | tr -d '"')
+          codesign --force --deep --sign "Afterhear dev" --keychain "$KC" macapp/build/Build/Products/Release/Afterhear.app
+          codesign -dr - macapp/build/Build/Products/Release/Afterhear.app
+          rm -f "$RUNNER_TEMP/afterhear.p12"
+      - name: Zip
+        run: |
+          cd macapp/build/Build/Products/Release
+          lipo -archs Afterhear.app/Contents/MacOS/Afterhear
+          codesign -dv Afterhear.app 2>&1 | head -5
+          ditto -c -k --keepParent Afterhear.app "$GITHUB_WORKSPACE/Afterhear-mac.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Afterhear-mac
+          path: Afterhear-mac.zip
+      # Test builds from dev: a separate release to install and try, main stays as it is.
+      - name: Publish release mac-test
+        if: github.ref == 'refs/heads/dev'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete mac-test --yes --cleanup-tag || true
+          gh release create mac-test Afterhear-mac.zip --prerelease --target "$GITHUB_SHA" \
+            --title "Afterhear per Mac (prova, dev)" \
+            --notes "Build di prova ${GITHUB_SHA::7} dal branch dev. Scarica Afterhear-mac.zip, aprilo e trascina Afterhear in Applicazioni."
+      # The landing's "Download for Mac": every build of main becomes the latest release of
+      # Mircoguidetti/afterhear-download, always as Afterhear-mac.zip, so the link never changes.
+      # DOWNLOAD_TOKEN: a fine-grained token with "Contents: read and write" on that repository only.
+      - name: Publish the download
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ secrets.DOWNLOAD_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then echo "::warning::DOWNLOAD_TOKEN is missing: the landing's download stays at the previous version"; exit 0; fi
+          gh release create "v0.1.${{ github.run_number }}" Afterhear-mac.zip -R Mircoguidetti/afterhear-download --latest \
+            --title "Afterhear for Mac 0.1.${{ github.run_number }}" \
+            --notes "Afterhear for Mac, build ${GITHUB_SHA::7}. macOS 14 or later. Unzip, drag Afterhear into Applications. First time: right-click Afterhear → Open → Open."

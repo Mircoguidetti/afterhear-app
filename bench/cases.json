@@ -1,0 +1,583 @@
+[
+ {
+  "name": "pub: yeah yeah",
+  "lines": [
+   {
+    "start": 0.0,
+    "end": 3.0,
+    "text": "So how was the weekend?",
+    "mine": false
+   },
+   {
+    "start": 3.5,
+    "end": 5.0,
+    "text": "Good, good, we went to the coast.",
+    "mine": true
+   },
+   {
+    "start": 5.5,
+    "end": 9.0,
+    "text": "Nice. Did you get a chance to have a butcher's at the new place on the high street?",
+    "mine": false
+   },
+   {
+    "start": 9.6,
+    "end": 10.6,
+    "text": "Yeah, yeah.",
+    "mine": true
+   },
+   {
+    "start": 11.1,
+    "end": 15.1,
+    "text": "It's lovely, my sister runs it with her husband.",
+    "mine": false
+   },
+   {
+    "start": 15.6,
+    "end": 17.1,
+    "text": "Oh really, that's great.",
+    "mine": true
+   },
+   {
+    "start": 18.1,
+    "end": 21.1,
+    "text": "Anyway, same again?",
+    "mine": false
+   }
+  ],
+  "truth": 2,
+  "taps": [
+   {
+    "at": 9.5,
+    "delay": 0.5,
+    "label": "0s"
+   },
+   {
+    "at": 19.0,
+    "delay": 10,
+    "label": "10s"
+   },
+   {
+    "at": 129.0,
+    "delay": 120,
+    "label": "2min"
+   },
+   {
+    "at": 19.0,
+    "delay": null,
+    "label": "10s-new"
+   }
+  ],
+  "learning": [
+   "have a butcher's"
+  ]
+ },
+ {
+  "name": "call: question then silence",
+  "lines": [
+   {
+    "start": 0.0,
+    "end": 4.0,
+    "text": "Okay so the numbers for Q3 look solid overall.",
+    "mine": false
+   },
+   {
+    "start": 4.4,
+    "end": 8.4,
+    "text": "Marketing came in a bit under budget which is nice.",
+    "mine": false
+   },
+   {
+    "start": 8.8,
+    "end": 13.8,
+    "text": "Could you circle back on the ballpark for the Leeds rollout by Friday?",
+    "mine": false
+   },
+   {
+    "start": 18.3,
+    "end": 20.3,
+    "text": "Sure, I'll look into it.",
+    "mine": true
+   },
+   {
+    "start": 20.9,
+    "end": 24.9,
+    "text": "Great. Next item is the hiring plan for January.",
+    "mine": false
+   },
+   {
+    "start": 25.3,
+    "end": 30.3,
+    "text": "We're looking at two more engineers and a designer.",
+    "mine": false
+   }
+  ],
+  "truth": 2,
+  "taps": [
+   {
+    "at": 14.3,
+    "delay": 0.5,
+    "label": "0s"
+   },
+   {
+    "at": 23.8,
+    "delay": 10,
+    "label": "10s"
+   },
+   {
+    "at": 133.8,
+    "delay": 120,
+    "label": "2min"
+   },
+   {
+    "at": 23.8,
+    "delay": null,
+    "label": "10s-new"
+   }
+  ],
+  "learning": [
+   "ballpark"
+  ]
+ },
+ {
+  "name": "dinner: laugh along",
+  "lines": [
+   {
+    "start": 0.0,
+    "end": 3.0,
+    "text": "We ended up at Gary's place, as you do.",
+    "mine": false
+   },
+   {
+    "start": 3.3,
+    "end": 7.3,
+    "text": "And he's absolutely bladdered by nine o'clock, singing on the table.",
+    "mine": false
+   },
+   {
+    "start": 7.8,
+    "end": 8.8,
+    "text": "Haha!",
+    "mine": true
+   },
+   {
+    "start": 9.2,
+    "end": 12.2,
+    "text": "Then the landlord comes in and he just carries on.",
+    "mine": false
+   },
+   {
+    "start": 12.7,
+    "end": 14.7,
+    "text": "Oh no, what happened then?",
+    "mine": true
+   },
+   {
+    "start": 15.1,
+    "end": 19.1,
+    "text": "Got chucked out, obviously.",
+    "mine": false
+   }
+  ],
+  "truth": 1,
+  "taps": [
+   {
+    "at": 7.8,
+    "delay": 0.5,
+    "label": "0s"
+   },
+   {
+    "at": 17.3,
+    "delay": 10,
+    "label": "10s"
+   },
+   {
+    "at": 127.3,
+    "delay": 120,
+    "label": "2min"
+   },
+   {
+    "at": 17.3,
+    "delay": null,
+    "label": "10s-new"
+   }
+  ],
+  "learning": [
+   "bladdered"
+  ]
+ },
+ {
+  "name": "meeting: topic change",
+  "lines": [
+   {
+    "start": 0.0,
+    "end": 4.0,
+    "text": "Right, before we wrap, any thoughts on the offsite?",
+    "mine": false
+   },
+   {
+    "start": 4.5,
+    "end": 9.5,
+    "text": "Are we happy to push it to spring or do we want to bite the bullet and book it now?",
+    "mine": false
+   },
+   {
+    "start": 10.1,
+    "end": 13.1,
+    "text": "I was going to mention the client presentation is on Tuesday.",
+    "mine": true
+   },
+   {
+    "start": 13.7,
+    "end": 16.7,
+    "text": "Ah yes, good shout, who's leading that?",
+    "mine": false
+   },
+   {
+    "start": 17.3,
+    "end": 18.8,
+    "text": "I think Priya is.",
+    "mine": true
+   }
+  ],
+  "truth": 1,
+  "taps": [
+   {
+    "at": 10.0,
+    "delay": 0.5,
+    "label": "0s"
+   },
+   {
+    "at": 19.5,
+    "delay": 10,
+    "label": "10s"
+   },
+   {
+    "at": 129.5,
+    "delay": 120,
+    "label": "2min"
+   },
+   {
+    "at": 19.5,
+    "delay": null,
+    "label": "10s-new"
+   }
+  ],
+  "learning": [
+   "bite the bullet"
+  ]
+ },
+ {
+  "name": "video: last line, nothing after",
+  "lines": [
+   {
+    "start": 0.0,
+    "end": 3.0,
+    "text": "I'm telling you, it's not worth the hassle.",
+    "mine": false
+   },
+   {
+    "start": 3.5,
+    "end": 6.5,
+    "text": "You'll only end up paying through the nose for it.",
+    "mine": false
+   },
+   {
+    "start": 7.0,
+    "end": 9.5,
+    "text": "Trust me on this one.",
+    "mine": false
+   },
+   {
+    "start": 10.7,
+    "end": 13.7,
+    "text": "He's been leading you up the garden path for months.",
+    "mine": false
+   }
+  ],
+  "truth": 3,
+  "taps": [
+   {
+    "at": 14.2,
+    "delay": 0.5,
+    "label": "0s"
+   },
+   {
+    "at": 23.7,
+    "delay": 10,
+    "label": "10s"
+   },
+   {
+    "at": 23.7,
+    "delay": null,
+    "label": "10s-new"
+   }
+  ],
+  "learning": [
+   "garden path"
+  ]
+ },
+ {
+  "name": "call: answered while guessing",
+  "lines": [
+   {
+    "start": 0.0,
+    "end": 4.0,
+    "text": "How are things going with the migration?",
+    "mine": false
+   },
+   {
+    "start": 4.6,
+    "end": 7.6,
+    "text": "Good, we're about halfway through.",
+    "mine": true
+   },
+   {
+    "start": 8.1,
+    "end": 13.1,
+    "text": "And are we still on track to hit the go-live, or is it all a bit up in the air?",
+    "mine": false
+   },
+   {
+    "start": 13.9,
+    "end": 16.9,
+    "text": "Yes, I think it's fine, mostly.",
+    "mine": true
+   },
+   {
+    "start": 17.4,
+    "end": 20.4,
+    "text": "Okay good, let's keep an eye on it.",
+    "mine": false
+   },
+   {
+    "start": 20.9,
+    "end": 24.9,
+    "text": "Moving on, Sam, how's the audit?",
+    "mine": false
+   }
+  ],
+  "truth": 2,
+  "taps": [
+   {
+    "at": 13.6,
+    "delay": 0.5,
+    "label": "0s"
+   },
+   {
+    "at": 23.1,
+    "delay": 10,
+    "label": "10s"
+   },
+   {
+    "at": 133.1,
+    "delay": 120,
+    "label": "2min"
+   },
+   {
+    "at": 23.1,
+    "delay": null,
+    "label": "10s-new"
+   }
+  ],
+  "learning": [
+   "up in the air"
+  ]
+ },
+ {
+  "name": "standup: known words don't count",
+  "lines": [
+   {
+    "start": 0.0,
+    "end": 3.0,
+    "text": "Quick one from me today.",
+    "mine": false
+   },
+   {
+    "start": 3.4,
+    "end": 7.4,
+    "text": "Let's touch base after lunch about the vendor contract.",
+    "mine": false
+   },
+   {
+    "start": 7.8,
+    "end": 12.8,
+    "text": "They've basically moved the goalposts on the SLA again.",
+    "mine": false
+   },
+   {
+    "start": 13.4,
+    "end": 14.4,
+    "text": "Mm, right right.",
+    "mine": true
+   },
+   {
+    "start": 14.9,
+    "end": 17.9,
+    "text": "I'll send the doc round.",
+    "mine": false
+   }
+  ],
+  "truth": 2,
+  "taps": [
+   {
+    "at": 13.3,
+    "delay": 0.5,
+    "label": "0s"
+   },
+   {
+    "at": 22.8,
+    "delay": 10,
+    "label": "10s"
+   },
+   {
+    "at": 132.8,
+    "delay": 120,
+    "label": "2min"
+   },
+   {
+    "at": 22.8,
+    "delay": null,
+    "label": "10s-new"
+   }
+  ],
+  "learning": [
+   "moved the goalposts"
+  ],
+  "known": [
+   "touch base"
+  ]
+ },
+ {
+  "name": "numbers: price said fast",
+  "lines": [
+   {
+    "start": 0.0,
+    "end": 4.0,
+    "text": "So the quote came back this morning.",
+    "mine": false
+   },
+   {
+    "start": 4.4,
+    "end": 9.4,
+    "text": "It's two hundred and forty grand all in, plus VAT, over eighteen months.",
+    "mine": false
+   },
+   {
+    "start": 10.1,
+    "end": 11.6,
+    "text": "Okay, okay.",
+    "mine": true
+   },
+   {
+    "start": 12.0,
+    "end": 16.0,
+    "text": "Which is a bit steep, but doable.",
+    "mine": false
+   },
+   {
+    "start": 16.6,
+    "end": 19.6,
+    "text": "Let's discuss it with finance on Monday.",
+    "mine": true
+   }
+  ],
+  "truth": 1,
+  "taps": [
+   {
+    "at": 9.9,
+    "delay": 0.5,
+    "label": "0s"
+   },
+   {
+    "at": 19.4,
+    "delay": 10,
+    "label": "10s"
+   },
+   {
+    "at": 129.4,
+    "delay": 120,
+    "label": "2min"
+   },
+   {
+    "at": 19.4,
+    "delay": null,
+    "label": "10s-new"
+   }
+  ]
+ },
+ {
+  "name": "long chat: tap minutes later",
+  "lines": [
+   {
+    "start": 0.0,
+    "end": 4.0,
+    "text": "So the plan is to get there by ten.",
+    "mine": false
+   },
+   {
+    "start": 4.5,
+    "end": 9.5,
+    "text": "If the traffic's rammed on the M25 we'll cut through Epsom instead.",
+    "mine": false
+   },
+   {
+    "start": 10.1,
+    "end": 11.1,
+    "text": "Yeah, yeah.",
+    "mine": true
+   },
+   {
+    "start": 11.6,
+    "end": 15.6,
+    "text": "Then lunch, then the walk.",
+    "mine": false
+   },
+   {
+    "start": 16.2,
+    "end": 19.2,
+    "text": "Sounds good, I'll bring the snacks.",
+    "mine": true
+   },
+   {
+    "start": 20.2,
+    "end": 24.2,
+    "text": "Perfect, and Jo's driving back.",
+    "mine": false
+   },
+   {
+    "start": 24.7,
+    "end": 28.7,
+    "text": "She doesn't drink anyway.",
+    "mine": false
+   },
+   {
+    "start": 29.2,
+    "end": 31.2,
+    "text": "Fair enough.",
+    "mine": true
+   }
+  ],
+  "truth": 1,
+  "taps": [
+   {
+    "at": 129.5,
+    "delay": 120,
+    "label": "2min"
+   },
+   {
+    "at": 1209.5,
+    "delay": 1200,
+    "label": "20min"
+   },
+   {
+    "at": 129.5,
+    "delay": null,
+    "label": "2min-new"
+   }
+  ],
+  "learning": [
+   "rammed"
+  ]
+ }
+]

@@ -1,0 +1,26 @@
+# XcodeGen spec for the test app, so CI can build it without a checked-in .xcodeproj.
+# Locally you can keep using the project you created in Xcode and drag these files in.
+name: AfterhearTest
+options:
+  bundleIdPrefix: com.mircoguidetti
+  deploymentTarget:
+    iOS: "18.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    SWIFT_DEFAULT_ACTOR_ISOLATION: nonisolated
+    SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY: YES
+    CODE_SIGNING_ALLOWED: NO
+targets:
+  AfterhearTest:
+    type: application
+    platform: iOS
+    sources: [AfterhearTest]
+    info:
+      path: AfterhearTest/Info.plist
+      properties:
+        CFBundleDisplayName: Afterhear test
+        UILaunchScreen: {}
+        UIBackgroundModes: [audio]
+        NSMicrophoneUsageDescription: Serve per ascoltare le conversazioni durante il test.
+        NSSpeechRecognitionUsageDescription: Serve per trascrivere le frasi.
