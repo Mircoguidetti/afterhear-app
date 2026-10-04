@@ -131,6 +131,8 @@ final class AppModel: ObservableObject {
             Task { @MainActor in AppModel.shared.state = .needsPermission(error.localizedDescription) }
         }
         Task { await start() }
+        Task { await RemoteConfig.refresh() }
+        HealthCheck.shared.atLaunch()
     }
 
     func start() async {
@@ -142,6 +144,7 @@ final class AppModel: ObservableObject {
             applyTriggers()
         } catch {
             state = .needsPermission(String(localized: "Afterhear needs the \"Screen & System Audio Recording\" permission. Once it's on, reopen Afterhear."))
+            ErrorLog.record("audio.start", error)
         }
     }
 

@@ -44,6 +44,7 @@
 "Add a person or a group" = "Ajouter une personne ou un groupe";
 "Add it" = "L’ajouter";
 "Advanced" = "Avancé";
+"Afterhear asks the first time you're in a call." = "Afterhear le demande la première fois que vous êtes en appel.";
 "Afterhear can't read your calendar yet." = "Afterhear ne peut pas encore lire votre agenda.";
 "Afterhear can't read your calendar: allow it in System Settings → Privacy → Calendars." = "Afterhear ne peut pas lire votre agenda : autorisez-le dans Réglages Système → Confidentialité → Calendriers.";
 "Afterhear is listening with you" = "Afterhear écoute avec vous";
@@ -75,6 +76,7 @@
 "Catching up…" = "Je vous remets à niveau…";
 "Change it below." = "Modifiable ci-dessous.";
 "Check" = "Vérifier";
+"Check again" = "Vérifier à nouveau";
 "Choose…" = "Choisir…";
 "Click for the full explanation" = "Cliquez pour l’explication complète";
 "Close" = "Fermer";
@@ -117,6 +119,7 @@
 "Download failed: %@" = "Échec du téléchargement : %@";
 "Download now" = "Télécharger";
 "Downloading %lld%% (about 0.5 GB, once)…" = "Téléchargement %lld %% (environ 0,5 Go, une seule fois)…";
+"Downloading %lld%%…" = "Téléchargement %lld%%…";
 "Downloading…" = "Téléchargement…";
 "ElevenLabs: %@" = "ElevenLabs : %@";
 "Email" = "E-mail";
@@ -125,6 +128,7 @@
 "English (US)" = "Anglais (États-Unis)";
 "Enter a valid email." = "Saisissez une adresse e-mail valide.";
 "Every help: hard words, the question they asked you, how to start." = "Toute l’aide : mots difficiles, la question qu’on vous a posée, comment commencer.";
+"Everything is ready." = "Tout est prêt.";
 "Explain" = "Expliquer";
 "Explain the sentence before" = "Expliquer la phrase d’avant";
 "Explain this sentence instead" = "Expliquer plutôt cette phrase";
@@ -148,6 +152,7 @@
 "Google didn't give lasting access. Try again." = "Google n’a pas donné d’accès durable. Réessayez.";
 "Got it" = "Compris";
 "Heard" = "Entendu";
+"Hearing the sound of this Mac" = "Entendre le son de ce Mac";
 "Help me now: the sentence, its translation, then what it means." = "Aidez-moi maintenant : la phrase, sa traduction, puis ce qu’elle veut dire.";
 "Highlighted: Afterhear's guess. Them on the left, you on the right." = "En surbrillance : l’hypothèse d’Afterhear. Eux à gauche, vous à droite.";
 "How the tap works" = "Comment fonctionne le toucher";
@@ -170,6 +175,7 @@
 "Instant translations" = "Traductions instantanées";
 "Instant translations." = "Traductions instantanées.";
 "Irish" = "Irlandais";
+"Is everything ready?" = "Tout est prêt ?";
 "Italian" = "Italien";
 "Just mark" = "Juste marquer";
 "Know which song is playing in Spotify or Music" = "Savoir quelle chanson joue dans Spotify ou Musique";
@@ -320,6 +326,7 @@
 "Sign in to see your moments, review and progress in the web app too. Only text is synced, never audio." = "Connectez-vous pour voir vos moments, révisions et progrès aussi dans l’application web. Seul le texte est synchronisé, jamais le son.";
 "Sign in to start." = "Connectez-vous pour commencer.";
 "Sign in with Google" = "Se connecter avec Google";
+"Sign in, so the explanations can come." = "Connectez-vous pour recevoir les explications.";
 "Sign out" = "Se déconnecter";
 "Signed in" = "Connecté";
 "Signed in as" = "Connecté en tant que";
@@ -357,14 +364,19 @@
 "That link has expired or was already used. Try again." = "Ce lien a expiré ou a déjà été utilisé. Réessayez.";
 "The audio for this moment has already been deleted (it's kept %lld days)." = "Le son de ce moment a déjà été supprimé (il est gardé %lld jours).";
 "The detailed report couldn't be made this time (no connection or no tester code)." = "Le compte rendu détaillé n’a pas pu être fait cette fois (pas de connexion ou pas de code testeur).";
+"The download stopped: %@" = "Le téléchargement s’est arrêté : %@";
 "The evening before" = "La veille au soir";
+"The explanations (account and server)" = "Les explications (compte et serveur)";
 "The gestures" = "Les gestes";
+"The gestures (Accessibility)" = "Les gestes (Accessibilité)";
 "The gestures need the \"Accessibility\" permission: turn on Afterhear, then reopen it." = "Les gestes ont besoin de l’autorisation « Accessibilité » : activez Afterhear, puis rouvrez-le.";
 "The language you want to understand" = "La langue que vous voulez comprendre";
+"The model is here but didn't start. Reopen Afterhear." = "Le modèle est là mais n’a pas démarré. Rouvrez Afterhear.";
 "The notice says how the last call with those people went, and how Afterhear helps in this one: Just mark, Suggestions or With me. Already chosen for you (you organise it or you're few: Just mark; many people and you're a guest: Suggestions), one tap to change, remembered for that meeting or those people." = "La notification dit comment s’est passé le dernier appel avec ces personnes, et comment Afterhear vous aide dans celui-ci : Juste marquer, Suggestions ou Avec moi. Déjà choisi pour vous (vous l’organisez ou vous êtes peu : Juste marquer ; beaucoup de monde et vous êtes invité : Suggestions), un toucher pour changer, retenu pour cette réunion ou ces personnes.";
 "The numbers come from your taps and listening; the words are written from them." = "Les chiffres viennent de vos touchers et de l’écoute ; les mots sont écrits à partir d’eux.";
 "The others are in tonight's review, with the real voice." = "Les autres sont dans la révision de ce soir, avec la vraie voix.";
 "The private model for %@ isn't on this Mac yet: it downloads on Wi-Fi (Settings)." = "Le modèle privé pour %@ n’est pas encore sur ce Mac : il se télécharge en Wi-Fi (Réglages).";
+"The private model, on this Mac" = "Le modèle privé, sur ce Mac";
 "The report is ready." = "Le compte rendu est prêt.";
 "The same as last week." = "Comme la semaine dernière.";
 "The sentence after" = "La phrase d’après";
@@ -372,6 +384,7 @@
 "The sentence, its clip and its explanation go, from this Mac and from your account." = "La phrase, son extrait et son explication disparaissent, de ce Mac et de votre compte.";
 "The sentence, its translation and the explanation" = "La phrase, sa traduction et l’explication";
 "The server didn't answer (%@)." = "Le serveur n’a pas répondu (%@).";
+"The server doesn't answer. Check the connection: the moments are kept and explained later." = "Le serveur ne répond pas. Vérifiez la connexion : les moments sont gardés et expliqués plus tard.";
 "The server has no tester codes yet (Vercel → ASAID_TESTER_CODES)." = "Le serveur n’a pas encore de codes testeur (Vercel → ASAID_TESTER_CODES).";
 "The server has no valid AI key (Vercel → GEMINI_API_KEY or ANTHROPIC_API_KEY)." = "Le serveur n’a pas de clé d’IA valide (Vercel → GEMINI_API_KEY ou ANTHROPIC_API_KEY).";
 "The song again from this line, in Spotify or Music" = "La chanson depuis ce passage, dans Spotify ou Musique";
@@ -398,6 +411,8 @@
 "Transcript wrong" = "Transcription erronée";
 "Try again" = "Réessayer";
 "Try it." = "Essayez.";
+"Turn on Afterhear in “Accessibility”, then reopen it." = "Activez Afterhear dans « Accessibilité », puis rouvrez-le.";
+"Turn on Afterhear in “Screen & System Audio Recording”, then reopen it." = "Activez Afterhear dans « Enregistrement de l’écran et de l’audio système », puis rouvrez-le.";
 "Turn on “Also listen to my voice” in Settings." = "Activez « Écouter aussi ma voix » dans les Réglages.";
 "Two languages and you're set. We guessed them from your Mac." = "Deux langues et c’est parti. Nous les avons devinées d’après votre Mac.";
 "Two permissions." = "Deux autorisations.";
@@ -436,6 +451,7 @@
 "Why did it slip past?" = "Pourquoi ça vous a échappé ?";
 "With %@" = "Avec %@";
 "With me" = "Avec moi";
+"Without it, Afterhear doesn't hear your “sorry?” in calls." = "Sans lui, Afterhear n’entend pas votre « pardon ? » en appel.";
 "Words you'll probably hear" = "Les mots que vous entendrez sans doute";
 "Write what you hear" = "Écrivez ce que vous entendez";
 "Writing your episode…" = "Écriture de votre épisode…";
@@ -464,6 +480,7 @@
 "Your call with %@: 1 moment" = "Votre appel avec %@ : 1 moment";
 "Your first name (to notice when someone asks you)" = "Votre prénom (pour remarquer quand on vous pose une question)";
 "Your language" = "Votre langue";
+"Your microphone, only in calls" = "Votre micro, seulement en appel";
 "Your model listens in silence, never interrupts: a quiz at the end." = "Votre modèle écoute en silence, n’interrompt jamais : un quiz à la fin.";
 "Your model today: %lld hard lines heard, %lld understood, %lld maybe not." = "Votre modèle aujourd’hui : %lld phrases difficiles entendues, %lld comprises, %lld peut-être pas.";
 "Your model today: 1 hard line heard, %lld understood, %lld maybe not." = "Votre modèle aujourd’hui : 1 phrase difficile entendue, %lld comprises, %lld peut-être pas.";

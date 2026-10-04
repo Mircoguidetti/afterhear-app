@@ -52,13 +52,19 @@ actor Parakeet {
     /// Intel Macs have no Neural Engine, and CoreML on their processor crashes inside Apple's
     /// code with these models (owner's MacBook Pro 2020, 02/10): there the same Parakeet runs as
     /// ONNX on the processor (ParakeetCPU), and loudness stands in for the voice detector.
+    ///
+    /// On Apple chips too, the processor takes over by itself when the Neural Engine model doesn't
+    /// load (block E3), or when the server's switch says so (app_config.mac_engine = processor).
     static var onProcessor: Bool {
         #if arch(x86_64)
         return true
         #else
-        return false
+        return UserDefaults.standard.bool(forKey: fallbackKey) || RemoteConfig.value("mac_engine") == "processor"
         #endif
     }
+
+    /// The Neural Engine failed to load on this Mac: from now on the processor.
+    static let fallbackKey = "engineFallbackToProcessor"
 
     static func version(for language: HeardLanguage) -> AsrModelVersion {
         language.rawValue.hasPrefix("en") ? .v2 : .ultra
@@ -164,6 +170,10 @@ actor Parakeet {
                 try await manager.loadModels(models)
                 return manager
             } catch {
+                // The chip didn't take it: the same model on the processor, and the owner knows why.
+                ErrorLog.record("model.chip_load", error)
+                UserDefaults.standard.set(true, forKey: Self.fallbackKey)
+                Self.status = .missing
                 return nil
             }
         }

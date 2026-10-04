@@ -111,6 +111,7 @@ struct MenuView: View {
                 Menu("More") {
                     Button("Diary") { open("diary") }
                     Button("Your week") { Podcast.shared.open() }
+                    Button("Is everything ready?") { HealthCheck.shared.open() }
                     if quizCount > 0 { Button("Quiz (\(quizCount))") { ModelWatch.shared.openAllQuiz() } }
                     Divider()
                     Button(model.state == .paused ? String(localized: "Resume listening") : String(localized: "Pause listening")) {
