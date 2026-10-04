@@ -39,11 +39,13 @@
 "A person" = "Eine Person";
 "A report after each call" = "Ein Bericht nach jedem Call";
 "A word I didn't know" = "Ein Wort, das ich nicht kannte";
+"Above about %@ syllables a second it gets hard." = "Ab etwa %@ Silben pro Sekunde wird es schwer.";
 "Account" = "Konto";
 "Add" = "Hinzufügen";
 "Add a person or a group" = "Person oder Gruppe hinzufügen";
 "Add it" = "Hinzufügen";
 "Advanced" = "Erweitert";
+"After %lld moments tested in the evening review, here you'll see why things slip past you. So far: %lld." = "Nach %lld Momenten, getestet in der Abendwiederholung, siehst du hier, warum dir Dinge entgehen. Bisher: %lld.";
 "Afterhear asks the first time you're in a call." = "Afterhear fragt beim ersten Call danach.";
 "Afterhear can't read your calendar yet." = "Afterhear kann deinen Kalender noch nicht lesen.";
 "Afterhear can't read your calendar: allow it in System Settings → Privacy → Calendars." = "Afterhear kann deinen Kalender nicht lesen: Erlaube es in Systemeinstellungen → Datenschutz → Kalender.";
@@ -60,9 +62,11 @@
 "American" = "Amerikanisch";
 "Anything else" = "Alles andere";
 "App: %@" = "App: %@";
+"Attention" = "Aufmerksamkeit";
 "Audio unclear" = "Ton unklar";
 "Australian" = "Australisch";
 "Back" = "Zurück";
+"Based on %lld moments." = "Auf Basis von %lld Momenten.";
 "Battery low: %lld saved, explained when you charge" = "Akku schwach: %lld gespeichert, erklärt beim Laden";
 "Before %@" = "Vor %@";
 "Before each call: how should I help?" = "Vor jedem Call: Wie soll ich helfen?";
@@ -77,7 +81,6 @@
 "Change it below." = "Unten kannst du es ändern.";
 "Check" = "Prüfen";
 "Check again" = "Erneut prüfen";
-"Choose…" = "Wählen…";
 "Click for the full explanation" = "Klicken für die ganze Erklärung";
 "Close" = "Schließen";
 "Connect" = "Verbinden";
@@ -160,6 +163,7 @@
 "How well, today" = "Wie gut, heute";
 "I didn't get that" = "Hab ich nicht verstanden";
 "I don't know" = "Weiß ich nicht";
+"I got it" = "Verstanden";
 "I know it" = "Kann ich";
 "I still know you a little: the more we watch together, the better I guess." = "Ich kenne dich noch wenig: Je mehr wir zusammen schauen, desto besser rate ich.";
 "I told them" = "Ich habe Bescheid gesagt";
@@ -170,6 +174,7 @@
 "In calls, also listen to my voice (and mark when I say \"sorry?\")" = "Im Call auch meine Stimme hören (und markieren, wenn ich „sorry?“ sage)";
 "In calls, keep text only (no audio clip)" = "In Calls nur Text behalten (kein Audioclip)";
 "In calls, show a question asked to me, simply" = "Im Call eine Frage an mich einfach zeigen";
+"In the first five minutes of a call you tap more: your ear needs a moment to tune in." = "In den ersten fünf Minuten eines Calls tippst du öfter: Dein Ohr braucht einen Moment, um sich einzustellen.";
 "In these calls Afterhear doesn't listen at all: nothing is heard, nothing is kept." = "In diesen Calls hört Afterhear gar nicht zu: nichts wird gehört, nichts wird behalten.";
 "Indian" = "Indisch";
 "Instant translations" = "Sofortige Übersetzungen";
@@ -180,6 +185,7 @@
 "Just mark" = "Nur markieren";
 "Know which song is playing in Spotify or Music" = "Wissen, welcher Song in Spotify oder Musik läuft";
 "Known word, not recognised" = "Bekanntes Wort, nicht erkannt";
+"Known written, not by ear" = "Geschrieben bekannt, nicht beim Hören";
 "Languages" = "Sprachen";
 "Last question: %@" = "Letzte Frage: %@";
 "Last time" = "Letztes Mal";
@@ -188,6 +194,7 @@
 "Last time: " = "Letztes Mal: ";
 "Last time: %@. Two minutes to go over them?" = "Letztes Mal: %@. Zwei Minuten, um sie durchzugehen?";
 "Listen again. Can you catch what they said?" = "Hör noch mal hin. Verstehst du, was gesagt wurde?";
+"Listen again. Do you get it now?" = "Hör noch mal. Verstehst du es jetzt?";
 "Listening" = "Hört zu";
 "Listening back…" = "Höre zurück…";
 "Listening…" = "Höre zu…";
@@ -202,7 +209,9 @@
 "Marks what was just said, like a tap: Afterhear explains it now or tonight." = "Markiert, was gerade gesagt wurde, wie ein Tippen: Afterhear erklärt es jetzt oder heute Abend.";
 "Maybe they meant: %@" = "Vielleicht war gemeint: %@";
 "Maybe this one?" = "Vielleicht das?";
+"Meaning" = "Bedeutung";
 "Meeting: %@" = "Meeting: %@";
+"Moments by accent: %@" = "Momente nach Akzent: %@";
 "Moments per hour of listening" = "Momente pro Stunde Zuhören";
 "More" = "Mehr";
 "More examples" = "Mehr Beispiele";
@@ -222,6 +231,7 @@
 "No, I was thinking" = "Nein, ich habe nachgedacht";
 "Nobody has spoken in the last few minutes: nothing to go back to." = "In den letzten Minuten hat niemand gesprochen: nichts zum Zurückgehen.";
 "Not downloaded yet" = "Noch nicht geladen";
+"Not even written" = "Nicht mal geschrieben";
 "Not in the list? Maybe one you knew before:" = "Nicht in der Liste? Vielleicht eins, das du schon kanntest:";
 "Not listening in this call (%@)" = "Ich höre in diesem Call nicht zu (%@)";
 "Not listening yet: tell the others first." = "Ich höre noch nicht zu: sag den anderen zuerst Bescheid.";
@@ -230,10 +240,12 @@
 "Not set" = "Nicht festgelegt";
 "Not signed in" = "Nicht angemeldet";
 "Not this one? Pick the right piece" = "Nicht das? Wähle das richtige Stück";
+"Not yet" = "Noch nicht";
 "Nothing heard in the last few minutes." = "In den letzten Minuten war nichts zu hören.";
 "Nothing on screen. It's all in the report after." = "Nichts auf dem Bildschirm. Alles steht danach im Bericht.";
 "Nothing slipped past you with %@ yet. Tap whenever something does: it'll be here next time." = "Mit %@ ist dir noch nichts entgangen. Tippe, wenn es passiert: Beim nächsten Mal steht es hier.";
 "Nothing to review right now." = "Gerade nichts zu wiederholen.";
+"Now I get it" = "Jetzt verstehe ich es";
 "Now and then a hard word." = "Ab und zu ein schweres Wort.";
 "Numbers, dates, prices" = "Zahlen, Daten, Preise";
 "Off" = "Aus";
@@ -244,6 +256,7 @@
 "Only about understanding: what they asked you, what they asked you to do, what was decided. When the call ends, the questions of the others and your answers, as text without names or numbers, go to our model to write it. Nothing about how you speak." = "Nur zum Verstehen: was sie dich gefragt haben, worum sie dich gebeten haben, was entschieden wurde. Am Ende des Calls gehen die Fragen der anderen und deine Antworten, als Text ohne Namen und Zahlen, an unser Modell, um ihn zu schreiben. Nichts darüber, wie du sprichst.";
 "Only the hard ones" = "Nur die schweren";
 "Only the last few minutes stay in memory. Nothing is saved until you tap." = "Nur die letzten Minuten bleiben im Speicher. Nichts wird gespeichert, bis du tippst.";
+"Only the part you missed. And now?" = "Nur der Teil, der dir entgangen ist. Und jetzt?";
 "Only the sentence and its translation" = "Nur den Satz und seine Übersetzung";
 "Open Accessibility" = "Bedienungshilfen öffnen";
 "Open Settings" = "Einstellungen öffnen";
@@ -264,6 +277,7 @@
 "Permission needed" = "Berechtigung nötig";
 "Phrases you might need" = "Sätze, die du brauchen könntest";
 "Pick the piece" = "Stück wählen";
+"Play" = "Abspielen";
 "Play any video. When a sentence slips past you:" = "Starte irgendein Video. Wenn dir ein Satz entgeht:";
 "Play this line" = "Diese Zeile abspielen";
 "Portuguese (Brazil)" = "Portugiesisch (Brasilien)";
@@ -332,12 +346,14 @@
 "Signed in as" = "Angemeldet als";
 "Skip" = "Überspringen";
 "Slow" = "Langsam";
+"Slower. And now?" = "Langsamer. Und jetzt?";
 "Something slips past you: %@ to mark it, %@ for help now." = "Dir entgeht etwas: %@ zum Markieren, %@ für sofortige Hilfe.";
 "Something slips past you: tap %@ (or %@) and carry on, nothing stops; it's waiting for you tonight. Need it now? %@ (or %@): the video pauses and the sentence you just heard comes up, explained; in a call, one line." = "Dir entgeht etwas: Tippe %@ (oder %@) und mach weiter, nichts hält an; es wartet heute Abend auf dich. Brauchst du es sofort? %@ (oder %@): Das Video pausiert und der Satz, den du gerade gehört hast, erscheint erklärt; im Call eine Zeile.";
 "Song paused" = "Song pausiert";
 "Sound kept. Transcribed when you charge." = "Ton behalten. Transkribiert beim Laden.";
 "Spanish" = "Spanisch";
 "Speech recognition for %@ isn't available right now." = "Spracherkennung für %@ ist gerade nicht verfügbar.";
+"Speed" = "Tempo";
 "Speed / accent" = "Tempo / Akzent";
 "Squeeze the AirPods: help me now (in calls, and when nothing else is playing)" = "AirPods drücken: hilf mir jetzt (im Call und wenn sonst nichts läuft)";
 "Start" = "Los geht’s";
@@ -448,13 +464,15 @@
 "When a call starts, a notification only for you with this message, ready to copy into the chat: “%@”" = "Wenn ein Call beginnt, eine Mitteilung nur für dich mit dieser Nachricht, bereit zum Kopieren in den Chat: „%@“";
 "When you ask for help (%@)" = "Wenn du um Hilfe bittest (%@)";
 "Who are you talking with?" = "Mit wem sprichst du?";
-"Why did it slip past?" = "Warum ist es dir entgangen?";
+"Who said it?" = "Wer hat das gesagt?";
 "With %@" = "Mit %@";
 "With me" = "Mit mir";
 "Without it, Afterhear doesn't hear your “sorry?” in calls." = "Ohne es hört Afterhear dein „Wie bitte?“ in Calls nicht.";
+"Words run together" = "Zusammengezogene Wörter";
 "Words you'll probably hear" = "Wörter, die du wahrscheinlich hörst";
 "Write what you hear" = "Schreib, was du hörst";
 "Writing your episode…" = "Deine Folge wird geschrieben…";
+"Written down. Do you get it?" = "Geschrieben. Verstehst du es?";
 "Wrong email or password." = "E-Mail oder Passwort falsch.";
 "Wrong sentence? The arrows move to the one before or after. Replay plays the real voice, Slow plays it slower." = "Falscher Satz? Die Pfeile springen zum Satz davor oder danach. Replay spielt die echte Stimme, Slow langsamer.";
 "Yes, I got it" = "Ja, verstanden";
@@ -478,6 +496,7 @@
 "Your call with %@: %lld moments" = "Dein Call mit %@: %lld Momente";
 "Your call with %@: %lld%% understood" = "Dein Call mit %@: %lld %% verstanden";
 "Your call with %@: 1 moment" = "Dein Call mit %@: 1 Moment";
+"Your ear" = "Dein Ohr";
 "Your first name (to notice when someone asks you)" = "Dein Vorname (um zu merken, wenn dich jemand fragt)";
 "Your language" = "Deine Sprache";
 "Your microphone, only in calls" = "Dein Mikrofon, nur in Calls";

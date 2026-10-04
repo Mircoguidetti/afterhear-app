@@ -56,6 +56,8 @@ struct ProgressStoryView: View {
                             Button("Sign in with Google") { account.signInWithGoogle() }
                         }
                     }
+                    Divider()
+                    EarProfileView(profile: EarProfile(moments: store.moments))
                 }
                 .padding(24)
                 .frame(maxWidth: .infinity, alignment: .leading)

@@ -18,13 +18,17 @@ struct ReviewView: View {
     @State private var revealed = false
     @State private var knownCount = 0
     @State private var againCount = 0
+    /// Tonight's step test (I3): three moments.
+    @State private var ladder: Set<UUID> = []
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
             if index < queue.count {
                 let moment = queue[index]
                 header(moment)
-                if revealed { reveal(moment) } else { listen(moment) }
+                if revealed { reveal(moment) }
+                else if ladder.contains(moment.id) { EarLadder(moment: moment) { revealed = true }.id(moment.id) }
+                else { listen(moment) }
                 Spacer(minLength: 0)
                 buttons(moment)
             } else {
@@ -46,7 +50,13 @@ struct ReviewView: View {
         revealed = false
         knownCount = 0
         againCount = 0
-        if let first = queue.first { AppModel.shared.play(first, slow: false) }
+        ladder = EarLadder.picks(queue, store: store)
+        if let first = queue.first { playIfPlain(first) }
+    }
+
+    /// The step test plays its own sound.
+    private func playIfPlain(_ moment: Moment) {
+        if !ladder.contains(moment.id) { AppModel.shared.play(moment, slow: false) }
     }
 
     private func header(_ moment: Moment) -> some View {
@@ -130,14 +140,7 @@ struct ReviewView: View {
                     }
                     .controlSize(.small)
                 }
-                Picker("Why did it slip past?", selection: Binding(
-                    get: { store.moments.first { $0.id == moment.id }?.label },
-                    set: { store.setLabel($0, for: moment.id) }
-                )) {
-                    Text("Choose…").tag(MomentLabel?.none)
-                    ForEach(MomentLabel.allCases) { Text($0.title).tag(MomentLabel?.some($0)) }
-                }
-                .frame(maxWidth: 360)
+                WhoSaidIt(moment: moment)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -155,7 +158,7 @@ struct ReviewView: View {
             }
             .controlSize(.large)
             .buttonStyle(.borderedProminent)
-        } else {
+        } else if !ladder.contains(moment.id) {
             Button("Reveal") { revealed = true }
                 .keyboardShortcut(.space, modifiers: [])
                 .controlSize(.large)
@@ -169,7 +172,7 @@ struct ReviewView: View {
         store.dismiss(moment.id)
         index += 1
         revealed = false
-        if index < queue.count { AppModel.shared.play(queue[index], slow: false) }
+        if index < queue.count { playIfPlain(queue[index]) }
     }
 
     private func answer(_ review: Review, _ moment: Moment) {
@@ -178,7 +181,7 @@ struct ReviewView: View {
         if review == .known { knownCount += 1 } else { againCount += 1 }
         index += 1
         revealed = false
-        if index < queue.count { AppModel.shared.play(queue[index], slow: false) }
+        if index < queue.count { playIfPlain(queue[index]) }
     }
 
     private var done: some View {

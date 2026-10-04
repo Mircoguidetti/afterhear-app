@@ -16,6 +16,8 @@ struct Call: Identifiable, Equatable {
     let guests: Int
     /// You organised it: most likely you have to talk (§ 19.7).
     var organizer = false
+    /// Everyone invited (first names), only on this Mac: for "Who said it?" after a group call.
+    var guestNames: [String] = []
 
     var who: String {
         if !people.isEmpty { return ListFormatter.localizedString(byJoining: people) }
@@ -156,6 +158,7 @@ final class CalendarWatch: NSObject, ObservableObject, UNUserNotificationCenterD
         let id = SHA256.hash(data: Data(raw.utf8)).map { String(format: "%02x", $0) }.joined().prefix(32)
         var call = Call(id: String(id), title: title, start: event.startDate, end: event.endDate, people: people, guests: guests.count)
         call.organizer = event.organizer?.isCurrentUser ?? (guests.isEmpty)
+        call.guestNames = guestNames
         return call
     }
 
@@ -167,6 +170,7 @@ final class CalendarWatch: NSObject, ObservableObject, UNUserNotificationCenterD
         let id = SHA256.hash(data: Data(raw.utf8)).map { String(format: "%02x", $0) }.joined().prefix(32)
         var call = Call(id: String(id), title: event.title, start: event.start, end: event.end, people: people, guests: event.guests.count)
         call.organizer = event.organizerIsMe
+        call.guestNames = event.guests
         return call
     }
 

@@ -39,11 +39,13 @@
 "A person" = "Человек";
 "A report after each call" = "Отчёт после каждого звонка";
 "A word I didn't know" = "Слово, которого я не знал";
+"Above about %@ syllables a second it gets hard." = "Выше примерно %@ слогов в секунду становится трудно.";
 "Account" = "Аккаунт";
 "Add" = "Добавить";
 "Add a person or a group" = "Добавить человека или группу";
 "Add it" = "Добавить";
 "Advanced" = "Дополнительно";
+"After %lld moments tested in the evening review, here you'll see why things slip past you. So far: %lld." = "После %lld моментов, проверенных на вечернем повторении, здесь будет видно, почему вы что-то упускаете. Пока: %lld.";
 "Afterhear asks the first time you're in a call." = "Afterhear спросит при первом звонке.";
 "Afterhear can't read your calendar yet." = "Afterhear пока не может читать ваш календарь.";
 "Afterhear can't read your calendar: allow it in System Settings → Privacy → Calendars." = "Afterhear не может читать календарь: разрешите в Системных настройках → Конфиденциальность → Календари.";
@@ -60,9 +62,11 @@
 "American" = "Американский";
 "Anything else" = "Всё остальное";
 "App: %@" = "Приложение: %@";
+"Attention" = "Внимание";
 "Audio unclear" = "Неразборчивый звук";
 "Australian" = "Австралийский";
 "Back" = "Назад";
+"Based on %lld moments." = "На основе %lld моментов.";
 "Battery low: %lld saved, explained when you charge" = "Мало заряда: сохранено %lld, объясним на зарядке";
 "Before %@" = "Перед %@";
 "Before each call: how should I help?" = "Перед каждым звонком: как помочь?";
@@ -77,7 +81,6 @@
 "Change it below." = "Изменить можно ниже.";
 "Check" = "Проверить";
 "Check again" = "Проверить снова";
-"Choose…" = "Выбрать…";
 "Click for the full explanation" = "Нажмите для полного объяснения";
 "Close" = "Закрыть";
 "Connect" = "Подключить";
@@ -160,6 +163,7 @@
 "How well, today" = "Насколько хорошо сейчас";
 "I didn't get that" = "Я не понял";
 "I don't know" = "Не знаю";
+"I got it" = "Понял(а)";
 "I know it" = "Знаю";
 "I still know you a little: the more we watch together, the better I guess." = "Я пока плохо вас знаю: чем больше смотрим вместе, тем точнее я угадываю.";
 "I told them" = "Я предупредил(а)";
@@ -170,6 +174,7 @@
 "In calls, also listen to my voice (and mark when I say \"sorry?\")" = "На звонках слушать и мой голос (и отмечать, когда я говорю «sorry?»)";
 "In calls, keep text only (no audio clip)" = "На звонках хранить только текст (без аудио)";
 "In calls, show a question asked to me, simply" = "На звонках показывать заданный мне вопрос простыми словами";
+"In the first five minutes of a call you tap more: your ear needs a moment to tune in." = "В первые пять минут звонка вы нажимаете чаще: слуху нужно время, чтобы настроиться.";
 "In these calls Afterhear doesn't listen at all: nothing is heard, nothing is kept." = "В этих звонках Afterhear не слушает совсем: ничего не слышит и ничего не хранит.";
 "Indian" = "Индийский";
 "Instant translations" = "Мгновенный перевод";
@@ -180,6 +185,7 @@
 "Just mark" = "Только отмечать";
 "Know which song is playing in Spotify or Music" = "Знать, какая песня играет в Spotify или Музыке";
 "Known word, not recognised" = "Знакомое слово, не узнанное";
+"Known written, not by ear" = "Знакомо на письме, не на слух";
 "Languages" = "Языки";
 "Last question: %@" = "Последний вопрос: %@";
 "Last time" = "В прошлый раз";
@@ -188,6 +194,7 @@
 "Last time: " = "В прошлый раз: ";
 "Last time: %@. Two minutes to go over them?" = "В прошлый раз: %@. Две минуты, чтобы повторить?";
 "Listen again. Can you catch what they said?" = "Послушайте ещё раз. Удаётся разобрать, что сказали?";
+"Listen again. Do you get it now?" = "Послушайте ещё раз. Теперь понятно?";
 "Listening" = "Слушает";
 "Listening back…" = "Прослушиваю…";
 "Listening…" = "Слушаю…";
@@ -202,7 +209,9 @@
 "Marks what was just said, like a tap: Afterhear explains it now or tonight." = "Отмечает только что сказанное, как касание: Afterhear объяснит сейчас или вечером.";
 "Maybe they meant: %@" = "Возможно, имелось в виду: %@";
 "Maybe this one?" = "Может, это?";
+"Meaning" = "Смысл";
 "Meeting: %@" = "Встреча: %@";
+"Moments by accent: %@" = "Моменты по акцентам: %@";
 "Moments per hour of listening" = "Моменты за час прослушивания";
 "More" = "Ещё";
 "More examples" = "Больше примеров";
@@ -222,6 +231,7 @@
 "No, I was thinking" = "Нет, я думал";
 "Nobody has spoken in the last few minutes: nothing to go back to." = "Последние минуты никто не говорил: возвращаться не к чему.";
 "Not downloaded yet" = "Ещё не загружено";
+"Not even written" = "Даже написанное — нет";
 "Not in the list? Maybe one you knew before:" = "Нет в списке? Возможно, то, что вы уже знали:";
 "Not listening in this call (%@)" = "Не слушаю этот звонок (%@)";
 "Not listening yet: tell the others first." = "Пока не слушаю: сначала предупредите участников.";
@@ -230,10 +240,12 @@
 "Not set" = "Не указано";
 "Not signed in" = "Вход не выполнен";
 "Not this one? Pick the right piece" = "Не то? Выберите нужный фрагмент";
+"Not yet" = "Пока нет";
 "Nothing heard in the last few minutes." = "За последние минуты ничего не слышно.";
 "Nothing on screen. It's all in the report after." = "Ничего на экране. Всё будет в отчёте после.";
 "Nothing slipped past you with %@ yet. Tap whenever something does: it'll be here next time." = "С %@ вы пока ничего не упустили. Коснитесь, когда это случится: в следующий раз это будет здесь.";
 "Nothing to review right now." = "Сейчас нечего повторять.";
+"Now I get it" = "Теперь понятно";
 "Now and then a hard word." = "Иногда трудное слово.";
 "Numbers, dates, prices" = "Числа, даты, цены";
 "Off" = "Выкл.";
@@ -244,6 +256,7 @@
 "Only about understanding: what they asked you, what they asked you to do, what was decided. When the call ends, the questions of the others and your answers, as text without names or numbers, go to our model to write it. Nothing about how you speak." = "Только о понимании: что вас спросили, о чём попросили, что решили. В конце звонка вопросы участников и ваши ответы, текстом без имён и чисел, уходят нашей модели, чтобы его написать. Ничего о том, как вы говорите.";
 "Only the hard ones" = "Только трудные";
 "Only the last few minutes stay in memory. Nothing is saved until you tap." = "В памяти только последние минуты. Ничего не сохраняется, пока вы не коснётесь.";
+"Only the part you missed. And now?" = "Только то, что вы упустили. А теперь?";
 "Only the sentence and its translation" = "Только фразу и перевод";
 "Open Accessibility" = "Открыть Универсальный доступ";
 "Open Settings" = "Открыть настройки";
@@ -264,6 +277,7 @@
 "Permission needed" = "Нужно разрешение";
 "Phrases you might need" = "Фразы, которые могут пригодиться";
 "Pick the piece" = "Выбрать фрагмент";
+"Play" = "Слушать";
 "Play any video. When a sentence slips past you:" = "Включите любое видео. Когда фраза ускользнёт:";
 "Play this line" = "Включить эту строку";
 "Portuguese (Brazil)" = "Португальский (Бразилия)";
@@ -332,12 +346,14 @@
 "Signed in as" = "Вы вошли как";
 "Skip" = "Пропустить";
 "Slow" = "Медленно";
+"Slower. And now?" = "Медленнее. А теперь?";
 "Something slips past you: %@ to mark it, %@ for help now." = "Что-то ускользнуло: %@ — отметить, %@ — помощь сразу.";
 "Something slips past you: tap %@ (or %@) and carry on, nothing stops; it's waiting for you tonight. Need it now? %@ (or %@): the video pauses and the sentence you just heard comes up, explained; in a call, one line." = "Что-то ускользнуло: нажмите %@ (или %@) и продолжайте, ничего не останавливается; это ждёт вас вечером. Нужно сейчас? %@ (или %@): видео встаёт на паузу и появляется только что услышанная фраза с объяснением; на звонке — одна строка.";
 "Song paused" = "Песня на паузе";
 "Sound kept. Transcribed when you charge." = "Звук сохранён. Расшифруем на зарядке.";
 "Spanish" = "Испанский";
 "Speech recognition for %@ isn't available right now." = "Распознавание речи для %@ сейчас недоступно.";
+"Speed" = "Скорость";
 "Speed / accent" = "Темп / акцент";
 "Squeeze the AirPods: help me now (in calls, and when nothing else is playing)" = "Нажмите на AirPods: помочь сейчас (на звонках и когда больше ничего не играет)";
 "Start" = "Начать";
@@ -448,13 +464,15 @@
 "When a call starts, a notification only for you with this message, ready to copy into the chat: “%@”" = "Когда начинается звонок, уведомление только для вас с этим сообщением, готовым для чата: «%@»";
 "When you ask for help (%@)" = "Когда просите помощи (%@)";
 "Who are you talking with?" = "С кем вы говорите?";
-"Why did it slip past?" = "Почему ускользнуло?";
+"Who said it?" = "Кто это сказал?";
 "With %@" = "С %@";
 "With me" = "Со мной";
 "Without it, Afterhear doesn't hear your “sorry?” in calls." = "Без него Afterhear не услышит ваше «простите?» в звонках.";
+"Words run together" = "Слитная речь";
 "Words you'll probably hear" = "Слова, которые вы, вероятно, услышите";
 "Write what you hear" = "Напишите, что слышите";
 "Writing your episode…" = "Пишу ваш выпуск…";
+"Written down. Do you get it?" = "Написанное. Понятно?";
 "Wrong email or password." = "Неверная почта или пароль.";
 "Wrong sentence? The arrows move to the one before or after. Replay plays the real voice, Slow plays it slower." = "Не та фраза? Стрелки переходят к предыдущей или следующей. Replay — настоящий голос, Slow — медленнее.";
 "Yes, I got it" = "Да, понял";
@@ -478,6 +496,7 @@
 "Your call with %@: %lld moments" = "Ваш звонок с %@: моментов — %lld";
 "Your call with %@: %lld%% understood" = "Ваш звонок с %@: понято %lld%%";
 "Your call with %@: 1 moment" = "Ваш звонок с %@: 1 момент";
+"Your ear" = "Ваш слух";
 "Your first name (to notice when someone asks you)" = "Ваше имя (чтобы заметить, когда обращаются к вам)";
 "Your language" = "Ваш язык";
 "Your microphone, only in calls" = "Ваш микрофон, только в звонках";

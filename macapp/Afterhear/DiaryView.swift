@@ -105,14 +105,9 @@ private struct MomentRow: View {
             }
 
             HStack {
-                Picker("Why did it slip past?", selection: Binding(
-                    get: { moment.label },
-                    set: { store.setLabel($0, for: moment.id) }
-                )) {
-                    Text("Choose…").tag(MomentLabel?.none)
-                    ForEach(MomentLabel.allCases) { Text($0.title).tag(MomentLabel?.some($0)) }
+                if let diagnosis = moment.diagnosis {
+                    Text(diagnosis.label).font(.caption).foregroundStyle(.secondary)
                 }
-                .frame(maxWidth: 320)
                 Spacer()
                 Button("Again") { store.setReview(.again, for: moment.id) }
                     .tint(moment.review == .again ? .orange : nil)

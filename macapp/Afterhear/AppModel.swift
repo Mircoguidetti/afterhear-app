@@ -555,6 +555,9 @@ final class AppModel: ObservableObject {
                 moment.call = call.id
                 moment.callTitle = String(call.title.prefix(200))
                 if moment.with == nil { moment.with = call.people.first }
+                // A call with one other person: it was them (I2). A group: "Who said it?" tonight.
+                if moment.with == nil, call.guestNames.count == 1 { moment.with = call.guestNames.first }
+                if call.guestNames.count >= 2 { moment.callGuests = Array(call.guestNames.prefix(12)) }
             }
             moment.trigger = trigger
             moment.turns = turns
@@ -581,6 +584,9 @@ final class AppModel: ObservableObject {
             // Bad line: labelled as audio, and it doesn't count as a gap in your model.
             let badAudio = Clip.isBadAudio(samples)
             if badAudio { moment.label = .badAudio }
+            moment.signals = EarSignals.measure(turn: chosen.map { conversation[$0] }, samples: samples, rate: rate, overlap: overlap,
+                                                language: settings.heard, call: CalendarWatch.shared.current, at: started,
+                                                accent: store.accent(of: moment.with))
             store.add(moment)
             if let compare {
                 let id = moment.id
@@ -1187,6 +1193,26 @@ final class AppModel: ObservableObject {
     /// Opens the clip in the background while the card is on screen.
     func prepare(_ moment: Moment) {
         _ = readyPlayer(moment)
+    }
+
+    /// Only the missed words (the evening's step test, I3): where the first explained piece sits in
+    /// the sentence, by its place in the text; the whole sentence when it can't be found.
+    func playMissedPart(_ moment: Moment) {
+        guard let turns = moment.turns, let chosen = moment.chosen, turns.indices.contains(chosen) else {
+            play(moment, slow: false)
+            return
+        }
+        let turn = turns[chosen]
+        let text = turn.text.lowercased()
+        guard let piece = moment.pieces.first?.text.lowercased(), let range = text.range(of: piece), !text.isEmpty else {
+            play(moment, turn: turn, slow: false)
+            return
+        }
+        let length = Double(text.count)
+        let a = Double(text.distance(from: text.startIndex, to: range.lowerBound)) / length
+        let b = Double(text.distance(from: text.startIndex, to: range.upperBound)) / length
+        let duration = turn.end - turn.start
+        play(moment, from: max(turn.start, turn.start + a * duration - 0.3), to: min(turn.end, turn.start + b * duration + 0.3), slow: false)
     }
 
     private func play(_ moment: Moment, from: Double, to: Double?, slow: Bool) {

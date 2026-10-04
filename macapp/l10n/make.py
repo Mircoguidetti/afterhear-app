@@ -31,7 +31,7 @@ START = re.compile(r'(?:' + VIEWS + r'\(\s*|' + WRAPPED + r')"')
 INTS = {
     'clipDays', 'count', 'n', 'total', 'done', 'minutes', 'days', 'waiting', 'tapsToday', 'labelled',
     'knownCount', 'againCount', 'right', 'today', 'lastWeek', 'week', 'score', 'before', 'taps', 'understood',
-    'maybeNot', 'heard', 'percent', 'back', 'tapped', 'quizCount', 'ago',
+    'maybeNot', 'heard', 'percent', 'back', 'tapped', 'quizCount', 'ago', 'enough', 'diagnosed',
 }
 
 

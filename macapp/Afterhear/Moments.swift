@@ -186,6 +186,11 @@ struct Moment: Codable, Identifiable {
     /// Spaced repetition: when it comes back in the review, and how many times it was known.
     var due: Date? = nil
     var step: Int? = nil
+    /// Your ear (block I), only on this Mac: what was measured at the tap, the evening's test,
+    /// and the guests of a group call for "Who said it?".
+    var signals: Signals? = nil
+    var diagnosis: Diagnosis? = nil
+    var callGuests: [String]? = nil
 
     /// Picked by your model, not by you (§ 18): not a tap, and a quiz before it's a lesson.
     var isModel: Bool { trigger == "model" }
@@ -390,12 +395,29 @@ final class Store: ObservableObject {
         var text = "Most of what they miss: \(top)."
         if !levels.isEmpty { text += " The pieces they miss are usually around \(levels[levels.count / 2])." }
         text += " They already know \(known.count) expressions."
+        let ear = EarProfile(moments: moments).forModel
+        if !ear.isEmpty { text += " " + ear }
         return text
     }
 
     var usualDelay: Double? {
         let delays = moments.compactMap(\.delay).prefix(15).sorted()
         return delays.isEmpty ? nil : delays[delays.count / 2]
+    }
+
+    func setDiagnosis(_ diagnosis: Diagnosis, for id: UUID) {
+        guard let i = moments.firstIndex(where: { $0.id == id }) else { return }
+        moments[i].diagnosis = diagnosis
+        save()
+    }
+
+    /// "Who said it?": the name, and the accent you gave that person if you did.
+    func setWith(_ name: String, for id: UUID) {
+        guard let i = moments.firstIndex(where: { $0.id == id }) else { return }
+        moments[i].with = name
+        if moments[i].signals != nil { moments[i].signals?.accent = accent(of: name) }
+        save()
+        onChange?(.moment(id))
     }
 
     func setLabel(_ label: MomentLabel?, for id: UUID) {
