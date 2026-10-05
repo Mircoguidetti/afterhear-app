@@ -7,5 +7,9 @@ let package = Package(
     name: "fluidbench",
     platforms: [.macOS(.v14)],
     dependencies: [.package(url: "https://github.com/FluidInference/FluidAudio", exact: "0.17.5")],
-    targets: [.executableTarget(name: "fluidbench", dependencies: [.product(name: "FluidAudio", package: "FluidAudio")])]
+    targets: [
+        .executableTarget(name: "fluidbench", dependencies: [.product(name: "FluidAudio", package: "FluidAudio")]),
+        // The tap bench (bench/tap.py): timed words of each clip, as Parakeet.swift gets them.
+        .executableTarget(name: "fluidwords", dependencies: [.product(name: "FluidAudio", package: "FluidAudio")]),
+    ]
 )

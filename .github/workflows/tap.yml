@@ -1,0 +1,114 @@
+name: Tap bench
+
+# Block D (docs/PIANO.md): does a tap give the sentence you missed? The real recognisers of the
+# app (Parakeet compressed on the processor, as Intel Macs; FluidAudio on the Neural Engine, as
+# Apple chips) and Apple's new one where it exists, on real meetings, through the same
+# Conversation.swift and Ranking.swift as the app. Free: runners only, no paid service.
+
+on:
+  push:
+    paths: ["bench/tap.py", "bench/tap/**", "bench/fluid/**", "bench/applenew/**", "macapp/Afterhear/Ranking.swift",
+            "macapp/Afterhear/Conversation.swift", ".github/workflows/tap.yml"]
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  cases:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg && pip install --quiet numpy
+      - uses: actions/cache@v4
+        with:
+          path: |
+            bench/out/audio
+            bench/out/tap/meetings
+          key: tap-ami-v1
+      - run: python3 bench/tap.py cases
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tapcases
+          path: |
+            bench/out/tap/cases.json
+            bench/out/tap/meetings
+
+  parakeet-processor:
+    needs: cases
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15-intel, macos-14, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 240
+    env:
+      RUNNER_LABEL: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install --quiet sherpa-onnx numpy
+      - uses: actions/download-artifact@v4
+        with:
+          name: tapcases
+          path: bench/out/tap
+      - run: python3 bench/tap.py clips
+      - name: The app's choosing, compiled
+        run: swiftc -O macapp/Afterhear/Ranking.swift macapp/Afterhear/Conversation.swift bench/tap/turns.swift -o turns
+      - run: python3 bench/tap.py sherpa
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tap-sherpa-${{ matrix.os }}
+          path: bench/out/tapresults
+
+  neural-engine:
+    needs: cases
+    runs-on: macos-26
+    timeout-minutes: 120
+    env:
+      RUNNER_LABEL: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install --quiet numpy
+      - uses: actions/download-artifact@v4
+        with:
+          name: tapcases
+          path: bench/out/tap
+      - run: python3 bench/tap.py clips
+      - run: swiftc -O macapp/Afterhear/Ranking.swift macapp/Afterhear/Conversation.swift bench/tap/turns.swift -o turns
+      - name: FluidAudio, as the app
+        run: cd bench/fluid && swift build -c release --product fluidwords
+      - run: python3 bench/tap.py tool "Parakeet, Neural Engine (FluidAudio v2)" bench/fluid/.build/release/fluidwords v2
+      - name: Apple's new recogniser (may not run on a runner)
+        continue-on-error: true
+        run: |
+          cd bench/applenew && swift build -c release
+          cd ../.. && python3 bench/tap.py tool "Apple SpeechAnalyzer (macOS 26)" bench/applenew/.build/release/applewords
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tap-macos-26
+          path: bench/out/tapresults
+
+  report:
+    needs: [parakeet-processor, neural-engine]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: tap-*
+          path: bench/out/results
+      - run: python3 bench/tap.py report
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tap-report
+          path: bench/out/tap-summary.json
