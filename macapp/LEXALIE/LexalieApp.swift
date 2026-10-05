@@ -96,6 +96,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 enum Brand {
     /// A white that leans to grey: black and white, no apricot (owner, 05/10). The app is always dark.
     static let accent = Color(red: 0xe6 / 255, green: 0xe7 / 255, blue: 0xeb / 255)
+    /// The light of what's live (owner, 05/10): the missed word's line, the step that's on, a tick.
+    /// Ice blue, never on the brand, never on the text you read.
+    static let signal = Color(red: 0x9f / 255, green: 0xd8 / 255, blue: 0xff / 255)
     static let onyx = Color(red: 0x0b / 255, green: 0x0c / 255, blue: 0x11 / 255)
     static let card = Color(red: 0x15 / 255, green: 0x16 / 255, blue: 0x1c / 255)
     static let paper = Color(red: 0xf7 / 255, green: 0xf7 / 255, blue: 0xf8 / 255)

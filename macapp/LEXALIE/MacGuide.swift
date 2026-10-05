@@ -47,7 +47,7 @@ struct MacGuideView: View {
             Spacer(minLength: 0)
             HStack(spacing: 6) {
                 ForEach(pages.indices, id: \.self) { i in
-                    Circle().fill(i == page ? Brand.accent : Color.secondary.opacity(0.3)).frame(width: 7, height: 7)
+                    Circle().fill(i == page ? Brand.signal : Color.secondary.opacity(0.3)).frame(width: 7, height: 7)
                 }
             }
             Button(page == pages.count - 1 ? String(localized: "Got it") : String(localized: "Next")) {

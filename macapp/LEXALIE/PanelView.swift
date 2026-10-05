@@ -47,7 +47,7 @@ struct PanelView: View {
         switch phase {
         case .saved(let text):
             HStack(spacing: 8) {
-                Image(systemName: "checkmark.circle.fill").foregroundStyle(Brand.accent)
+                Image(systemName: "checkmark.circle.fill").foregroundStyle(Brand.signal)
                 Text(text).font(.system(size: 13, weight: .medium))
             }
             .padding(.horizontal, 14)
@@ -106,7 +106,7 @@ struct PanelView: View {
             }
             ForEach(Array(moment.pieces.prefix(2).enumerated()), id: \.offset) { _, piece in
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Text(piece.text).font(.system(size: 17, weight: .semibold)).foregroundStyle(Brand.accent)
+                    Text(piece.text).font(.system(size: 17, weight: .semibold)).foregroundStyle(Brand.paper)
                     Text("→").foregroundStyle(Brand.paper.opacity(0.4))
                     Text(piece.gloss ?? piece.meaning).font(.system(size: 16)).lineLimit(1)
                 }
@@ -156,7 +156,8 @@ struct PanelView: View {
         for piece in moment.pieces {
             if let range = text.range(of: piece.heardAs ?? piece.text, options: [.caseInsensitive, .diacriticInsensitive])
                 ?? text.range(of: piece.text, options: [.caseInsensitive, .diacriticInsensitive]) {
-                text[range].foregroundColor = Brand.accent
+                text[range].foregroundColor = Brand.paper
+                text[range].underlineStyle = Text.LineStyle(pattern: .solid, color: Brand.signal)
                 text[range].font = .system(size: 16, weight: .semibold)
             }
         }
@@ -285,7 +286,7 @@ struct PanelView: View {
                 ForEach(Array(moment.pieces.prefix(2).enumerated()), id: \.offset) { _, piece in
                     VStack(alignment: .leading, spacing: 4) {
                         HStack(alignment: .firstTextBaseline) {
-                            Text(piece.text).font(.system(size: 18, weight: .semibold)).foregroundStyle(Brand.accent)
+                            Text(piece.text).font(.system(size: 18, weight: .semibold)).foregroundStyle(Brand.paper)
                             Spacer(minLength: 8)
                             Text(piece.guess == true ? String(localized: "Maybe this one?") : piece.causeLabel)
                                 .font(.system(size: 11)).foregroundStyle(Brand.paper.opacity(0.5))
@@ -375,7 +376,7 @@ private struct ClickableSentence: View {
                 } label: {
                     Text(w)
                         .font(.system(size: 18, weight: hard.contains(key) ? .semibold : .regular))
-                        .foregroundStyle(hard.contains(key) ? Brand.accent : Brand.paper)
+                        .foregroundStyle(hard.contains(key) ? Brand.signal : Brand.paper)
                         .opacity(asking == w ? 0.5 : 1)
                 }
                 .buttonStyle(.plain)
@@ -534,9 +535,9 @@ private struct ProgressSteps: View {
             ZStack {
                 Circle().stroke(Brand.paper.opacity(0.3), lineWidth: 1).frame(width: 9, height: 9)
                 if done {
-                    Circle().fill(Brand.accent).frame(width: 9, height: 9)
+                    Circle().fill(Brand.signal).frame(width: 9, height: 9).shadow(color: Brand.signal.opacity(0.7), radius: 4)
                 } else if active {
-                    Circle().fill(Brand.accent.opacity(pulse ? 0.9 : 0.25)).frame(width: 9, height: 9)
+                    Circle().fill(Brand.signal.opacity(pulse ? 0.9 : 0.25)).frame(width: 9, height: 9).shadow(color: Brand.signal.opacity(pulse ? 0.6 : 0), radius: 4)
                 }
             }
             Text(title)

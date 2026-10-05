@@ -440,7 +440,7 @@ struct ReportView: View {
                         if !row.1.isEmpty { Text(row.1).font(.callout).foregroundStyle(.secondary) }
                     }
                     .padding(.leading, 10)
-                    .overlay(alignment: .leading) { Rectangle().fill(Brand.accent).frame(width: 3) }
+                    .overlay(alignment: .leading) { Rectangle().fill(Brand.signal).frame(width: 3) }
                 }
             }
         }
