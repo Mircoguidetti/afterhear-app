@@ -128,6 +128,8 @@ struct PanelView: View {
     private var card: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
+                // Who it's from, without taking the eye off the sentence: the word in a light grey (owner, 05/10).
+                Wordmark(size: 10.5, color: Brand.paper.opacity(0.42))
                 Spacer()
                 Button {
                     AppModel.shared.closePanel()

@@ -61,11 +61,12 @@ struct KnotTie: View {
 /// The logo: the word, in capitals, nothing else (owner, 05/10). The knot above stays only for the iPhone.
 struct Wordmark: View {
     var size: CGFloat = 15
+    var color: Color = Brand.paper
     var body: some View {
         Text(verbatim: "LEXALIE")
             .font(.system(size: size, weight: .semibold))
-            .tracking(size * 0.12)
-            .foregroundStyle(Brand.paper)
+            .tracking(size * 0.14)
+            .foregroundStyle(color)
             .accessibilityLabel(Text(verbatim: "LEXALIE"))
     }
 }
