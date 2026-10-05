@@ -333,6 +333,7 @@ def report():
     lines += ['### All together (new user, every tap)', '', '| Engine | Runner | Right sentence first |', '|---|---|---|']
     lines += [f'| {e} | {m} | {pct(f, n)} ({f}/{n}) |' for (e, m), (f, n) in sorted(summary.items())]
     run.summary('\n'.join(lines))
+    os.makedirs(OUT, exist_ok=True)
     json.dump({f'{e} · {m}': {'first': f, 'n': n} for (e, m), (f, n) in summary.items()},
               open(os.path.join(OUT, 'tap-summary.json'), 'w'), indent=1)
     return 0

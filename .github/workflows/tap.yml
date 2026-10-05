@@ -57,7 +57,7 @@ jobs:
           path: bench/out/tap
       - run: python3 bench/tap.py clips
       - name: The app's choosing, compiled
-        run: swiftc -O macapp/Afterhear/Ranking.swift macapp/Afterhear/Conversation.swift bench/tap/turns.swift -o turns
+        run: swiftc -O macapp/Afterhear/Ranking.swift macapp/Afterhear/Conversation.swift bench/tap/main.swift -o turns
       - run: python3 bench/tap.py sherpa
       - uses: actions/upload-artifact@v4
         if: always()
@@ -82,7 +82,7 @@ jobs:
           name: tapcases
           path: bench/out/tap
       - run: python3 bench/tap.py clips
-      - run: swiftc -O macapp/Afterhear/Ranking.swift macapp/Afterhear/Conversation.swift bench/tap/turns.swift -o turns
+      - run: swiftc -O macapp/Afterhear/Ranking.swift macapp/Afterhear/Conversation.swift bench/tap/main.swift -o turns
       - name: FluidAudio, as the app
         run: cd bench/fluid && swift build -c release --product fluidwords
       - run: python3 bench/tap.py tool "Parakeet, Neural Engine (FluidAudio v2)" bench/fluid/.build/release/fluidwords v2

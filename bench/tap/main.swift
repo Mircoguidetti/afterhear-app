@@ -3,7 +3,7 @@ import Foundation
 // The tap bench (bench/tap.py): the words a real recogniser heard in a clip go through the same
 // Conversation.swift and Ranking.swift as the Mac app, and come out as the sentences it would offer.
 //
-//   swiftc -O macapp/Afterhear/Ranking.swift macapp/Afterhear/Conversation.swift bench/tap/turns.swift -o turns
+//   swiftc -O macapp/Afterhear/Ranking.swift macapp/Afterhear/Conversation.swift bench/tap/main.swift -o turns
 //   ./turns cases.json   (one JSON line per case)
 
 /// As in LiveTranscriber.swift, which can't come here (it needs FluidAudio).
