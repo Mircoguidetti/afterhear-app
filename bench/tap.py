@@ -121,7 +121,9 @@ def cases():
         for k, sentence in enumerate(picks):
             for label, after in TAPS:
                 tap = sentence['start'] + 0.6 * (sentence['end'] - sentence['start']) if after is None else sentence['end'] + after
-                for context in (['video', 'call'] if label in ('10s', '2min') else ['video']):
+                # A video looks back two minutes at most (AppModel.tapWindow): two minutes later is a call's case only.
+                contexts = {'during': ['video'], '0.5s': ['video'], '10s': ['video', 'call'], '2min': ['call']}[label]
+                for context in contexts:
                     window = CALL_WINDOW if context == 'call' else VIDEO_WINDOW
                     a, b = max(0.0, tap - window), tap + AFTER
                     cid = f'{meeting}-{k}-{label}-{context}'
@@ -324,13 +326,17 @@ def report():
             words = sum(x['words_right'] for x in firsts) / len(firsts) if firsts else 0
             lines.append(f"| {tap} | {ctx} | {user} | {n} | {pct(len(firsts), n)} | {pct(sum(x['top3'] for x in xs), n)} | "
                          f"{100 * words:.0f}% | {secs[n // 2]:.1f} |")
-        new = [x for x in r['rows'] if x['user'] == 'new']
-        summary[(r['engine'], r['machine'])] = (sum(x['first'] for x in new), len(new))
+        real = [x for x in r['rows'] if x['context'] != 'video' or x['tap'] != '2min']
+        real = [x for x in real if (x['tap'] in ('during', '0.5s') and x['user'] == 'new') or (x['tap'] in ('10s', '2min') and x['user'] == 'learned')]
+        summary[(r['engine'], r['machine'])] = (sum(x['first'] for x in real), len(real))
         wrong = [x for x in new if not x['first']][:5]
         if wrong:
             lines += ['', 'Some it got wrong:'] + [f"- {x['tap']}/{x['context']}: offered “{x['offered'][:90]}” — missed “{x['truth'][:90]}”" for x in wrong]
         lines.append('')
-    lines += ['### All together (new user, every tap)', '', '| Engine | Runner | Right sentence first |', '|---|---|---|']
+    lines += ['### As the app is used', '',
+              'A tap during the sentence or right after it, from a new user; ten seconds or two minutes later (a call), once the app '
+              'knows your usual delay. This is the number the gate watches.', '',
+              '| Engine | Runner | Right sentence first |', '|---|---|---|']
     lines += [f'| {e} | {m} | {pct(f, n)} ({f}/{n}) |' for (e, m), (f, n) in sorted(summary.items())]
     gate = check_gate(summary, runs)
     run.summary('\n'.join(lines + [''] + gate[1]))

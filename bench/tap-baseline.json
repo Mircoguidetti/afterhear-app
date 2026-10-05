@@ -1,0 +1,6 @@
+{
+  "Parakeet, Neural Engine (FluidAudio v2) · macos-26 (arm64)": 86,
+  "Parakeet compressed, processor (sherpa-onnx int8) · macos-14 (arm64)": 84,
+  "Parakeet compressed, processor (sherpa-onnx int8) · macos-15-intel (x86_64)": 83,
+  "Parakeet compressed, processor (sherpa-onnx int8) · ubuntu-24.04 (x86_64)": 83
+}
