@@ -1,0 +1,98 @@
+name: Compressed model test
+
+# Block D (docs/PIANO.md): the same Parakeet, whole or compressed, on the same real meetings,
+# on Apple chips and on Intel. Free: everything runs on the runners, nothing goes to a server.
+
+on:
+  push:
+    paths: ["bench/compressed.py", "bench/fluid/**", ".github/workflows/compressed.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  clips:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - uses: actions/cache@v4
+        with:
+          path: bench/out/audio
+          key: compressed-ami-v1
+      - run: python3 bench/compressed.py clips
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cclips
+          path: bench/out/cclips
+
+  sherpa:
+    needs: clips
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-14, macos-15-intel]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    env:
+      RUNNER_LABEL: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install --quiet sherpa-onnx numpy psutil
+      - uses: actions/download-artifact@v4
+        with:
+          name: cclips
+          path: bench/out/cclips
+      - run: python3 bench/compressed.py sherpa
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sherpa-${{ matrix.os }}
+          path: bench/out/compressed
+
+  fluid:
+    needs: clips
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, macos-26]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    env:
+      RUNNER_LABEL: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/download-artifact@v4
+        with:
+          name: cclips
+          path: bench/out/cclips
+      - name: Build
+        run: cd bench/fluid && swift build -c release
+      - run: python3 bench/compressed.py fluid bench/fluid/.build/release/fluidbench
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fluid-${{ matrix.os }}
+          path: bench/out/compressed
+
+  report:
+    needs: [sherpa, fluid]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: bench/out/results
+      - run: python3 bench/compressed.py report
+      - uses: actions/upload-artifact@v4
+        with:
+          name: compressed-report
+          path: bench/out/compressed-all.json
