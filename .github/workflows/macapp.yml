@@ -55,6 +55,23 @@ jobs:
             -destination 'generic/platform=macOS' -derivedDataPath build \
             CURRENT_PROJECT_VERSION=${{ github.run_number }} build | tail -80
           exit ${PIPESTATUS[0]}
+      # The self-test (macapp/Afterhear/SelfTest.swift): the inner pieces, then every window opened
+      # with example moments. If a check fails or a window takes the app down, nothing is published.
+      - name: Self-test, every window opened
+        run: |
+          APP=macapp/build/Build/Products/Release/Afterhear.app
+          export SELFTEST_OUT="$RUNNER_TEMP/selftest.jsonl"
+          set +e
+          perl -e 'alarm 240; exec @ARGV' "$APP/Contents/MacOS/Afterhear" --selftest
+          code=$?
+          set -e
+          echo "exit code $code"
+          { echo "## Self-test"; echo; echo '| Check | Result | Detail |'; echo '|---|---|---|'
+            python3 -c 'import json,sys
+for l in open(sys.argv[1]):
+    r=json.loads(l); print("| %s | %s | %s |" % (r["check"], "pass" if r["ok"] else "**FAIL**", r["detail"].replace("|","/")[:120]))' "$SELFTEST_OUT"
+            [ $code -ne 0 ] && echo && echo "**The app stopped or a check failed (exit $code): the last line above is where.**"; } >> "$GITHUB_STEP_SUMMARY" || true
+          exit $code
       # A fixed self-made certificate: macOS ties the audio permission to the signature, so a stable
       # one survives updates. It lives in the MAC_SIGNING_P12 secret (base64 of a .p12 with password
       # MAC_SIGNING_PASSWORD), never in the cache: in a public repository the cache is not private.

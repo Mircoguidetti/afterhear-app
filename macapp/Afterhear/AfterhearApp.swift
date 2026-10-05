@@ -16,43 +16,50 @@ struct AfterhearApp: App {
 
     var body: some Scene {
         MenuBarExtra {
-            MenuView()
-                .environmentObject(model)
-                .environmentObject(model.store)
+            Scenes.menu()
         } label: {
             Image(systemName: model.menuIcon)
         }
         .menuBarExtraStyle(.window)
 
         Window("Diary", id: "diary") {
-            DiaryView()
-                .background(Brand.onyx)
-                .preferredColorScheme(.dark)
-                .tint(Brand.accent)
-                .environmentObject(model)
-                .environmentObject(model.store)
+            Scenes.diary()
         }
         .defaultSize(width: 620, height: 720)
 
         Window("Review", id: "review") {
-            ReviewView()
-                .background(Brand.onyx)
-                .preferredColorScheme(.dark)
-                .tint(Brand.accent)
-                .environmentObject(model)
-                .environmentObject(model.store)
+            Scenes.review()
         }
         .defaultSize(width: 520, height: 640)
 
         Window("Settings", id: "settings") {
-            SettingsView()
-                .background(Brand.onyx)
-                .preferredColorScheme(.dark)
-                .tint(Brand.accent)
-                .environmentObject(model)
-                .environmentObject(model.store)
+            Scenes.settings()
         }
         .windowResizability(.contentSize)
+    }
+}
+
+/// What each window shows, with everything it needs: the same for the app and for the self-test
+/// (SelfTest.swift), so a window missing something fails on GitHub, not on your Mac (05/10).
+@MainActor
+enum Scenes {
+    private static var model: AppModel { AppModel.shared }
+
+    static func menu() -> some View {
+        MenuView().environmentObject(model).environmentObject(model.store)
+    }
+
+    static func diary() -> some View { styled(DiaryView()) }
+    static func review() -> some View { styled(ReviewView()) }
+    static func settings() -> some View { styled(SettingsView()) }
+
+    private static func styled<V: View>(_ view: V) -> some View {
+        view
+            .background(Brand.onyx)
+            .preferredColorScheme(.dark)
+            .tint(Brand.accent)
+            .environmentObject(model)
+            .environmentObject(model.store)
     }
 }
 
@@ -65,6 +72,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // The self-test on GitHub's Macs: no listening, no setup, every window opened once.
+        if CommandLine.arguments.contains("--selftest") {
+            Task { @MainActor in await SelfTest.run() }
+            return
+        }
         Task { @MainActor in
             AppModel.shared.boot()
             Onboarding.showIfNew()
