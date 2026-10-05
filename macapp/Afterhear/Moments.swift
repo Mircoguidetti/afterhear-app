@@ -191,6 +191,8 @@ struct Moment: Codable, Identifiable {
     var signals: Signals? = nil
     var diagnosis: Diagnosis? = nil
     var callGuests: [String]? = nil
+    /// The other sentences a tap offers, one touch away, best first (Conversation.offer, owner 05/10).
+    var others: [Int]? = nil
 
     /// Picked by your model, not by you (§ 18): not a tap, and a quiz before it's a lesson.
     var isModel: Bool { trigger == "model" }
@@ -398,6 +400,13 @@ final class Store: ObservableObject {
         let ear = EarProfile(moments: moments).forModel
         if !ear.isEmpty { text += " " + ear }
         return text
+    }
+
+    /// Your usual delay in one situation ("call", "video", "song", or nil for anything else): a call
+    /// after a long answer and a quick tap on YouTube are different habits (owner, 05/10).
+    func usualDelay(for context: String?) -> Double? {
+        let delays = moments.filter { $0.context == context }.compactMap(\.delay).prefix(15).sorted()
+        return delays.isEmpty ? nil : delays[delays.count / 2]
     }
 
     var usualDelay: Double? {

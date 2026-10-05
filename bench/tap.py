@@ -270,7 +270,8 @@ def score(engine, heard):
             top = r['top']
             first = bool(top) and right(top[0], c['truth'], c['clip_start'])
             rows.append({'id': c['id'], 'tap': c['tap'], 'context': c['context'], 'user': variant,
-                         'first': first, 'top3': any(right(t, c['truth'], c['clip_start']) for t in top),
+                         'first': first, 'top2': any(right(t, c['truth'], c['clip_start']) for t in top[:2]),
+                         'top3': any(right(t, c['truth'], c['clip_start']) for t in top),
                          'words_right': round(recall(c['truth']['text'], top[0]['text']) if first else 0, 3),
                          'seconds': round(h['seconds'] + r['micros'] / 1e6, 2),
                          'offered': top[0]['text'] if top else '', 'truth': c['truth']['text']})
@@ -313,8 +314,8 @@ def report():
             lines += [f"**{r['engine']} on {r['machine']}: did not run.** `{r['failed'][-300:].strip()}`", '']
             continue
         lines += [f"### {r['engine']} · {r['machine']}", '',
-                  '| Tap | Context | User | Taps | Right sentence first | In the first 3 | Words of it right | Seconds (median) |',
-                  '|---|---|---|---|---|---|---|---|']
+                  '| Tap | Context | User | Taps | Right sentence first | First or one touch away | In the first 3 | Words of it right | Seconds (median) |',
+                  '|---|---|---|---|---|---|---|---|---|']
         groups = {}
         for x in r['rows']:
             groups.setdefault((x['tap'], x['context'], x['user']), []).append(x)
@@ -324,18 +325,20 @@ def report():
             secs = sorted(x['seconds'] for x in xs)
             firsts = [x for x in xs if x['first']]
             words = sum(x['words_right'] for x in firsts) / len(firsts) if firsts else 0
-            lines.append(f"| {tap} | {ctx} | {user} | {n} | {pct(len(firsts), n)} | {pct(sum(x['top3'] for x in xs), n)} | "
+            lines.append(f"| {tap} | {ctx} | {user} | {n} | {pct(len(firsts), n)} | {pct(sum(x.get('top2', x['first']) for x in xs), n)} | {pct(sum(x['top3'] for x in xs), n)} | "
                          f"{100 * words:.0f}% | {secs[n // 2]:.1f} |")
         real = [x for x in r['rows'] if x['context'] != 'video' or x['tap'] != '2min']
         real = [x for x in real if (x['tap'] in ('during', '0.5s') and x['user'] == 'new') or (x['tap'] in ('10s', '2min') and x['user'] == 'learned')]
-        summary[(r['engine'], r['machine'])] = (sum(x['first'] for x in real), len(real))
+        # Right after the sentence: it must be the first one shown. Later: first, or one touch away.
+        good = lambda x: x['first'] if x['tap'] in ('during', '0.5s') else x.get('top2', x['first'])  # noqa: E731
+        summary[(r['engine'], r['machine'])] = (sum(good(x) for x in real), len(real))
         wrong = [x for x in new if not x['first']][:5]
         if wrong:
             lines += ['', 'Some it got wrong:'] + [f"- {x['tap']}/{x['context']}: offered “{x['offered'][:90]}” — missed “{x['truth'][:90]}”" for x in wrong]
         lines.append('')
     lines += ['### As the app is used', '',
-              'A tap during the sentence or right after it, from a new user; ten seconds or two minutes later (a call), once the app '
-              'knows your usual delay. This is the number the gate watches.', '',
+              'A tap during the sentence or right after it, from a new user: the first sentence shown must be it. Ten seconds or two '
+              'minutes later (a call), once the app knows your usual delay: first, or one touch away. This is the number the gate watches.', '',
               '| Engine | Runner | Right sentence first |', '|---|---|---|']
     lines += [f'| {e} | {m} | {pct(f, n)} ({f}/{n}) |' for (e, m), (f, n) in sorted(summary.items())]
     gate = check_gate(summary, runs)

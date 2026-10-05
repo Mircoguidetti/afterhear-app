@@ -68,7 +68,7 @@ enum SelfTest {
         let heard = words("Good morning everyone, thanks for joining.", from: 0)
             + words("So the client wants the figures by Friday at the latest.", from: 6)
         let turns = Conversation.turns(others: heard, mine: [], clipStart: start)
-        let first = Conversation.rank(turns, tapAt: 12.5, usualDelay: nil, freshWithin: AppModel.reactionSeconds).first
+        let first = Conversation.offer(turns, tapAt: 12.5, usualDelay: nil, freshWithin: AppModel.reactionSeconds).first
         check("the tap offers the sentence just missed", first.map { turns[$0.index].text.contains("figures") } ?? false,
               first.map { turns[$0.index].text } ?? "nothing offered")
     }

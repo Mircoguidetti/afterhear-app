@@ -438,15 +438,15 @@ final class AppModel: ObservableObject {
             let hardness = Memory.shared.hardness
             // Ended within a natural reaction time (in a call: any time in the window), best first;
             // nothing that recent: the best of the whole clip.
-            var ranked = Conversation.rank(conversation, tapAt: tapAt, usualDelay: store.usualDelay,
-                                           freshWithin: context == .call ? nil : Self.reactionSeconds, hardness: hardness)
-            if ranked.isEmpty {
-                ranked = Conversation.rank(conversation, tapAt: tapAt, usualDelay: store.usualDelay, hardness: hardness)
-            }
+            // First what was just said, then the sentences around your usual delay here (owner, 05/10).
+            let situation: String? = context == .other ? nil : context.rawValue
+            var ranked = Conversation.offer(conversation, tapAt: tapAt, usualDelay: store.usualDelay(for: situation),
+                                            freshWithin: context == .call ? nil : Self.reactionSeconds, hardness: hardness)
             var transcript = ""
             var turns: [Turn]? = nil
             var chosen: Int? = nil
             var alternative: Int? = nil
+            var others: [Int] = []
             // Two taps close together are two different sentences: the second never brings back the
             // one the first just showed (owner, 03/10).
             if let last = lastShown, Date().timeIntervalSince(last.date) < 30, ranked.count > 1,
@@ -458,6 +458,7 @@ final class AppModel: ObservableObject {
                 turns = conversation
                 chosen = best.index
                 alternative = ranked.dropFirst().first?.index
+                others = Array(ranked.dropFirst().prefix(3).map(\.index))
                 transcript = conversation[best.index].text
                 let t = conversation[best.index]
                 overlap = conversation.contains { $0.isMine != t.isMine && $0.start < t.end - 0.3 && $0.end > t.start + 0.3 }
@@ -555,6 +556,7 @@ final class AppModel: ObservableObject {
             moment.turns = turns
             moment.chosen = chosen
             moment.alternative = alternative
+            moment.others = others.isEmpty ? nil : others
             moment.tapAt = tapAt
             moment.context = context == .other ? nil : context.rawValue
             if context == .video { moment.show = ContextDetector.show() }
@@ -801,9 +803,8 @@ final class AppModel: ObservableObject {
             let turns = Conversation.turns(others: CloudTranscriber.timedWords(result, clipStart: start, clipLength: length),
                                            mine: [], clipStart: start)
             let tapAt = max(0, length - after)
-            var ranked = Conversation.rank(turns, tapAt: tapAt, usualDelay: usual, freshWithin: Self.reactionSeconds,
-                                           hardness: Memory.shared.hardness)
-            if ranked.isEmpty { ranked = Conversation.rank(turns, tapAt: tapAt, usualDelay: usual, hardness: Memory.shared.hardness) }
+            let ranked = Conversation.offer(turns, tapAt: tapAt, usualDelay: usual, freshWithin: Self.reactionSeconds,
+                                            hardness: Memory.shared.hardness)
             return ranked.first.map { turns[$0.index].text }
         }
     }
@@ -867,9 +868,8 @@ final class AppModel: ObservableObject {
             guard let words else { continue }
             let turns = Conversation.turns(others: words, mine: [], clipStart: clipStart)
             let hardness = Memory.shared.hardness
-            var ranked = Conversation.rank(turns, tapAt: mark.tapAt, usualDelay: store.usualDelay,
-                                           freshWithin: mark.context == "call" ? nil : Self.reactionSeconds, hardness: hardness)
-            if ranked.isEmpty { ranked = Conversation.rank(turns, tapAt: mark.tapAt, usualDelay: store.usualDelay, hardness: hardness) }
+            let ranked = Conversation.offer(turns, tapAt: mark.tapAt, usualDelay: store.usualDelay(for: mark.context),
+                                            freshWithin: mark.context == "call" ? nil : Self.reactionSeconds, hardness: hardness)
             guard let best = ranked.first else {
                 // Nothing said in it: nothing to learn.
                 try? FileManager.default.removeItem(at: url)

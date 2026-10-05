@@ -46,9 +46,8 @@ for c in cases {
     }
     let t0 = DispatchTime.now().uptimeNanoseconds
     let turns = Conversation.turns(others: words, mine: [], clipStart: clipStart)
-    // As AppModel.captureMoment: the fresh ones first; nothing that recent, the whole clip.
-    var ranked = Conversation.rank(turns, tapAt: c.tapAt, usualDelay: c.delay, freshWithin: c.fresh)
-    if ranked.isEmpty { ranked = Conversation.rank(turns, tapAt: c.tapAt, usualDelay: c.delay) }
+    // As AppModel.captureMoment: what was just said first, then the sentences around your usual delay.
+    let ranked = Conversation.offer(turns, tapAt: c.tapAt, usualDelay: c.delay, freshWithin: c.fresh)
     let micros = Int((DispatchTime.now().uptimeNanoseconds - t0) / 1000)
     let top = ranked.prefix(3).map { Offered(start: turns[$0.index].start, end: turns[$0.index].end, text: turns[$0.index].text) }
     print(String(data: try encoder.encode(Out(id: c.id, turns: turns.count, top: top, micros: micros)), encoding: .utf8)!)

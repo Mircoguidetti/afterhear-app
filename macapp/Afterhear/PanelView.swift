@@ -320,31 +320,23 @@ struct PanelView: View {
                     .fixedSize(horizontal: false, vertical: true)
                 }
             }
-            if let turns = moment.turns, let alt = moment.alternative, alt != moment.chosen, turns.indices.contains(alt) {
-                Button { Task { await AppModel.shared.jump(moment.id, to: alt) } } label: {
-                    (Text("Or maybe: ").foregroundColor(Brand.paper.opacity(0.5)) + Text(turns[alt].text).foregroundColor(Brand.paper.opacity(0.8)))
-                        .font(.system(size: 12))
-                        .lineLimit(2)
-                        .multilineTextAlignment(.leading)
-                        .fixedSize(horizontal: false, vertical: true)
+            // Not this one? The others it could be, one touch away; ‹ › go further (owner, 05/10).
+            if let turns = moment.turns {
+                let list = (moment.others ?? moment.alternative.map { [$0] } ?? [])
+                    .filter { $0 != moment.chosen && turns.indices.contains($0) }.prefix(3)
+                ForEach(Array(list), id: \.self) { i in
+                    Button { Task { await AppModel.shared.jump(moment.id, to: i) } } label: {
+                        Text(turns[i].text)
+                            .font(.system(size: 12))
+                            .foregroundStyle(Brand.paper.opacity(0.7))
+                            .lineLimit(1)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.vertical, 5).padding(.horizontal, 8)
+                            .background(RoundedRectangle(cornerRadius: 7).fill(Color.white.opacity(0.06)))
+                    }
+                    .buttonStyle(.plain)
+                    .help("Explain this sentence instead")
                 }
-                .buttonStyle(.plain)
-                .help("Explain this sentence instead")
-            }
-            // Two hard sentences in a row: the one before has something you're learning too, so it's
-            // one tap away instead of hidden behind the arrow (owner, 03/10).
-            if let turns = moment.turns, let chosen = moment.chosen,
-               let before = AppModel.neighbor(turns, from: chosen, by: -1), before != moment.alternative,
-               Memory.shared.hardness(turns[before].text) >= 1 {
-                Button { Task { await AppModel.shared.jump(moment.id, to: before) } } label: {
-                    (Text("Also before: ").foregroundColor(Brand.paper.opacity(0.5)) + Text(turns[before].text).foregroundColor(Brand.paper.opacity(0.8)))
-                        .font(.system(size: 12))
-                        .lineLimit(2)
-                        .multilineTextAlignment(.leading)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .buttonStyle(.plain)
-                .help("Explain the sentence before")
             }
             HStack(spacing: 8) {
                 if let turns = moment.turns, let chosen = moment.chosen {

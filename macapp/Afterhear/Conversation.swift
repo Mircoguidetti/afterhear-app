@@ -49,6 +49,27 @@ enum Conversation {
         return Ranking.rank(lines, tapAt: tapAt, usualDelay: usualDelay, freshWithin: freshWithin, hardness: hardness)
     }
 
+    /// What a tap offers (owner, 05/10): first, always what was just said, the last sentence of the
+    /// others before the tap (a "yeah" or a laugh doesn't count; your own words never do: if you
+    /// answered, it's what they said before your answer). Then, one touch away, the sentences around
+    /// the moment you usually miss things in this situation (usualDelay, learned per context), and
+    /// further back in order.
+    static func offer(_ turns: [Turn], tapAt: Double, usualDelay: Double?, freshWithin: Double? = nil,
+                      hardness: ((String) -> Double)? = nil) -> [Ranking.Scored] {
+        let theirs = turns.indices.filter { !turns[$0].isMine && turns[$0].start < tapAt }
+        guard !theirs.isEmpty else { return [] }
+        let filler: (Int) -> Bool = { Ranking.isYeah(turns[$0].text) || Ranking.isLaugh(turns[$0].text) }
+        let latest = theirs.last(where: { !filler($0) }) ?? theirs.last!
+        var out = [Ranking.Scored(index: latest, score: 1, reasons: ["latest"])]
+        var rest = rank(turns, tapAt: tapAt, usualDelay: usualDelay, freshWithin: freshWithin, hardness: hardness)
+        if rest.isEmpty { rest = rank(turns, tapAt: tapAt, usualDelay: usualDelay, hardness: hardness) }
+        out += rest.filter { $0.index != latest && !filler($0.index) }
+        // Anything the ranking left out, most recent first, so going back never runs dry.
+        let seen = Set(out.map(\.index))
+        out += theirs.reversed().filter { !seen.contains($0) }.map { Ranking.Scored(index: $0, score: 0, reasons: ["earlier"]) }
+        return out
+    }
+
     /// A turn longer than this is cut at the next small pause: one sentence on screen, not a speech.
     static let longTurnWords = 28
 
