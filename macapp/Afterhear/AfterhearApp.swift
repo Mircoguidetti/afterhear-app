@@ -50,6 +50,7 @@ struct AfterhearApp: App {
                 .preferredColorScheme(.dark)
                 .tint(Brand.accent)
                 .environmentObject(model)
+                .environmentObject(model.store)
         }
         .windowResizability(.contentSize)
     }

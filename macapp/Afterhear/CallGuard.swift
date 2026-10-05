@@ -257,7 +257,8 @@ struct CallGuardRow: View {
 struct NeverCallsSection: View {
     @AppStorage(Key.participantNotice) private var notice = ParticipantNotice.remind.rawValue
     @State private var rules = NeverCalls.rules
-    @EnvironmentObject private var store: Store
+    // Not from the environment: this section must never take the Settings window down (05/10).
+    @ObservedObject private var store = AppModel.shared.store
     @ObservedObject private var calendar = CalendarWatch.shared
 
     var body: some View {
