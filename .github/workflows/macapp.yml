@@ -67,9 +67,7 @@ jobs:
           set -e
           echo "exit code $code"
           { echo "## Self-test"; echo; echo '| Check | Result | Detail |'; echo '|---|---|---|'
-            python3 -c 'import json,sys
-for l in open(sys.argv[1]):
-    r=json.loads(l); print("| %s | %s | %s |" % (r["check"], "pass" if r["ok"] else "**FAIL**", r["detail"].replace("|","/")[:120]))' "$SELFTEST_OUT"
+            python3 -c 'import json,sys; [print("| %s | %s | %s |" % (r["check"], "pass" if r["ok"] else "**FAIL**", r["detail"].replace("|","/")[:120])) for r in map(json.loads, open(sys.argv[1]))]' "$SELFTEST_OUT"
             [ $code -ne 0 ] && echo && echo "**The app stopped or a check failed (exit $code): the last line above is where.**"; } >> "$GITHUB_STEP_SUMMARY" || true
           exit $code
       # A fixed self-made certificate: macOS ties the audio permission to the signature, so a stable
