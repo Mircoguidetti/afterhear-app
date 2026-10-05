@@ -332,7 +332,7 @@ def report():
         # Right after the sentence: it must be the first one shown. Later: first, or one touch away.
         good = lambda x: x['first'] if x['tap'] in ('during', '0.5s') else x.get('top2', x['first'])  # noqa: E731
         summary[(r['engine'], r['machine'])] = (sum(good(x) for x in real), len(real))
-        wrong = [x for x in new if not x['first']][:5]
+        wrong = [x for x in real if not good(x)][:5]
         if wrong:
             lines += ['', 'Some it got wrong:'] + [f"- {x['tap']}/{x['context']}: offered “{x['offered'][:90]}” — missed “{x['truth'][:90]}”" for x in wrong]
         lines.append('')
