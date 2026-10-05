@@ -498,17 +498,13 @@ final class AppModel: ObservableObject {
             var offline = false
             let explanation: Explanation
             if !Reachability.shared.isOnline {
-                // Offline: no waiting for an answer that can't come. Apple Intelligence where there is
-                // one; otherwise it's saved and explained tonight, said plainly (owner, 02/10).
-                if let quick = await OfflineExplainer.explain(transcript, settings: settings, source: source) {
-                    explanation = quick
-                } else {
-                    explanation = Explanation(transcript: nil, translation: quickTranslation ?? "", intent: nil, pieces: [],
-                                              provider: nil, model: nil, ms: nil)
-                    step.savedOffline = true
-                    step.savedReason = Self.whySaved(nil)
-                    progress(step)
-                }
+                // Offline: saved, said plainly, and the whole explanation once the server answers. Never
+                // a poorer one from this Mac in the meantime (owner, 05/10).
+                explanation = Explanation(transcript: nil, translation: quickTranslation ?? "", intent: nil, pieces: [],
+                                          provider: nil, model: nil, ms: nil)
+                step.savedOffline = true
+                step.savedReason = Self.whySaved(nil)
+                progress(step)
                 offline = true
             } else {
                 do {
@@ -517,16 +513,12 @@ final class AppModel: ObservableObject {
                                                                   profile: store.listeningProfile, source: source, overlap: overlap,
                                                                   tone: tone, before: linesBefore, after: linesAfter)
                 } catch {
-                    // The server didn't answer: the model inside this Mac if there is one, else saved for later.
-                    if let quick = await OfflineExplainer.explain(transcript, settings: settings, source: source) {
-                        explanation = quick
-                    } else {
-                        explanation = Explanation(transcript: nil, translation: quickTranslation ?? "", intent: nil, pieces: [],
-                                                  provider: nil, model: nil, ms: nil)
-                        step.savedOffline = true
-                        step.savedReason = Self.whySaved(error)
-                        progress(step)
-                    }
+                    // The server didn't answer: saved, and shown whole as soon as it does.
+                    explanation = Explanation(transcript: nil, translation: quickTranslation ?? "", intent: nil, pieces: [],
+                                              provider: nil, model: nil, ms: nil)
+                    step.savedOffline = true
+                    step.savedReason = Self.whySaved(error)
+                    progress(step)
                     offline = true
                 }
             }
@@ -601,16 +593,28 @@ final class AppModel: ObservableObject {
             if !badAudio { Memory.shared.record("tap", pieces: moment.pieces, moment: moment) }
             // Offline and nothing to explain it with: the panel already says it's saved; the video goes on.
             if step.savedOffline {
+                // You asked for help now: the explanation appears by itself as soon as it comes.
+                if mode != .silent, Reachability.shared.isOnline {
+                    let id = moment.id
+                    showWhenExplained.insert(id)
+                    Task { @MainActor in
+                        for wait in [10, 30, 60] {
+                            try? await Task.sleep(nanoseconds: UInt64(wait) * 1_000_000_000)
+                            guard self.showWhenExplained.contains(id) else { return }
+                            await self.upgradeOffline()
+                        }
+                    }
+                }
                 if paused { MediaKey.playPause() }
                 panel.show(PanelView(phase: .progress(step)), autoHide: 6, width: narrow ? 300 : 380)
                 return
             }
             switch mode {
             case .silent: break
-            case .glance: panel.show(PanelView(phase: .glance(moment)), autoHide: 7, width: 300)
-            case .full:
+            case .glance, .full:
                 prepare(moment)
-                panel.show(PanelView(phase: .result(moment)), autoHide: 30)
+                // In a call you read it when you can: it stays until you close it (owner, 05/10).
+                panel.show(PanelView(phase: .result(moment)), autoHide: context == .call ? nil : 30)
             case .pause:
                 prepare(moment)
                 videoPaused = paused
@@ -686,10 +690,8 @@ final class AppModel: ObservableObject {
                 problem = error
             }
         }
-        if explanation == nil {
-            explanation = await OfflineExplainer.explain(transcript, settings: settings, source: source)
-            offline = true
-        }
+        // No answer: saved, explained whole later (never a poorer one from this Mac, owner 05/10).
+        if explanation == nil { offline = true }
         let result = explanation ?? Explanation(transcript: nil, translation: quickTranslation ?? "", intent: nil, pieces: [],
                                                 provider: nil, model: nil, ms: nil)
         var moment = Moment(date: started, transcript: transcript, sent: sent, translation: result.translation,
@@ -809,6 +811,9 @@ final class AppModel: ObservableObject {
     private var upgrading = false
 
     /// Moments explained by the model inside the Mac, offline: Gemini explains them again now.
+    /// "Now" taps the server didn't answer in time: shown by themselves once explained.
+    private var showWhenExplained: Set<UUID> = []
+
     func upgradeOffline() async {
         guard !upgrading else { return }
         upgrading = true
@@ -827,6 +832,10 @@ final class AppModel: ObservableObject {
             saved.provider = explanation.model ?? settings.provider.rawValue
             saved.offline = nil
             store.update(saved)
+            if showWhenExplained.remove(saved.id) != nil, Date().timeIntervalSince(saved.date) < 600, !busy {
+                prepare(saved)
+                panel.show(PanelView(phase: .result(saved)), autoHide: nil)
+            }
         }
     }
 

@@ -218,13 +218,13 @@ struct AppSettings {
 }
 
 extension AppSettings {
-    /// What "help me now" does here (owner, 04/10: settings without doubles). The visible choices
-    /// decide it: in a video, pause it while you read (or not); in a call or anywhere else, one line
-    /// you read at a glance. With or without the explanation is "Show" in Settings (Key.nowExplain).
+    /// What "help me now" does here. Always the whole explanation, never a quick line (owner, 05/10):
+    /// in a video it pauses it while you read (or not); in a call it stays until you close it.
+    /// With or without the explanation is "Show" in Settings (Key.nowExplain).
     static func nowMode(for context: AppContext) -> HelpMode {
         switch context {
         case .video: UserDefaults.standard.bool(forKey: Key.pauseVideo) ? .pause : .full
-        case .call, .other: .glance
+        case .call, .other: .full
         }
     }
 }

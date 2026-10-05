@@ -52,6 +52,7 @@
 "Afterhear is listening with you" = "Afterhear слушает вместе с вами";
 "Afterhear is paused." = "Afterhear на паузе.";
 "Afterhear needs the \"Screen & System Audio Recording\" permission. Once it's on, reopen Afterhear." = "Afterhear нужно разрешение «Запись экрана и системного звука». Когда оно включено, откройте Afterhear заново.";
+"Afterhear needs two permissions" = "Afterhear нужны два разрешения";
 "Afterhear will speak this language after a restart." = "Afterhear перейдёт на этот язык после перезапуска.";
 "Again" = "Ещё раз";
 "All calls" = "Все звонки";
@@ -515,6 +516,7 @@
 "decided" = "решили";
 "instead of “%@”" = "вместо «%@»";
 "left ⌥⌥" = "левый ⌥⌥";
+"macOS asks again after a new version. Turn Afterhear on in both, then reopen it." = "После новой версии macOS спрашивает снова. Включите Afterhear в обоих, затем откройте его снова.";
 "of the call followed" = "звонка понято";
 "on device" = "на устройстве";
 "right ⌥⌥" = "правый ⌥⌥";

@@ -7,6 +7,7 @@ enum Onboarding {
     @MainActor static func showIfNew() {
         guard !UserDefaults.standard.bool(forKey: Key.onboarded) else {
             showSignInIfNeeded()
+            showPermissionsIfMissing()
             return
         }
         guessLanguages()
@@ -17,6 +18,25 @@ enum Onboarding {
                 AppModel.shared.languageChanged()
             }
         }
+    }
+
+    /// A permission that doesn't work any more (a new version, a reset): asked at launch, never left
+    /// for Settings (owner, 05/10). The sound needs a few seconds to tell, so it looks after a moment.
+    @MainActor static func showPermissionsIfMissing() {
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 4_000_000_000)
+            guard permissionsMissing else { return }
+            AppWindows.show(id: "permissions", title: String(localized: "Afterhear needs two permissions"), width: 500, height: 420) {
+                PermissionsView()
+                    .padding(28)
+                    .frame(width: 500, height: 420)
+            }
+        }
+    }
+
+    @MainActor static var permissionsMissing: Bool {
+        if case .needsPermission = AppModel.shared.state { return true }
+        return !AXIsProcessTrusted()
     }
 
     /// Already set up, but signed out and without a tester code (the rename, a new Mac): the explanations
@@ -241,5 +261,50 @@ struct SignInStep: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+}
+
+/// The two permissions again, on their own: after an update or a reset.
+struct PermissionsView: View {
+    @State private var trusted = AXIsProcessTrusted()
+    @ObservedObject private var model = AppModel.shared
+    private let timer = Timer.publish(every: 1.5, on: .main, in: .common).autoconnect()
+
+    private var soundOK: Bool { model.state == .listening || model.state == .paused }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            KnotMark(color: Brand.accent, lineWidth: 1.8).frame(width: 26, height: 25)
+            Text("Afterhear needs two permissions").font(.system(size: 24, weight: .bold))
+            Text("macOS asks again after a new version. Turn Afterhear on in both, then reopen it.")
+                .font(.system(size: 14)).foregroundStyle(Brand.paper.opacity(0.65)).fixedSize(horizontal: false, vertical: true)
+            row("speaker.wave.2", String(localized: "Your Mac's sound"), ok: soundOK,
+                action: (String(localized: "Open Settings"), { AppModel.shared.openScreenRecordingSettings() }))
+            row("hand.tap", String(localized: "The gestures"), ok: trusted,
+                action: (String(localized: "Allow"), { MediaKey.askForPermission() }))
+            Spacer()
+            HStack {
+                Spacer()
+                if soundOK && trusted {
+                    Button("Done") { NSApp.keyWindow?.close() }.buttonStyle(.borderedProminent).tint(Brand.accent)
+                } else {
+                    Button("Reopen Afterhear") { AppModel.shared.relaunch() }.buttonStyle(.borderedProminent).tint(Brand.accent)
+                }
+            }
+        }
+        .onReceive(timer) { _ in trusted = AXIsProcessTrusted() }
+    }
+
+    private func row(_ icon: String, _ name: String, ok: Bool, action: (String, () -> Void)) -> some View {
+        HStack(spacing: 14) {
+            Image(systemName: icon).font(.system(size: 18)).foregroundStyle(Brand.accent).frame(width: 24)
+            Text(name).font(.system(size: 15, weight: .semibold))
+            Spacer()
+            if ok {
+                Image(systemName: "checkmark.circle.fill").foregroundStyle(Brand.accent)
+            } else {
+                Button(action.0, action: action.1).controlSize(.small)
+            }
+        }
     }
 }

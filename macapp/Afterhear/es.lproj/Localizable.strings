@@ -52,6 +52,7 @@
 "Afterhear is listening with you" = "Afterhear escucha contigo";
 "Afterhear is paused." = "Afterhear está en pausa.";
 "Afterhear needs the \"Screen & System Audio Recording\" permission. Once it's on, reopen Afterhear." = "Afterhear necesita el permiso «Grabación de pantalla y audio del sistema». Cuando esté activado, vuelve a abrir Afterhear.";
+"Afterhear needs two permissions" = "Afterhear necesita dos permisos";
 "Afterhear will speak this language after a restart." = "Afterhear hablará este idioma tras reiniciarse.";
 "Again" = "Otra vez";
 "All calls" = "Todas las llamadas";
@@ -515,6 +516,7 @@
 "decided" = "decidido";
 "instead of “%@”" = "en vez de «%@»";
 "left ⌥⌥" = "⌥⌥ izquierdo";
+"macOS asks again after a new version. Turn Afterhear on in both, then reopen it." = "macOS los vuelve a pedir tras una nueva versión. Activa Afterhear en los dos y vuelve a abrirlo.";
 "of the call followed" = "de la llamada seguida";
 "on device" = "en el dispositivo";
 "right ⌥⌥" = "⌥⌥ derecho";

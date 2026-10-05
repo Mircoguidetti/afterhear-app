@@ -147,4 +147,9 @@ R = [
 ("Slower. And now?", "Più lenta. E ora?", "Más lento. ¿Y ahora?", "Plus lentement. Et maintenant ?", "Langsamer. Und jetzt?", "Медленнее. А теперь?", "Mais devagar. E agora?"),
 ("Only the part you missed. And now?", "Solo il pezzo che ti è sfuggito. E ora?", "Solo la parte que se te escapó. ¿Y ahora?", "Seulement le passage manqué. Et maintenant ?", "Nur der Teil, der dir entgangen ist. Und jetzt?", "Только то, что вы упустили. А теперь?", "Só a parte que te escapou. E agora?"),
 ("Written down. Do you get it?", "Scritta. La capisci?", "Escrita. ¿La entiendes?", "À l’écrit. Vous comprenez ?", "Geschrieben. Verstehst du es?", "Написанное. Понятно?", "Escrita. Entendeu?"),
+("Afterhear needs two permissions", "Afterhear ha bisogno di due permessi", "Afterhear necesita dos permisos", "Afterhear a besoin de deux autorisations", "Afterhear braucht zwei Berechtigungen", "Afterhear нужны два разрешения", "O Afterhear precisa de duas permissões"),
+("macOS asks again after a new version. Turn Afterhear on in both, then reopen it.", "macOS li chiede di nuovo dopo una nuova versione. Attiva Afterhear in tutti e due, poi riaprilo.",
+ "macOS los vuelve a pedir tras una nueva versión. Activa Afterhear en los dos y vuelve a abrirlo.", "macOS les redemande après une nouvelle version. Activez Afterhear dans les deux, puis rouvrez-le.",
+ "macOS fragt nach einer neuen Version erneut. Aktiviere Afterhear in beiden und öffne es dann erneut.", "После новой версии macOS спрашивает снова. Включите Afterhear в обоих, затем откройте его снова.",
+ "O macOS pede de novo depois de uma nova versão. Ative o Afterhear nas duas e abra-o de novo."),
 ]

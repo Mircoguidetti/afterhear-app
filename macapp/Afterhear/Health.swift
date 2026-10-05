@@ -107,7 +107,8 @@ final class HealthCheck: ObservableObject {
     func atLaunch() {
         Task {
             try? await Task.sleep(nanoseconds: 20_000_000_000)
-            guard UserDefaults.standard.bool(forKey: Key.onboarded) else { return }
+            // Missing permissions have their own window at launch (Onboarding.showPermissionsIfMissing).
+            guard UserDefaults.standard.bool(forKey: Key.onboarded), !Onboarding.permissionsMissing else { return }
             await run()
             let first = !UserDefaults.standard.bool(forKey: "healthShown")
             if first || anyMissing {
