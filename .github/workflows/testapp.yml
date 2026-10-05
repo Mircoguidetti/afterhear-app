@@ -19,7 +19,7 @@ jobs:
       - name: Build for the simulator
         run: |
           cd testapp
-          xcodebuild -project AfterhearTest.xcodeproj -scheme AfterhearTest \
+          xcodebuild -project LexalieTest.xcodeproj -scheme LexalieTest \
             -destination 'generic/platform=iOS Simulator' \
             CODE_SIGNING_ALLOWED=NO build | tail -80
           exit ${PIPESTATUS[0]}

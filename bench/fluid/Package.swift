@@ -1,6 +1,6 @@
 // swift-tools-version:5.10
 // The compressed model test (bench/compressed.py): Parakeet through FluidAudio on the Neural
-// Engine, the same version and the same calls as the Mac app (macapp/Afterhear/Parakeet.swift).
+// Engine, the same version and the same calls as the Mac app (macapp/LEXALIE/Parakeet.swift).
 import PackageDescription
 
 let package = Package(

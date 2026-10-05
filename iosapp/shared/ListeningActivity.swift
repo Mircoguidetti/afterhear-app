@@ -2,7 +2,7 @@ import ActivityKit
 import AppIntents
 import Foundation
 
-/// The Live Activity while Afterhear listens (docs/BRAIN.md § 11.12): on the Lock Screen and in
+/// The Live Activity while LEXALIE listens (docs/BRAIN.md § 11.12): on the Lock Screen and in
 /// the Dynamic Island, always, so it never listens in secret. It also holds the Mark button.
 struct ListeningAttributes: ActivityAttributes {
     struct ContentState: Codable, Hashable {
@@ -16,7 +16,7 @@ struct ListeningAttributes: ActivityAttributes {
 /// The Mark button on the Lock Screen and in the Dynamic Island: it runs in the app.
 struct MarkFromActivityIntent: LiveActivityIntent {
     static var title: LocalizedStringResource = "Mark it"
-    static var description = IntentDescription("Something just slipped past you: Afterhear finds it tonight.")
+    static var description = IntentDescription("Something just slipped past you: LEXALIE finds it tonight.")
     static var openAppWhenRun = false
 
     init() {}

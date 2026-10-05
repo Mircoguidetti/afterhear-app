@@ -1,0 +1,7 @@
+/* Written by macapp/l10n/make.py from strings.py: edit there. */
+
+"NSMicrophoneUsageDescription" = "LEXALIE ascolta la tua voce solo su questo Mac, per sapere a cosa stavi rispondendo e accorgersi quando dici «sorry?». Non si salva niente.";
+"NSAudioCaptureUsageDescription" = "LEXALIE ascolta il suono del Mac (una call, un film) per trovare la frase che ti è sfuggita. Le voci non lasciano mai questo Mac.";
+"NSCalendarsUsageDescription" = "LEXALIE legge il calendario per prepararti prima delle call e darti la lezione subito dopo. Da questo Mac escono solo titolo, orario e le persone che segui.";
+"NSAppleEventsUsageDescription" = "LEXALIE chiede a Spotify e Musica quale canzone sta suonando (solo titolo e artista), per spiegare le frasi di quella canzone.";
+"NSCalendarsFullAccessUsageDescription" = "LEXALIE legge il calendario per prepararti prima delle call e darti la lezione subito dopo. Da questo Mac escono solo titolo, orario e le persone che segui.";

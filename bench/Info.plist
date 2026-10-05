@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleIdentifier</key>
-	<string>com.afterhear.bench</string>
+	<string>com.lexalie.bench</string>
 	<key>CFBundleName</key>
-	<string>Afterhear bench</string>
+	<string>LEXALIE bench</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Transcribes the bench's audio clips to compare Apple's recognisers with the others.</string>
 </dict>

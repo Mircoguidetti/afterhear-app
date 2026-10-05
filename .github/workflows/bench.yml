@@ -7,7 +7,7 @@ name: Brain bench
 
 on:
   push:
-    paths: ["bench/**", "macapp/Afterhear/Ranking.swift", ".github/workflows/bench.yml"]
+    paths: ["bench/**", "macapp/LEXALIE/Ranking.swift", ".github/workflows/bench.yml"]
   workflow_dispatch:
     inputs:
       paid:
@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Compile the ranking
-        run: swiftc --version && swiftc -O macapp/Afterhear/Ranking.swift bench/main.swift -o rank
+        run: swiftc --version && swiftc -O macapp/LEXALIE/Ranking.swift bench/main.swift -o rank
       - name: Scripted conversations
         run: python3 bench/run.py synthetic
       - uses: actions/upload-artifact@v4
@@ -44,7 +44,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Compile the ranking
-        run: swiftc -O macapp/Afterhear/Ranking.swift bench/main.swift -o rank
+        run: swiftc -O macapp/LEXALIE/Ranking.swift bench/main.swift -o rank
       - name: Tools
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg

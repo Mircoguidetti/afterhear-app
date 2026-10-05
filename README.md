@@ -1,6 +1,6 @@
-# Afterhear apps
+# LEXALIE apps
 
-The Afterhear apps: Mac (`macapp`), iPhone and Watch (`iosapp`), a small test app (`testapp`)
+The LEXALIE apps: Mac (`macapp`), iPhone and Watch (`iosapp`), a small test app (`testapp`)
 and the test bench (`bench`). The website, the server and the documents live elsewhere.
 
 Builds run on GitHub Actions:

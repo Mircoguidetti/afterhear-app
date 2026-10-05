@@ -2,7 +2,7 @@
 """The Mac app in seven languages (owner, 03/10: the same languages as the landing).
 
 Finds every word the app shows, checks each one has its six translations in strings.py, and
-writes Afterhear/<language>.lproj/Localizable.strings and InfoPlist.strings.
+writes LEXALIE/<language>.lproj/Localizable.strings and InfoPlist.strings.
 
   python3 macapp/l10n/make.py          check and write
   python3 macapp/l10n/make.py --todo   list the keys still without a translation
@@ -17,7 +17,7 @@ import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-APP = os.path.join(HERE, '..', 'Afterhear')
+APP = os.path.join(HERE, '..', 'LEXALIE')
 sys.path.insert(0, HERE)
 from strings import T, PLIST  # noqa: E402
 

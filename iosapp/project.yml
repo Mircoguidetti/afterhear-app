@@ -1,9 +1,9 @@
 # XcodeGen spec for the iPhone and Watch apps (real life, docs/BRAIN.md § 11, § 13).
 # CI generates the project and builds it without signing; device builds need the
 # Apple Developer account (docs/INFRA.md § 5).
-name: afterhear-ios
+name: lexalie-ios
 options:
-  bundleIdPrefix: app.afterhear
+  bundleIdPrefix: app.lexalie
   deploymentTarget:
     iOS: "17.0"
     watchOS: "10.0"
@@ -20,41 +20,41 @@ packages:
     url: https://github.com/FluidInference/FluidAudio
     exactVersion: 0.17.5
 targets:
-  Afterhear:
+  LEXALIE:
     type: application
     platform: iOS
     sources:
-      - Afterhear
+      - LEXALIE
       - shared
-      - path: ../macapp/Afterhear/Redactor.swift
-      - path: ../macapp/Afterhear/Ranking.swift
+      - path: ../macapp/LEXALIE/Redactor.swift
+      - path: ../macapp/LEXALIE/Ranking.swift
     dependencies:
-      - target: AfterhearWidgets
+      - target: LexalieWidgets
       - package: FluidAudio
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: app.afterhear.ios
-        PRODUCT_NAME: Afterhear
+        PRODUCT_BUNDLE_IDENTIFIER: app.lexalie.ios
+        PRODUCT_NAME: LEXALIE
         TARGETED_DEVICE_FAMILY: "1"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     info:
-      path: Afterhear/Info.plist
+      path: LEXALIE/Info.plist
       properties:
-        CFBundleDisplayName: Afterhear
+        CFBundleDisplayName: LEXALIE
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         UILaunchScreen: {}
         UIApplicationSupportsIndirectInputEvents: true
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         UIBackgroundModes: [audio, processing, location]
-        BGTaskSchedulerPermittedIdentifiers: [app.afterhear.ios.night]
+        BGTaskSchedulerPermittedIdentifiers: [app.lexalie.ios.night]
         NSSupportsLiveActivities: true
-        NSMicrophoneUsageDescription: Afterhear keeps the last 30 minutes on this iPhone, compressed and encrypted, only while you choose to listen. Nothing leaves the phone during the day.
+        NSMicrophoneUsageDescription: LEXALIE keeps the last 30 minutes on this iPhone, compressed and encrypted, only while you choose to listen. Nothing leaves the phone during the day.
         NSSpeechRecognitionUsageDescription: If you turn on "say sorry? to mark", this iPhone listens for that word, on the phone only.
-        NSCalendarsFullAccessUsageDescription: Afterhear offers to listen at your dinners and events, and stops by itself when they end.
-        NSLocationWhenInUseUsageDescription: If you choose it, Afterhear stops listening when you leave the place where you started.
-        NSLocationAlwaysAndWhenInUseUsageDescription: If you choose it, Afterhear stops listening when you leave the place where you started.
-        # Apple's call recordings and voice memos can be shared or opened in Afterhear (§ 11.15).
+        NSCalendarsFullAccessUsageDescription: LEXALIE offers to listen at your dinners and events, and stops by itself when they end.
+        NSLocationWhenInUseUsageDescription: If you choose it, LEXALIE stops listening when you leave the place where you started.
+        NSLocationAlwaysAndWhenInUseUsageDescription: If you choose it, LEXALIE stops listening when you leave the place where you started.
+        # Apple's call recordings and voice memos can be shared or opened in LEXALIE (§ 11.15).
         CFBundleDocumentTypes:
           - CFBundleTypeName: Audio
             CFBundleTypeRole: Viewer
@@ -62,26 +62,26 @@ targets:
             LSItemContentTypes: [public.audio, public.mpeg-4-audio, com.apple.m4a-audio, com.microsoft.waveform-audio]
         LSSupportsOpeningDocumentsInPlace: false
         CFBundleURLTypes:
-          - CFBundleURLName: app.afterhear.ios.auth
-            CFBundleURLSchemes: [afterhear]
-  AfterhearWidgets:
+          - CFBundleURLName: app.lexalie.ios.auth
+            CFBundleURLSchemes: [lexalie, afterhear]
+  LexalieWidgets:
     type: app-extension
     platform: iOS
     sources: [widgets, shared]
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: app.afterhear.ios.widgets
+        PRODUCT_BUNDLE_IDENTIFIER: app.lexalie.ios.widgets
         SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) WIDGET"
         TARGETED_DEVICE_FAMILY: "1"
     info:
       path: widgets/Info.plist
       properties:
-        CFBundleDisplayName: Afterhear
+        CFBundleDisplayName: LEXALIE
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
-  AfterhearWatch:
+  LexalieWatch:
     type: application
     platform: watchOS
     sources:
@@ -89,17 +89,17 @@ targets:
       - path: shared/Knot.swift
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: app.afterhear.ios.watchkitapp
-        PRODUCT_NAME: Afterhear
+        PRODUCT_BUNDLE_IDENTIFIER: app.lexalie.ios.watchkitapp
+        PRODUCT_NAME: LEXALIE
         ASSETCATALOG_COMPILER_APPICON_NAME: ""
     info:
       path: watch/Info.plist
       properties:
-        CFBundleDisplayName: Afterhear
+        CFBundleDisplayName: LEXALIE
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         WKApplication: true
-        WKCompanionAppBundleIdentifier: app.afterhear.ios
+        WKCompanionAppBundleIdentifier: app.lexalie.ios
         WKRunsIndependentlyOfCompanionApp: false
         UIBackgroundModes: [audio]
         NSMicrophoneUsageDescription: When the iPhone stays in your bag, the Watch can be the microphone on the table. The audio stays on the Watch until it goes to your iPhone.

@@ -21,14 +21,14 @@ jobs:
       - name: Build iPhone app (with the Live Activity)
         run: |
           cd iosapp
-          xcodebuild -project afterhear-ios.xcodeproj -scheme Afterhear -configuration Release \
+          xcodebuild -project lexalie-ios.xcodeproj -scheme LEXALIE -configuration Release \
             -destination 'generic/platform=iOS' -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO CURRENT_PROJECT_VERSION=${{ github.run_number }} build | tail -80
           exit ${PIPESTATUS[0]}
       - name: Build Watch app
         run: |
           cd iosapp
-          xcodebuild -project afterhear-ios.xcodeproj -scheme AfterhearWatch -configuration Release \
+          xcodebuild -project lexalie-ios.xcodeproj -scheme LexalieWatch -configuration Release \
             -destination 'generic/platform=watchOS' -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO CURRENT_PROJECT_VERSION=${{ github.run_number }} build | tail -60
           exit ${PIPESTATUS[0]}

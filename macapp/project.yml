@@ -1,10 +1,10 @@
 # XcodeGen spec for the Mac app. CI generates the project and builds it,
 # so nobody needs Xcode on a slow Mac. See macapp/LEGGIMI.md.
-name: Afterhear
+name: LEXALIE
 options:
-  # The app's words in seven languages (Afterhear/<language>.lproj, from macapp/l10n/make.py).
+  # The app's words in seven languages (LEXALIE/<language>.lproj, from macapp/l10n/make.py).
   developmentLanguage: en
-  bundleIdPrefix: app.afterhear
+  bundleIdPrefix: app.lexalie
   deploymentTarget:
     # 14: FluidAudio (Parakeet on the device) needs it; the audio-only tap needs 14.2 anyway.
     macOS: "14.0"
@@ -28,20 +28,20 @@ packages:
     url: https://github.com/FluidInference/FluidAudio
     exactVersion: 0.17.5
 targets:
-  Afterhear:
+  LEXALIE:
     type: application
     platform: macOS
-    sources: [Afterhear]
+    sources: [LEXALIE]
     dependencies:
       - package: FluidAudio
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: app.afterhear.mac
-        PRODUCT_NAME: Afterhear
+        PRODUCT_BUNDLE_IDENTIFIER: app.lexalie.mac
+        PRODUCT_NAME: LEXALIE
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         # Parakeet on the processor for Intel Macs (sherpa-onnx, docs/BRAIN.md § 19.25). The
         # libraries are fetched by CI into vendor/sherpa and copied into the app below.
-        SWIFT_OBJC_BRIDGING_HEADER: Afterhear/Sherpa/Sherpa-Bridging-Header.h
+        SWIFT_OBJC_BRIDGING_HEADER: LEXALIE/Sherpa/Sherpa-Bridging-Header.h
         LIBRARY_SEARCH_PATHS: $(PROJECT_DIR)/vendor/sherpa/lib
         OTHER_LDFLAGS: -lsherpa-onnx-c-api
         LD_RUNPATH_SEARCH_PATHS: "@executable_path/../Frameworks"
@@ -51,19 +51,19 @@ targets:
           mkdir -p "$TARGET_BUILD_DIR/$FRAMEWORKS_FOLDER_PATH"
           cp -a "$PROJECT_DIR"/vendor/sherpa/lib/*.dylib "$TARGET_BUILD_DIR/$FRAMEWORKS_FOLDER_PATH/"
     info:
-      path: Afterhear/Info.plist
+      path: LEXALIE/Info.plist
       properties:
-        CFBundleDisplayName: Afterhear
+        CFBundleDisplayName: LEXALIE
         CFBundleDevelopmentRegion: en
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSUIElement: true
         LSApplicationCategoryType: public.app-category.education
-        NSMicrophoneUsageDescription: Afterhear listens to your voice on this Mac only, to know what you were answering and to notice when you say "sorry?". Nothing is saved.
-        NSAudioCaptureUsageDescription: Afterhear listens to the sound of your Mac (a call, a film) to find the sentence you missed. Voices never leave this Mac.
-        NSCalendarsUsageDescription: Afterhear reads your calendar to prep you before calls and give you the lesson right after. Only the call's title, time and the people you track leave this Mac.
-        NSCalendarsFullAccessUsageDescription: Afterhear reads your calendar to prep you before calls and give you the lesson right after. Only the call's title, time and the people you track leave this Mac.
-        NSAppleEventsUsageDescription: Afterhear asks Spotify and Music which song is playing (title and artist only), to explain the lines of that song.
+        NSMicrophoneUsageDescription: LEXALIE listens to your voice on this Mac only, to know what you were answering and to notice when you say "sorry?". Nothing is saved.
+        NSAudioCaptureUsageDescription: LEXALIE listens to the sound of your Mac (a call, a film) to find the sentence you missed. Voices never leave this Mac.
+        NSCalendarsUsageDescription: LEXALIE reads your calendar to prep you before calls and give you the lesson right after. Only the call's title, time and the people you track leave this Mac.
+        NSCalendarsFullAccessUsageDescription: LEXALIE reads your calendar to prep you before calls and give you the lesson right after. Only the call's title, time and the people you track leave this Mac.
+        NSAppleEventsUsageDescription: LEXALIE asks Spotify and Music which song is playing (title and artist only), to explain the lines of that song.
         CFBundleURLTypes:
-          - CFBundleURLName: app.afterhear.mac.auth
-            CFBundleURLSchemes: [afterhear]
+          - CFBundleURLName: app.lexalie.mac.auth
+            CFBundleURLSchemes: [lexalie, afterhear]

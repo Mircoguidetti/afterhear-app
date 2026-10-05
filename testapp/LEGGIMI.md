@@ -1,4 +1,4 @@
-# Afterhear · app di prova
+# LEXALIE · app di prova
 
 Un'app di una sola schermata, solo per te, che risponde a quattro domande:
 
@@ -20,16 +20,16 @@ servono per il diario (vedi sotto).
 Serve: Mac con **Xcode 26**, iPhone con **iOS 26**, cavo USB-C.
 
 1. **Crea il progetto.** Xcode → File → New → Project → iOS → **App**.
-   - Product Name: `AfterhearTest`
+   - Product Name: `LexalieTest`
    - Interface: **SwiftUI** · Language: **Swift**
    - Team: il tuo Apple ID (Xcode → Settings → Accounts → +, se non c'è)
 2. **Sostituisci i file.** Nel pannello a sinistra cancella `ContentView.swift` e
-   `AfterhearTestApp.swift` (Move to Trash). Poi trascina dentro la cartella
-   `AfterhearTest` i 4 file `.swift` di `testapp/AfterhearTest/`: `Engine.swift`, `ContentView.swift`,
+   `LexalieTestApp.swift` (Move to Trash). Poi trascina dentro la cartella
+   `LexalieTest` i 4 file `.swift` di `testapp/LexalieTest/`: `Engine.swift`, `ContentView.swift`,
    `EncoreTestApp.swift`, `ExplainIntent.swift` (spunta "Copy items if needed").
    Se Xcode propone un "bridging header", rispondi **Don't Create**.
    Poi Build Settings → All → cerca `isolation` → **Default Actor Isolation = nonisolated**.
-3. **Permessi.** Clicca il progetto (icona blu) → target `AfterhearTest` → tab **Info**
+3. **Permessi.** Clicca il progetto (icona blu) → target `LexalieTest` → tab **Info**
    → passa col mouse su una riga e premi **+**, aggiungi:
    - `Privacy - Microphone Usage Description` → `Serve per ascoltare le conversazioni durante il test.`
    - `Privacy - Speech Recognition Usage Description` → `Serve per trascrivere in italiano.`
@@ -41,7 +41,7 @@ Serve: Mac con **Xcode 26**, iPhone con **iOS 26**, cavo USB-C.
    La prima volta: sul telefono Impostazioni → Generali → VPN e gestione dispositivi →
    il tuo Apple ID → **Autorizza**. Poi di nuovo ▶.
 7. **Tasto Azione:** Impostazioni → Tasto Azione → scorri fino a **Comando rapido** →
-   scegli **Cosa ha detto?** (app Afterhear test).
+   scegli **Cosa ha detto?** (app LEXALIE test).
 
 Con l'Apple ID gratuito l'app dura **7 giorni**: poi si reinstalla con ▶.
 

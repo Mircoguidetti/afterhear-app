@@ -1,6 +1,6 @@
 # XcodeGen spec for the test app, so CI can build it without a checked-in .xcodeproj.
 # Locally you can keep using the project you created in Xcode and drag these files in.
-name: AfterhearTest
+name: LexalieTest
 options:
   bundleIdPrefix: com.mircoguidetti
   deploymentTarget:
@@ -12,14 +12,14 @@ settings:
     SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY: YES
     CODE_SIGNING_ALLOWED: NO
 targets:
-  AfterhearTest:
+  LexalieTest:
     type: application
     platform: iOS
-    sources: [AfterhearTest]
+    sources: [LexalieTest]
     info:
-      path: AfterhearTest/Info.plist
+      path: LexalieTest/Info.plist
       properties:
-        CFBundleDisplayName: Afterhear test
+        CFBundleDisplayName: LEXALIE test
         UILaunchScreen: {}
         UIBackgroundModes: [audio]
         NSMicrophoneUsageDescription: Serve per ascoltare le conversazioni durante il test.

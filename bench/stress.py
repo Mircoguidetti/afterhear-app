@@ -210,7 +210,7 @@ def recognisers():
             body = json.dumps({'audio': base64.b64encode(open(m4a, 'rb').read()).decode(), 'mime': 'audio/mp4',
                                'language': lang, 'provider': 'elevenlabs'}).encode()
             req = urllib.request.Request(run.SERVER + '/api/transcribe', method='POST', data=body,
-                                         headers={'content-type': 'application/json', 'x-afterhear-code': code})
+                                         headers={'content-type': 'application/json', 'x-lexalie-code': code})
             return json.loads(urllib.request.urlopen(req, timeout=120).read()).get('text', '')
         found.append(('ElevenLabs Scribe (server)', None, elevenlabs))
     # Speechmatics straight from here (the key is a GitHub secret): its batch API, Enhanced.

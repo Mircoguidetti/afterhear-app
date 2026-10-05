@@ -165,7 +165,7 @@ def explain(sentence):
         return None
     req = urllib.request.Request(SERVER + '/api/explain', method='POST',
                                  data=json.dumps({'text': sentence, 'heard': 'en-GB', 'native': 'it', 'level': 'B2'}).encode(),
-                                 headers={'content-type': 'application/json', 'x-afterhear-code': code})
+                                 headers={'content-type': 'application/json', 'x-lexalie-code': code})
     t0 = time.time()
     try:
         body = json.loads(urllib.request.urlopen(req, timeout=60).read())
@@ -181,7 +181,7 @@ def judge(sentence, body):
         return None
     req = urllib.request.Request(SERVER + '/api/judge', method='POST',
                                  data=json.dumps({'sentence': sentence, 'explanation': body}).encode(),
-                                 headers={'content-type': 'application/json', 'x-afterhear-code': code})
+                                 headers={'content-type': 'application/json', 'x-lexalie-code': code})
     try:
         return json.loads(urllib.request.urlopen(req, timeout=60).read())
     except Exception as e:
@@ -226,7 +226,7 @@ def recognisers(clips, folder):
             for p in providers:
                 req = urllib.request.Request(SERVER + '/api/transcribe', method='POST',
                                              data=json.dumps({'audio': audio, 'mime': 'audio/mp4', 'language': 'en-GB', 'provider': p}).encode(),
-                                             headers={'content-type': 'application/json', 'x-afterhear-code': code})
+                                             headers={'content-type': 'application/json', 'x-lexalie-code': code})
                 t0 = time.time()
                 try:
                     body = json.loads(urllib.request.urlopen(req, timeout=90).read())

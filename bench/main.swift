@@ -4,7 +4,7 @@ import Foundation
 // a known missed sentence and simulated taps, ranks with the same Ranking.swift as the apps,
 // and prints one JSON line per tap. bench/run.py turns them into the metrics.
 //
-//   swiftc -O macapp/Afterhear/Ranking.swift bench/main.swift -o rank && ./rank cases.json
+//   swiftc -O macapp/LEXALIE/Ranking.swift bench/main.swift -o rank && ./rank cases.json
 
 struct Case: Decodable {
     struct L: Decodable { let start: Double; let end: Double; let text: String; let mine: Bool? }

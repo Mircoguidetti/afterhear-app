@@ -15,7 +15,7 @@ struct UhsideWatchApp: App {
 
 /// The three gestures on the wrist (docs/BRAIN.md § 19.5):
 /// one tap marks, two taps explain it now, hold for two seconds turns listening on or off.
-/// The system double tap (finger and thumb) is a mark too. The wave shows when Afterhear listens.
+/// The system double tap (finger and thumb) is a mark too. The wave shows when LEXALIE listens.
 struct MarkView: View {
     @EnvironmentObject private var link: PhoneLink
     @ObservedObject private var table = WatchRecorder.shared
@@ -134,7 +134,7 @@ struct WatchGuide: View {
     let done: () -> Void
     @State private var page = 0
     private let pages: [(String, String, String)] = [
-        ("hand.tap", "One tap", "Something slipped past you? Tap. A light tick: it's marked. Tonight Afterhear finds it."),
+        ("hand.tap", "One tap", "Something slipped past you? Tap. A light tick: it's marked. Tonight LEXALIE finds it."),
         ("hand.tap.fill", "Two taps", "Need it now? Tap twice: one line on your wrist."),
         ("waveform", "Hold", "Hold for two seconds to start or stop listening. Two short taps: on. One long buzz: off."),
     ]
