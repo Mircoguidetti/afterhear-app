@@ -89,8 +89,17 @@ jobs:
       - name: Apple's new recogniser (may not run on a runner)
         continue-on-error: true
         run: |
-          cd bench/applenew && swift build -c release
-          cd ../.. && python3 bench/tap.py tool "Apple SpeechAnalyzer (macOS 26)" bench/applenew/.build/release/applewords
+          cd bench/applenew && swift build -c release && cd ../..
+          # Speech assets are given to apps, not to bare tools: wrap it in a small app bundle.
+          APP=$RUNNER_TEMP/AppleWords.app
+          mkdir -p "$APP/Contents/MacOS"
+          cp bench/applenew/.build/release/applewords "$APP/Contents/MacOS/applewords"
+          /usr/libexec/PlistBuddy -c "Add :CFBundleIdentifier string app.afterhear.bench.applewords" \
+            -c "Add :CFBundleExecutable string applewords" -c "Add :CFBundleName string AppleWords" \
+            -c "Add :CFBundlePackageType string APPL" -c "Add :LSUIElement bool true" \
+            -c "Add :NSSpeechRecognitionUsageDescription string Bench" "$APP/Contents/Info.plist"
+          codesign --force --sign - "$APP"
+          python3 bench/tap.py tool "Apple SpeechAnalyzer (macOS 26)" "$APP/Contents/MacOS/applewords"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

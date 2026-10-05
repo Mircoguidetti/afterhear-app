@@ -20,6 +20,7 @@ jobs:
     timeout-minutes: 60
     permissions:
       contents: write
+      actions: read
     steps:
       - uses: actions/checkout@v4
       - name: Xcode version
@@ -103,6 +104,16 @@ jobs:
         with:
           name: Afterhear-mac
           path: Afterhear-mac.zip
+      # The tap bench (tap.yml) must be green on this branch: a version that finds the missed
+      # sentence less often than before is never published (block D, point 6).
+      - name: The tap bench is green
+        if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          c=$(gh run list -R "$GITHUB_REPOSITORY" --workflow tap.yml --branch "$GITHUB_REF_NAME" --status completed -L 1 --json conclusion -q '.[0].conclusion')
+          echo "last tap bench on $GITHUB_REF_NAME: ${c:-none}"
+          if [ "$c" != "success" ]; then echo "::error::The tap bench is not green (${c:-never ran}): nothing is published."; exit 1; fi
       # Test builds from dev: a separate release to install and try, main stays as it is.
       - name: Publish release mac-test
         if: github.ref == 'refs/heads/dev'

@@ -332,11 +332,36 @@ def report():
         lines.append('')
     lines += ['### All together (new user, every tap)', '', '| Engine | Runner | Right sentence first |', '|---|---|---|']
     lines += [f'| {e} | {m} | {pct(f, n)} ({f}/{n}) |' for (e, m), (f, n) in sorted(summary.items())]
-    run.summary('\n'.join(lines))
+    gate = check_gate(summary, runs)
+    run.summary('\n'.join(lines + [''] + gate[1]))
     os.makedirs(OUT, exist_ok=True)
     json.dump({f'{e} · {m}': {'first': f, 'n': n} for (e, m), (f, n) in summary.items()},
               open(os.path.join(OUT, 'tap-summary.json'), 'w'), indent=1)
-    return 0
+    return 0 if gate[0] else 1
+
+
+BASELINE = os.path.join(HERE, 'tap-baseline.json')
+# Apple's new recogniser may not run on a runner at all: measured when it does, never a gate.
+OPTIONAL = ('Apple',)
+
+
+def check_gate(summary, runs):
+    """The gate (block D, point 6): every engine of the baseline ran, and none finds the right sentence
+    first more than 2 points less often than in bench/tap-baseline.json."""
+    if not os.path.exists(BASELINE):
+        return True, ['### Gate', '', 'No baseline yet (bench/tap-baseline.json): this run measures, it does not block.']
+    base = json.load(open(BASELINE))
+    now = {f'{e} · {m}': 100 * f / n for (e, m), (f, n) in summary.items() if n}
+    out, ok = ['### Gate', '', '| Engine · runner | Baseline | Now | |', '|---|---|---|---|'], True
+    for key, b in sorted(base.items()):
+        if key.startswith(OPTIONAL):
+            continue
+        cur = now.get(key)
+        good = cur is not None and cur >= b - 2
+        ok &= good
+        out.append(f"| {key} | {b:.0f}% | {'did not run' if cur is None else f'{cur:.0f}%'} | {'ok' if good else '**blocked**'} |")
+    out += ['', '**Passed.**' if ok else '**Blocked: the version is not published until this is green again.**']
+    return ok, out
 
 
 if __name__ == '__main__':
