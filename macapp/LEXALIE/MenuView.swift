@@ -254,7 +254,7 @@ struct MenuView: View {
             Label("Starting…", systemImage: "hourglass")
         case .listening:
             VStack(alignment: .leading, spacing: 4) {
-                Label("Listening", systemImage: "waveform").foregroundStyle(Brand.signal)
+                Label("Listening", systemImage: "waveform").foregroundStyle(Brand.paper)
                 Text("Only the last few minutes stay in memory. Nothing is saved until you tap.")
                     .font(.caption).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)

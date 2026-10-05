@@ -61,7 +61,7 @@ struct ReviewView: View {
 
     private func header(_ moment: Moment) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            ProgressView(value: Double(index), total: Double(max(queue.count, 1))).tint(Brand.signal)
+            ProgressView(value: Double(index), total: Double(max(queue.count, 1))).tint(Brand.paper)
             if let title { Text(title).font(.caption.weight(.semibold)).foregroundStyle(Brand.accent) }
             HStack {
                 Text("\(index + 1) / \(queue.count)").font(.caption.monospacedDigit())
@@ -124,7 +124,7 @@ struct ReviewView: View {
                         if !piece.note.isEmpty { Text(piece.note).font(.callout).foregroundStyle(.secondary) }
                     }
                     .padding(.leading, 10)
-                    .overlay(alignment: .leading) { Rectangle().fill(Brand.signal).frame(width: 3) }
+                    .overlay(alignment: .leading) { Rectangle().fill(Brand.paper).frame(width: 3) }
                 }
                 if moment.turns != nil {
                     Button("Not this one? Pick the right piece") { AppModel.shared.showChooser(moment.id) }
@@ -211,7 +211,7 @@ struct ReviewView: View {
                     VStack(spacing: 4) {
                         Text(row.hours > 0 ? String(format: "%.1f", rates[i]) : "–").font(.caption.monospacedDigit())
                         RoundedRectangle(cornerRadius: 4)
-                            .fill(i == rows.count - 1 ? Brand.signal : Color.secondary.opacity(0.3))
+                            .fill(i == rows.count - 1 ? Brand.paper : Color.secondary.opacity(0.3))
                             .frame(width: 44, height: max(4, 90 * rates[i] / top))
                         Text(row.label).font(.caption2).foregroundStyle(.secondary)
                     }

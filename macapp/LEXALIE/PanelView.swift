@@ -47,7 +47,7 @@ struct PanelView: View {
         switch phase {
         case .saved(let text):
             HStack(spacing: 8) {
-                Image(systemName: "checkmark.circle.fill").foregroundStyle(Brand.signal)
+                Image(systemName: "checkmark.circle.fill").foregroundStyle(Brand.paper)
                 Text(text).font(.system(size: 13, weight: .medium))
             }
             .padding(.horizontal, 14)
@@ -157,7 +157,7 @@ struct PanelView: View {
             if let range = text.range(of: piece.heardAs ?? piece.text, options: [.caseInsensitive, .diacriticInsensitive])
                 ?? text.range(of: piece.text, options: [.caseInsensitive, .diacriticInsensitive]) {
                 text[range].foregroundColor = Brand.paper
-                text[range].underlineStyle = Text.LineStyle(pattern: .solid, color: Brand.signal)
+                text[range].underlineStyle = Text.LineStyle(pattern: .solid, color: Brand.line)
                 text[range].font = .system(size: 16, weight: .semibold)
             }
         }
@@ -376,7 +376,7 @@ private struct ClickableSentence: View {
                 } label: {
                     Text(w)
                         .font(.system(size: 18, weight: hard.contains(key) ? .semibold : .regular))
-                        .foregroundStyle(hard.contains(key) ? Brand.signal : Brand.paper)
+                        .foregroundStyle(hard.contains(key) ? Brand.paper : Brand.paper.opacity(0.55))
                         .opacity(asking == w ? 0.5 : 1)
                 }
                 .buttonStyle(.plain)
@@ -535,9 +535,9 @@ private struct ProgressSteps: View {
             ZStack {
                 Circle().stroke(Brand.paper.opacity(0.3), lineWidth: 1).frame(width: 9, height: 9)
                 if done {
-                    Circle().fill(Brand.signal).frame(width: 9, height: 9).shadow(color: Brand.signal.opacity(0.7), radius: 4)
+                    Circle().fill(Brand.paper).frame(width: 9, height: 9).shadow(color: Brand.paper.opacity(0.7), radius: 4)
                 } else if active {
-                    Circle().fill(Brand.signal.opacity(pulse ? 0.9 : 0.25)).frame(width: 9, height: 9).shadow(color: Brand.signal.opacity(pulse ? 0.6 : 0), radius: 4)
+                    Circle().fill(Brand.paper.opacity(pulse ? 0.9 : 0.25)).frame(width: 9, height: 9).shadow(color: Brand.paper.opacity(pulse ? 0.6 : 0), radius: 4)
                 }
             }
             Text(title)

@@ -94,7 +94,7 @@ struct OnboardingView: View {
                 Spacer()
                 HStack(spacing: 6) {
                     ForEach(0..<5, id: \.self) { i in
-                        Circle().fill(i == step ? Brand.signal : Color.white.opacity(0.2)).frame(width: 6, height: 6)
+                        Circle().fill(i == step ? Brand.paper : Color.white.opacity(0.2)).frame(width: 6, height: 6)
                     }
                 }
             }
@@ -171,7 +171,7 @@ struct OnboardingView: View {
             title(String(localized: "Instant translations."), String(localized: "The translation under each sentence, at once and offline. A one-time download from Apple."))
             switch translation {
             case .ready:
-                Label("Ready", systemImage: "checkmark.circle.fill").foregroundStyle(Brand.signal)
+                Label("Ready", systemImage: "checkmark.circle.fill").foregroundStyle(Brand.paper)
             case .needsDownload:
                 Button(downloading ? String(localized: "Downloading…") : String(localized: "Download")) { downloading = true }
                     .disabled(downloading).controlSize(.large)
@@ -206,7 +206,7 @@ struct OnboardingView: View {
             }
             Spacer()
             if ok {
-                Image(systemName: "checkmark.circle.fill").foregroundStyle(Brand.signal)
+                Image(systemName: "checkmark.circle.fill").foregroundStyle(Brand.paper)
             } else {
                 Button(action.0, action: action.1).controlSize(.small)
             }
@@ -235,7 +235,7 @@ struct SignInStep: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             if let session = account.session {
-                Label(session.email ?? String(localized: "Signed in"), systemImage: "checkmark.circle.fill").foregroundStyle(Brand.signal)
+                Label(session.email ?? String(localized: "Signed in"), systemImage: "checkmark.circle.fill").foregroundStyle(Brand.paper)
             } else {
                 Button { account.signInWithGoogle() } label: {
                     Text("Continue with Google").frame(maxWidth: .infinity)
@@ -301,7 +301,7 @@ struct PermissionsView: View {
             Text(name).font(.system(size: 15, weight: .semibold))
             Spacer()
             if ok {
-                Image(systemName: "checkmark.circle.fill").foregroundStyle(Brand.signal)
+                Image(systemName: "checkmark.circle.fill").foregroundStyle(Brand.paper)
             } else {
                 Button(action.0, action: action.1).controlSize(.small)
             }

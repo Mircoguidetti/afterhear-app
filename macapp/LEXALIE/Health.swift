@@ -242,7 +242,7 @@ struct HealthView: View {
 
     @ViewBuilder private func icon(_ state: HealthCheck.State) -> some View {
         switch state {
-        case .ok: Image(systemName: "checkmark.circle.fill").foregroundStyle(Brand.signal)
+        case .ok: Image(systemName: "checkmark.circle.fill").foregroundStyle(Brand.paper)
         case .missing: Image(systemName: "exclamationmark.circle.fill").foregroundStyle(.orange)
         case .waiting: Image(systemName: "clock").foregroundStyle(.secondary)
         case .checking: ProgressView().controlSize(.small)
