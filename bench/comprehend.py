@@ -232,13 +232,14 @@ def post(path, body):
     return {'error': error}
 
 
-def explain(offered, listener, name, focus=''):
-    """The body AppModel.captureMoment sends for a tap in a call (known/struggling: a new user)."""
+def explain(offered, listener, focus=''):
+    """The body AppModel.captureMoment sends for a tap in a call (known/struggling: a new user). No name
+    ever goes: the Mac marks you as [tu] and puts names back on the card itself (block P3)."""
     p = picks.LISTENERS[listener]
     return post('/api/explain', {'text': offered['sent'], 'heard': 'en-US', 'native': p['native'], 'level': p['level'],
                                  'known': [], 'struggling': [], 'watch': [], 'profile': '', 'source': '', 'overlap': False,
                                  'provider': 'gemini', 'focus': focus, 'tone': '', 'before': offered['before'],
-                                 'after': offered['after'], 'name': name})
+                                 'after': offered['after']})
 
 
 def card(body, offered):
@@ -281,7 +282,7 @@ def mark_case(c, offered, clip_start, listener):
         return row
     if c['kind'] in ('asked', 'named'):
         name = c['name']
-        shown = card(explain(offered[0], 'it-B2', name), offered[0])
+        shown = card(explain(offered[0], 'it-B2'), offered[0])
         verdict = judge('asked', c, f"{picks.LISTENERS['it-B2']['label']}, named {name}", shown)
         row.update(listener=listener, name=name, card=shown, judge=verdict)
         said = verdict.get('answered')
@@ -292,7 +293,7 @@ def mark_case(c, offered, clip_start, listener):
             row['mark'] = 2 if said == 'yes' else 1 if said == 'partly' else 0
         return row
     label = picks.LISTENERS[listener]['label']
-    shown = card(explain(offered[0], listener, ''), offered[0])
+    shown = card(explain(offered[0], listener), offered[0])
     verdict = judge(c['kind'], c, label, shown)
     row.update(card=shown, judge=verdict)
     if verdict.get('answered') == 'yes':
@@ -301,9 +302,9 @@ def mark_case(c, offered, clip_start, listener):
     # One touch: tap the word in the sentence shown, or take the second sentence offered.
     touch = None
     if contains(offered[0]['text'], c['target']):
-        touch = ('focus', card(explain(offered[0], listener, '', focus=c['target'][:120]), offered[0]))
+        touch = ('focus', card(explain(offered[0], listener, focus=c['target'][:120]), offered[0]))
     elif len(offered) > 1 and contains(offered[1]['text'], c['target']):
-        touch = ('second', card(explain(offered[1], listener, ''), offered[1]))
+        touch = ('second', card(explain(offered[1], listener), offered[1]))
     if touch:
         again = judge(c['kind'], c, label, touch[1])
         row.update(touch=touch[0], touch_card=touch[1], touch_judge=again)
