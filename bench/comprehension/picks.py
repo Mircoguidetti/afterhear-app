@@ -14,7 +14,7 @@ jargon), "who" who or what something is, "meant" you got the words, not what the
 # (10 to 35 words, not the operator), spread evenly: the reference is the sentence itself.
 HEARD_FILES = ['4320211', '4341191', '4344338', '4344866', '4346818', '4359971', '4360674', '4364366',
                '4366302', '4368670', '4375653', '4397829']
-HEARD_PER_FILE = 5
+HEARD_PER_FILE = 17  # 200 taps: they cost no server call (owner, 06/10: the gate must not wobble)
 
 # A question put to you by name. [first sentence, last sentence] of it, the name, what you were asked.
 # The listener is the one named; the same tap with a listener who isn't named is the control.

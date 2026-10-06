@@ -1,129 +1,444 @@
 [
  {
-  "id": "heard-54",
+  "id": "heard-35",
   "kind": "heard",
   "file": "4320211",
-  "start": 475.6,
-  "end": 483.76,
-  "tap": 484.26,
-  "sentence": "When we speak to re-imaging stores, this primarily means modernizing the appearance of our stores with no associated brand change."
+  "start": 269.28,
+  "end": 278.32,
+  "tap": 278.82,
+  "sentence": "Overall, our Southern markets outperformed our Northern markets as expected given the mild winter weather conditions we faced in this region."
  },
  {
-  "id": "heard-104",
+  "id": "heard-51",
   "kind": "heard",
   "file": "4320211",
-  "start": 985.76,
-  "end": 989.68,
-  "tap": 990.18,
-  "sentence": "Same sales in the quarter were down 0.9% year over year."
+  "start": 454.4,
+  "end": 462.64,
+  "tap": 463.14,
+  "sentence": "And as we work to create a nationwide chain of consistently operated stores, we are prioritizing the higher volume tire brands."
  },
  {
-  "id": "heard-174",
+  "id": "heard-64",
   "kind": "heard",
   "file": "4320211",
-  "start": 1634.0,
-  "end": 1643.76,
-  "tap": 1644.26,
-  "sentence": "So I wanna foc- and I, I apologize for, uh, focusing on the weather here, but I do, I do just wanna dive a little deeper into, uh, sales trends in the quarter."
+  "start": 580.08,
+  "end": 588.64,
+  "tap": 589.14,
+  "sentence": "This is how we will speak to this performance, excuse me, of our transformed stores moving forward."
  },
  {
-  "id": "heard-265",
+  "id": "heard-77",
   "kind": "heard",
   "file": "4320211",
-  "start": 2290.72,
-  "end": 2297.28,
-  "tap": 2297.78,
-  "sentence": "Yeah, it's just a mix, right, so we, even our service stores, they sell tires, it's only 15% of their mix."
+  "start": 704.72,
+  "end": 709.2,
+  "tap": 709.7,
+  "sentence": "Another priority for us is the optimization of our tire category management."
  },
  {
-  "id": "heard-354",
+  "id": "heard-93",
   "kind": "heard",
   "file": "4320211",
-  "start": 2854.88,
-  "end": 2863.36,
-  "tap": 2863.86,
-  "sentence": "Uh, and the first part of the, the second quarter, we didn't see a lot of movement on the, on the low end brands, if you will, opening price point brands."
+  "start": 883.28,
+  "end": 894.56,
+  "tap": 895.06,
+  "sentence": "Further by continuing to execute our Monro Forward Initiatives, including our new brand standards and operating procedures, we expect it integrate our new acquisitions more effectively and efficiently."
  },
  {
-  "id": "heard-844",
+  "id": "heard-107",
+  "kind": "heard",
+  "file": "4320211",
+  "start": 1007.44,
+  "end": 1018.88,
+  "tap": 1019.38,
+  "sentence": "This decrease was partially due to an increase in distribution and occupancy costs as a percentage of sale as we lost leverage on these largely fixed costs with lower comparable store sales."
+ },
+ {
+  "id": "heard-124",
+  "kind": "heard",
+  "file": "4320211",
+  "start": 1225.12,
+  "end": 1231.68,
+  "tap": 1232.18,
+  "sentence": "Greenfield locations on average are expected to add approximately $1 million each annual sales."
+ },
+ {
+  "id": "heard-140",
+  "kind": "heard",
+  "file": "4320211",
+  "start": 1368.96,
+  "end": 1383.6,
+  "tap": 1384.1,
+  "sentence": "We generated approximately $125 million of cash flow from operating activities during the first nine months of fiscal 2020 and debt under our revolving credit facility increased by approximately $59 million."
+ },
+ {
+  "id": "heard-159",
+  "kind": "heard",
+  "file": "4320211",
+  "start": 1570.72,
+  "end": 1578.8,
+  "tap": 1579.3,
+  "sentence": "The store rebrand and re-emerge program is further supported by our technological investments, which we believe will help drive long-term margin expansion."
+ },
+ {
+  "id": "heard-182",
+  "kind": "heard",
+  "file": "4320211",
+  "start": 1720.0,
+  "end": 1726.48,
+  "tap": 1726.98,
+  "sentence": "Uh, we felt really good coming out of October, November, given the strength of last year's performance that we were competing against."
+ },
+ {
+  "id": "heard-205",
+  "kind": "heard",
+  "file": "4320211",
+  "start": 1914.4,
+  "end": 1923.44,
+  "tap": 1923.94,
+  "sentence": "On the low end of our comp sales guidance that assumes run rate coming out of January, which we certainly believe we're gonna be better than that as we roll into FY21."
+ },
+ {
+  "id": "heard-237",
+  "kind": "heard",
+  "file": "4320211",
+  "start": 2147.2,
+  "end": 2152.16,
+  "tap": 2152.66,
+  "sentence": "Um, so we're, we haven't quantified it, but it certainly had some impact on their sales performance in the quarter."
+ },
+ {
+  "id": "heard-266",
+  "kind": "heard",
+  "file": "4320211",
+  "start": 2297.28,
+  "end": 2303.12,
+  "tap": 2303.62,
+  "sentence": "So we're certainly seeing growth, more outsized growth in other tire sales."
+ },
+ {
+  "id": "heard-287",
+  "kind": "heard",
+  "file": "4320211",
+  "start": 2436.88,
+  "end": 2449.36,
+  "tap": 2449.86,
+  "sentence": "Uh, we haven't seen any, uh, to this point, Bret, uh, we're obviously working through contingency plans, which we've had to develop actually related to the, the tariff issues."
+ },
+ {
+  "id": "heard-319",
+  "kind": "heard",
+  "file": "4320211",
+  "start": 2607.2,
+  "end": 2616.16,
+  "tap": 2616.66,
+  "sentence": "Um, as it relates to Amazon, I think we're still, you know, pleased with our relationship with them as well as other online tire retailers."
+ },
+ {
+  "id": "heard-343",
+  "kind": "heard",
+  "file": "4320211",
+  "start": 2756.32,
+  "end": 2764.0,
+  "tap": 2764.5,
+  "sentence": "You know, it sense as you're in there kind of reworking and revamping the stores, I believe you said it was about a 70 basis point hit last quarter."
+ },
+ {
+  "id": "heard-363",
+  "kind": "heard",
+  "file": "4320211",
+  "start": 2934.64,
+  "end": 2942.4,
+  "tap": 2942.9,
+  "sentence": "So does this mean that, you know, these conversations going forward, whether could have a larger impact or similar to what we saw this year that maybe in prior year?"
+ },
+ {
+  "id": "heard-801",
   "kind": "heard",
   "file": "4341191",
-  "start": 635.36,
-  "end": 645.44,
-  "tap": 645.94,
-  "sentence": "To offset this we're further rightSizing the cost structure and in power we already reduce head count by 700 in the first quarter."
+  "start": 322.24,
+  "end": 328.64,
+  "tap": 329.14,
+  "sentence": "Here I draw on my experiences as CEO managing through nine eleven and the global financial crisis."
  },
  {
-  "id": "heard-963",
+  "id": "heard-837",
   "kind": "heard",
   "file": "4341191",
-  "start": 1489.76,
-  "end": 1494.8,
-  "tap": 1495.3,
-  "sentence": "So excluding Biopharma, battler was up 1% sequentially and four versus prior year."
+  "start": 577.84,
+  "end": 581.92,
+  "tap": 582.42,
+  "sentence": "To be clear, we'll get back to targeting those 20% operating margins, post pandemic."
  },
  {
-  "id": "heard-1082",
+  "id": "heard-867",
   "kind": "heard",
   "file": "4341191",
-  "start": 2358.64,
-  "end": 2366.64,
-  "tap": 2367.14,
-  "sentence": "This is a high margin business made up of contrast agents and nuclear tracers associated with procedures that are being deferred or canceled right now."
+  "start": 822.24,
+  "end": 827.2,
+  "tap": 827.7,
+  "sentence": "This was a challenging quarter for us as the macro environment rapidly deteriorated."
  },
  {
-  "id": "heard-1290",
+  "id": "heard-904",
   "kind": "heard",
   "file": "4341191",
-  "start": 3709.76,
-  "end": 3719.04,
-  "tap": 3719.54,
-  "sentence": "We have the new $15 billion three-year RCF that I mentioned, and $5 billion either will be on 20 billion credit lines."
+  "start": 1048.0,
+  "end": 1055.04,
+  "tap": 1055.54,
+  "sentence": "First, we had the net inflow in accounts receivable, driven by seasonally lower volume in gas, power and renewables."
  },
  {
-  "id": "heard-1557",
+  "id": "heard-942",
   "kind": "heard",
   "file": "4341191",
-  "start": 5017.52,
-  "end": 5023.36,
-  "tap": 5023.86,
-  "sentence": "then my second question was just around the um, the… operational issues So."
+  "start": 1336.08,
+  "end": 1341.6,
+  "tap": 1342.1,
+  "sentence": "This included roughly 200 <inaudible> one day unit order cancellations in the quarter."
  },
  {
-  "id": "heard-1768",
+  "id": "heard-979",
+  "kind": "heard",
+  "file": "4341191",
+  "start": 1581.6,
+  "end": 1587.36,
+  "tap": 1587.86,
+  "sentence": "Gas power equipment revenue was up 4% organically on higher hitch turbine mix."
+ },
+ {
+  "id": "heard-1016",
+  "kind": "heard",
+  "file": "4341191",
+  "start": 1815.52,
+  "end": 1824.32,
+  "tap": 1824.82,
+  "sentence": "This was down 1 billion sequentially, primarily driven by <inaudible> due to asset sales, depreciation and collection, partially offset by new volume."
+ },
+ {
+  "id": "heard-1046",
+  "kind": "heard",
+  "file": "4341191",
+  "start": 2028.96,
+  "end": 2042.72,
+  "tap": 2043.22,
+  "sentence": "We've previously announced 500 to one billion in cost in cash actions and we've now increased this targeting more than one billion in cost actions, and more than two billion in cash actions."
+ },
+ {
+  "id": "heard-1076",
+  "kind": "heard",
+  "file": "4341191",
+  "start": 2319.68,
+  "end": 2329.04,
+  "tap": 2329.54,
+  "sentence": "In the second quarter to date, we're seeing increased demand for vital medical equipment and the diagnosis and treatment of COVID-19 within healthcare systems."
+ },
+ {
+  "id": "heard-1111",
+  "kind": "heard",
+  "file": "4341191",
+  "start": 2652.24,
+  "end": 2663.52,
+  "tap": 2664.02,
+  "sentence": "Moving to slide 14 on renewables, there was a limited impact of COVID-19 in the first quarter and our disappointing results continue to be largely about improving execution."
+ },
+ {
+  "id": "heard-1141",
+  "kind": "heard",
+  "file": "4341191",
+  "start": 2891.36,
+  "end": 2894.88,
+  "tap": 2895.38,
+  "sentence": "And while there are many unknowns, there will be another side."
+ },
+ {
+  "id": "heard-1244",
+  "kind": "heard",
+  "file": "4341191",
+  "start": 3402.64,
+  "end": 3413.52,
+  "tap": 3414.02,
+  "sentence": "Uh, w- we are clearly seeing that, uh, soften, uh, not necessarily going to zero, uh, as preparations are being made for the return to service of the Max."
+ },
+ {
+  "id": "heard-1316",
+  "kind": "heard",
+  "file": "4341191",
+  "start": 3841.84,
+  "end": 3853.2,
+  "tap": 3853.7,
+  "sentence": "So I'm not sure that there is necessarily, uh, an exact model that captures what all the carriers in aggregate are going to do here, uh, a model that offers great precision."
+ },
+ {
+  "id": "heard-1402",
+  "kind": "heard",
+  "file": "4341191",
+  "start": 4299.52,
+  "end": 4304.96,
+  "tap": 4305.46,
+  "sentence": "We are not expecting, uh, this to bounce back, uh, in, in the near term."
+ },
+ {
+  "id": "heard-1473",
+  "kind": "heard",
+  "file": "4341191",
+  "start": 4576.32,
+  "end": 4582.4,
+  "tap": 4582.9,
+  "sentence": "unclear, but, certainly doesn't seem like in Aviation we're gonna have a strong recovery Um."
+ },
+ {
+  "id": "heard-1553",
+  "kind": "heard",
+  "file": "4341191",
+  "start": 5001.12,
+  "end": 5005.2,
+  "tap": 5005.7,
+  "sentence": "kind, of at this point in the cycle um, I, think it's too early to tell We-."
+ },
+ {
+  "id": "heard-1606",
+  "kind": "heard",
+  "file": "4341191",
+  "start": 5280.16,
+  "end": 5284.56,
+  "tap": 5285.06,
+  "sentence": "uncertain as to uh, how, things play out from uh, from… here Uh."
+ },
+ {
+  "id": "heard-1752",
   "kind": "heard",
   "file": "4344338",
-  "start": 426.96,
-  "end": 437.44,
-  "tap": 437.94,
-  "sentence": "We expect these antibody assays will play a critical role in understanding immunity and in turn improving the world's ability to manage COVID-19 going forward."
+  "start": 231.04,
+  "end": 238.4,
+  "tap": 238.9,
+  "sentence": "Given how top of mind the impact of the virus is we thought we would structure the call a little differently this quarter."
  },
  {
-  "id": "heard-1816",
+  "id": "heard-1766",
   "kind": "heard",
   "file": "4344338",
-  "start": 938.24,
-  "end": 945.12,
-  "tap": 945.62,
-  "sentence": "In turn this generated strong demand for our bioprocessing, genomic and automation solutions."
+  "start": 404.88,
+  "end": 416.48,
+  "tap": 416.98,
+  "sentence": "The market leading caliber of Cepheid's test combined with their significant production ramp up is a testament to this innovative team's commitment to tackle this global health crisis head-on."
  },
  {
-  "id": "heard-1865",
+  "id": "heard-1779",
   "kind": "heard",
   "file": "4344338",
-  "start": 1355.84,
-  "end": 1360.96,
-  "tap": 1361.46,
-  "sentence": "I'm just curious in terms of rigidity about utilization and sort of what's embedded into the, the, the guide."
+  "start": 554.24,
+  "end": 562.32,
+  "tap": 562.82,
+  "sentence": "Cytiva is off to a great start here in 2020 and achieved approximately 10% revenue growth in its first quarter."
  },
  {
-  "id": "heard-1931",
+  "id": "heard-1792",
   "kind": "heard",
   "file": "4344338",
-  "start": 1822.8,
-  "end": 1828.0,
-  "tap": 1828.5,
-  "sentence": "You know, for Cepheid there are presumably be less rule in rule out, you know, flu testing, uh, tied to COVID going forward."
+  "start": 683.68,
+  "end": 697.84,
+  "tap": 698.34,
+  "sentence": "That strong performance was partially offset by declines in our more instrument-oriented businesses, Leica Microsystems and SCIEX, which were negatively impacted by deferrals of large capital equipment purchases."
+ },
+ {
+  "id": "heard-1803",
+  "kind": "heard",
+  "file": "4344338",
+  "start": 798.56,
+  "end": 812.96,
+  "tap": 813.46,
+  "sentence": "These containment measures resulted in very few patients going to hospitals for treatments or procedures that were not COVID, not related to COVID-19, which greatly reduced core laboratory testing volumes."
+ },
+ {
+  "id": "heard-1819",
+  "kind": "heard",
+  "file": "4344338",
+  "start": 968.56,
+  "end": 974.72,
+  "tap": 975.22,
+  "sentence": "These closures have resulted in significant installation delays for existing instrument orders."
+ },
+ {
+  "id": "heard-1830",
+  "kind": "heard",
+  "file": "4344338",
+  "start": 1096.32,
+  "end": 1107.36,
+  "tap": 1107.86,
+  "sentence": "So to wrap up, as I reflect on the events of the last few months, I am humble by our team's dedication, an innovative response to this unprecedented crisis."
+ },
+ {
+  "id": "heard-1839",
+  "kind": "heard",
+  "file": "4344338",
+  "start": 1179.92,
+  "end": 1190.32,
+  "tap": 1190.82,
+  "sentence": "I have loved every day of the past three decades and throughout my entire Danaher career, I've been privileged to be part of an incredible team."
+ },
+ {
+  "id": "heard-1863",
+  "kind": "heard",
+  "file": "4344338",
+  "start": 1344.24,
+  "end": 1354.32,
+  "tap": 1354.82,
+  "sentence": "I mean, you're producing a lot of, Cepheid tests, you know, the serologies ramping, um, I guess, are all those tests going to be used?"
+ },
+ {
+  "id": "heard-1884",
+  "kind": "heard",
+  "file": "4344338",
+  "start": 1497.12,
+  "end": 1501.12,
+  "tap": 1501.62,
+  "sentence": "I just wanna make sure also, um, you've kind of, uh, we mentioned serology."
+ },
+ {
+  "id": "heard-1898",
+  "kind": "heard",
+  "file": "4344338",
+  "start": 1593.52,
+  "end": 1603.04,
+  "tap": 1603.54,
+  "sentence": "And, you know, there's, there's plenty of uncertainties about, um, how much that volume will build over time, depending on the, the pro- progression of therapies and vaccines."
+ },
+ {
+  "id": "heard-1923",
+  "kind": "heard",
+  "file": "4344338",
+  "start": 1785.68,
+  "end": 1790.0,
+  "tap": 1790.5,
+  "sentence": "So, um, I think it's really a combination of all those things."
+ },
+ {
+  "id": "heard-1938",
+  "kind": "heard",
+  "file": "4344338",
+  "start": 1849.68,
+  "end": 1857.36,
+  "tap": 1857.86,
+  "sentence": "Um, you know, there's, uh, we've got a lot going on as it, uh, as it relates to the, the future, um, impacts of COVID."
+ },
+ {
+  "id": "heard-1956",
+  "kind": "heard",
+  "file": "4344338",
+  "start": 2051.52,
+  "end": 2058.0,
+  "tap": 2058.5,
+  "sentence": "Um, and Pall and Cytiva are working with a majority of those in some capacity."
+ },
+ {
+  "id": "heard-1983",
+  "kind": "heard",
+  "file": "4344338",
+  "start": 2281.12,
+  "end": 2285.12,
+  "tap": 2285.62,
+  "sentence": "Uh, just maybe uh, one, uh, housekeeping, uh, you know, question for perhaps for Matt."
  },
  {
   "id": "heard-2011",
@@ -135,247 +450,850 @@
   "sentence": "I know we'll see you before you go, but anyways, it's been a great run."
  },
  {
-  "id": "heard-2125",
+  "id": "heard-2031",
+  "kind": "heard",
+  "file": "4344338",
+  "start": 2520.24,
+  "end": 2530.64,
+  "tap": 2531.14,
+  "sentence": "We, we absolutely value being face-to-face, but, um, you know, we've, we've challenged our teams to get creative and continue to drive continuous improvement even in this environment."
+ },
+ {
+  "id": "heard-2102",
   "kind": "heard",
   "file": "4344866",
-  "start": 476.8,
-  "end": 484.08,
-  "tap": 484.58,
-  "sentence": "As reported in our earnings announcement this morning, our second quarter net economic earnings per share was below last year and our FY20 plan."
+  "start": 257.2,
+  "end": 267.92,
+  "tap": 268.42,
+  "sentence": "We have a very clear mission that guides us, answer every challenge, advance every community and enrich every life through the strength of our energy."
  },
  {
-  "id": "heard-2191",
+  "id": "heard-2120",
   "kind": "heard",
   "file": "4344866",
-  "start": 1024.24,
-  "end": 1031.2,
-  "tap": 1031.7,
-  "sentence": "Reflecting lower earnings, as well as the impact of preferred and common stock issued over the last 12 months."
+  "start": 420.24,
+  "end": 428.08,
+  "tap": 428.58,
+  "sentence": "Thank goodness, our largest operations are in Missouri and Alabama, areas of the country that have been minimally impacted by the pandemic."
  },
  {
-  "id": "heard-2247",
+  "id": "heard-2139",
   "kind": "heard",
   "file": "4344866",
-  "start": 1550.88,
-  "end": 1559.68,
-  "tap": 1560.18,
-  "sentence": "And given the current uncertainty surrounding the resolution of our Missouri disrupts recovery, we'll continue to refrain from BPS guidance for fiscal year 2020 at this time."
+  "start": 572.48,
+  "end": 579.6,
+  "tap": 580.1,
+  "sentence": "Our guidelines include staying home when not feeling well, frequent hand-washing, social distancing, and other best practices."
  },
  {
-  "id": "heard-2340",
+  "id": "heard-2156",
   "kind": "heard",
   "file": "4344866",
-  "start": 2104.72,
-  "end": 2112.8,
-  "tap": 2113.3,
-  "sentence": "So really the, the legislation, um, that Steve Lindsey talks about is the best opportunity for a longer term fix."
+  "start": 698.56,
+  "end": 706.08,
+  "tap": 706.58,
+  "sentence": "We also led an effort with other companies to donate and set up laptops for children in limited income schools so they're able to learn from home."
  },
  {
-  "id": "heard-2459",
+  "id": "heard-2178",
   "kind": "heard",
   "file": "4344866",
-  "start": 2742.32,
-  "end": 2747.92,
-  "tap": 2748.42,
-  "sentence": "And, and that is clearly what happened in this, uh, in this filing for ISRS, I'm sorry."
+  "start": 905.6,
+  "end": 912.64,
+  "tap": 913.14,
+  "sentence": "The commission has 120 days or until the middle of July to render a decision including whether any refund is required."
  },
  {
-  "id": "heard-2631",
+  "id": "heard-2196",
+  "kind": "heard",
+  "file": "4344866",
+  "start": 1064.16,
+  "end": 1069.68,
+  "tap": 1070.18,
+  "sentence": "Bringing the cumulative provision at March 31 to $16.90 million."
+ },
+ {
+  "id": "heard-2215",
+  "kind": "heard",
+  "file": "4344866",
+  "start": 1249.44,
+  "end": 1256.8,
+  "tap": 1257.3,
+  "sentence": "Not surprisingly, this year we saw unrealized losses this quarter, compared to a much stronger earning stream in the first quarter of 201."
+ },
+ {
+  "id": "heard-2228",
+  "kind": "heard",
+  "file": "4344866",
+  "start": 1351.68,
+  "end": 1362.56,
+  "tap": 1363.06,
+  "sentence": "Based on what we know today, including data and regional economic projections, we've constructed a forecast of key impacts based upon the following assumptions."
+ },
+ {
+  "id": "heard-2245",
+  "kind": "heard",
+  "file": "4344866",
+  "start": 1532.96,
+  "end": 1542.8,
+  "tap": 1543.3,
+  "sentence": "That level of investment is driven by utility infrastructure upgrades and should drive rate-based growth of between 7% and 8% for the forecast period."
+ },
+ {
+  "id": "heard-2259",
+  "kind": "heard",
+  "file": "4344866",
+  "start": 1646.72,
+  "end": 1652.08,
+  "tap": 1652.58,
+  "sentence": "You are leaders, you are conveners, you are helpers, you are heroes."
+ },
+ {
+  "id": "heard-2288",
+  "kind": "heard",
+  "file": "4344866",
+  "start": 1813.6,
+  "end": 1820.32,
+  "tap": 1820.82,
+  "sentence": "And that's why when it goes back to the committee for reconciliation, uh, there'll be some cleanup relative to the things that are attached there."
+ },
+ {
+  "id": "heard-2318",
+  "kind": "heard",
+  "file": "4344866",
+  "start": 2006.24,
+  "end": 2011.28,
+  "tap": 2011.78,
+  "sentence": "But, but again, in terms of the infrastructure that we've been working on and will continue to, that really didn't slow down."
+ },
+ {
+  "id": "heard-2351",
+  "kind": "heard",
+  "file": "4344866",
+  "start": 2175.84,
+  "end": 2179.92,
+  "tap": 2180.42,
+  "sentence": "Oh, those dec- the decision you're referencing there is the decision by the regulators, right?"
+ },
+ {
+  "id": "heard-2411",
+  "kind": "heard",
+  "file": "4344866",
+  "start": 2375.44,
+  "end": 2380.16,
+  "tap": 2380.66,
+  "sentence": "And we think we'll be able, uh, to make a pretty strong presentation as to where the deficiencies are."
+ },
+ {
+  "id": "heard-2434",
+  "kind": "heard",
+  "file": "4344866",
+  "start": 2534.0,
+  "end": 2540.8,
+  "tap": 2541.3,
+  "sentence": "And the Public Service Commission is going to have to weigh in based upon the remand from the appellate court on each one of those."
+ },
+ {
+  "id": "heard-2457",
+  "kind": "heard",
+  "file": "4344866",
+  "start": 2728.0,
+  "end": 2739.68,
+  "tap": 2740.18,
+  "sentence": "And there's always some difference between what we expect and what we actually get, because our ISRS filings generally include 45 to 60 days worth of forecast at capital spend."
+ },
+ {
+  "id": "heard-2495",
+  "kind": "heard",
+  "file": "4344866",
+  "start": 2924.72,
+  "end": 2931.44,
+  "tap": 2931.94,
+  "sentence": "Um, I think you referenced, uh, additional, uh, investment in store or in storage for 10 million."
+ },
+ {
+  "id": "heard-2602",
   "kind": "heard",
   "file": "4346818",
-  "start": 498.4,
-  "end": 504.8,
-  "tap": 505.3,
-  "sentence": "And we expect the situation to improve in the later half of May, when governmental restrictions begin to ease."
+  "start": 302.16,
+  "end": 307.12,
+  "tap": 307.62,
+  "sentence": "During the integration process we spent a lot of time thoughtfully creating the company's purpose."
  },
  {
-  "id": "heard-2719",
+  "id": "heard-2624",
   "kind": "heard",
   "file": "4346818",
-  "start": 1145.92,
-  "end": 1149.6,
-  "tap": 1150.1,
-  "sentence": "This is the baseline we're using to plan the cost controls for our business."
+  "start": 450.32,
+  "end": 457.2,
+  "tap": 457.7,
+  "sentence": "Italy and India saw about two month lag to China with operations being impacted in late March and into April."
  },
  {
-  "id": "heard-2811",
+  "id": "heard-2647",
   "kind": "heard",
   "file": "4346818",
-  "start": 1769.12,
-  "end": 1778.16,
-  "tap": 1778.66,
-  "sentence": "For instance, like 20, for some concluding remarks, I wanna say that we'll win… manage through what we will no doubt be of top second quarter."
+  "start": 642.72,
+  "end": 652.56,
+  "tap": 653.06,
+  "sentence": "In Q1, despite the 15% revenue decline that we saw collectively across the business on a pro forma basis, we were able to limit adjusted EBITDA incrementals to less than 30%."
  },
  {
-  "id": "heard-2966",
+  "id": "heard-2674",
   "kind": "heard",
   "file": "4346818",
-  "start": 2774.0,
-  "end": 2782.32,
-  "tap": 2782.82,
-  "sentence": "I don't know if you have enough data historically, uh, to kind of piece that together, but what does that down 30% tell you?"
+  "start": 816.56,
+  "end": 820.72,
+  "tap": 821.22,
+  "sentence": "As we're building the culture of Ingersoll Rand with our employees at the core."
  },
  {
-  "id": "heard-3107",
+  "id": "heard-2699",
   "kind": "heard",
   "file": "4346818",
-  "start": 3539.04,
-  "end": 3542.32,
-  "tap": 3542.82,
-  "sentence": "We see tailwinds that a lot of these kind of structural costs come out."
+  "start": 1017.04,
+  "end": 1024.8,
+  "tap": 1025.3,
+  "sentence": "The cash flow for the quarter was $60 million on an as reported basis, including $8 million of CapEx."
  },
  {
-  "id": "heard-4617",
+  "id": "heard-2723",
+  "kind": "heard",
+  "file": "4346818",
+  "start": 1170.16,
+  "end": 1174.0,
+  "tap": 1174.5,
+  "sentence": "We break these out into two areas, aftermarket and original equipment."
+ },
+ {
+  "id": "heard-2746",
+  "kind": "heard",
+  "file": "4346818",
+  "start": 1290.56,
+  "end": 1296.96,
+  "tap": 1297.46,
+  "sentence": "And we see these as a way to leverage the technology portfolio, as well as the direct and indirect channels that both companies have."
+ },
+ {
+  "id": "heard-2773",
+  "kind": "heard",
+  "file": "4346818",
+  "start": 1487.2,
+  "end": 1490.72,
+  "tap": 1491.22,
+  "sentence": "Growth was driven by the strength in gold connectivity and consumer product line."
+ },
+ {
+  "id": "heard-2795",
+  "kind": "heard",
+  "file": "4346818",
+  "start": 1640.96,
+  "end": 1644.88,
+  "tap": 1645.38,
+  "sentence": "Each pump has a fluid and every fluid end utilizes consumables."
+ },
+ {
+  "id": "heard-2835",
+  "kind": "heard",
+  "file": "4346818",
+  "start": 1915.68,
+  "end": 1921.6,
+  "tap": 1922.1,
+  "sentence": "Uh, you know, from, uh, from the down in the mainstream, which is what we consider to be more on the loan cycle."
+ },
+ {
+  "id": "heard-2879",
+  "kind": "heard",
+  "file": "4346818",
+  "start": 2195.2,
+  "end": 2201.84,
+  "tap": 2202.34,
+  "sentence": "Then maybe just my, uh, second question, um, for you or for Emily around the free cash flow, is that a good performance in Q1?"
+ },
+ {
+  "id": "heard-2925",
+  "kind": "heard",
+  "file": "4346818",
+  "start": 2534.8,
+  "end": 2539.6,
+  "tap": 2540.1,
+  "sentence": "And it seems like most of that came from the Legacy IR businesses."
+ },
+ {
+  "id": "heard-2970",
+  "kind": "heard",
+  "file": "4346818",
+  "start": 2806.48,
+  "end": 2814.96,
+  "tap": 2815.46,
+  "sentence": "The indication here is that it finally know where are those market that we should continue to play or double down from a service perspective."
+ },
+ {
+  "id": "heard-3002",
+  "kind": "heard",
+  "file": "4346818",
+  "start": 3002.4,
+  "end": 3005.6,
+  "tap": 3006.1,
+  "sentence": "Uh, but not on the medium to high level compressors."
+ },
+ {
+  "id": "heard-3040",
+  "kind": "heard",
+  "file": "4346818",
+  "start": 3188.0,
+  "end": 3192.88,
+  "tap": 3193.38,
+  "sentence": "We're just, you know, we're working on this as fast as we can and we'll update you as we know more."
+ },
+ {
+  "id": "heard-3085",
+  "kind": "heard",
+  "file": "4346818",
+  "start": 3430.96,
+  "end": 3438.16,
+  "tap": 3438.66,
+  "sentence": "So, uh, we have been pretty strict in, uh, in many cases that, uh, that we need to see the payments, or we will stop shipments."
+ },
+ {
+  "id": "heard-3140",
+  "kind": "heard",
+  "file": "4346818",
+  "start": 3700.4,
+  "end": 3705.84,
+  "tap": 3706.34,
+  "sentence": "So the, the aftermarket dollars per sale share, it, it's relatively small compared to your, uh, company average."
+ },
+ {
+  "id": "heard-4591",
   "kind": "heard",
   "file": "4359971",
-  "start": 477.28,
-  "end": 486.48,
-  "tap": 486.98,
-  "sentence": "A&T adjusted EBITDA of €31 million decreased by €33 million or 51% compared to the second quarter of 201."
+  "start": 263.44,
+  "end": 271.68,
+  "tap": 272.18,
+  "sentence": "This was a great achievement by the entire Constellium team and demonstrated our flexibility and resilience."
  },
  {
-  "id": "heard-4687",
+  "id": "heard-4611",
   "kind": "heard",
   "file": "4359971",
-  "start": 1053.76,
-  "end": 1061.52,
-  "tap": 1062.02,
-  "sentence": "In early July, we published our 2019 business and sustainability report, which you can find on our website."
+  "start": 434.4,
+  "end": 439.36,
+  "tap": 439.86,
+  "sentence": "I will now hand over to Peter to discuss our financial performance in more detail."
  },
  {
-  "id": "heard-4776",
+  "id": "heard-4629",
   "kind": "heard",
   "file": "4359971",
-  "start": 1680.0,
-  "end": 1689.12,
-  "tap": 1689.62,
-  "sentence": "So you got upstarts, you've got supply chain disruptions, you've got, uh, uh, difficulties in bringing products from Mexico, uh, building, uh, trucks in Texas."
+  "start": 581.36,
+  "end": 592.8,
+  "tap": 593.3,
+  "sentence": "Packaging shipments fell by 12% primarily as a result of the temporary shutdown in March of our Neuf-Brisach plant in France due to COVID-19."
  },
  {
-  "id": "heard-4925",
+  "id": "heard-4651",
   "kind": "heard",
   "file": "4359971",
-  "start": 2516.4,
-  "end": 2523.52,
-  "tap": 2524.02,
-  "sentence": "So, uh, in that regard, I think, we would expect that there's going to be some, uh, kind of permanent savings."
+  "start": 748.64,
+  "end": 759.76,
+  "tap": 760.26,
+  "sentence": "Costs were a €9 million tailwind on strong cost control with labor, energy and fixed costs as important contributors."
  },
  {
-  "id": "heard-5056",
+  "id": "heard-4670",
   "kind": "heard",
   "file": "4359971",
-  "start": 3370.08,
-  "end": 3376.08,
-  "tap": 3376.58,
-  "sentence": "So for example, we can't use that capital to go and, uh, buy back bonds in the market."
+  "start": 914.56,
+  "end": 928.08,
+  "tap": 928.58,
+  "sentence": "During the quarter as a consequence of lower activity, our factored receivables were lower than the levels that we have maintained in recent quarters and negatively impacted our free cash flow by €73 million."
  },
  {
-  "id": "heard-5722",
+  "id": "heard-4692",
+  "kind": "heard",
+  "file": "4359971",
+  "start": 1083.6,
+  "end": 1089.36,
+  "tap": 1089.86,
+  "sentence": "This means that more of our colleagues are returning home injury-free every day."
+ },
+ {
+  "id": "heard-4710",
+  "kind": "heard",
+  "file": "4359971",
+  "start": 1238.72,
+  "end": 1249.28,
+  "tap": 1249.78,
+  "sentence": "We believe our balanced portfolio of products across end markets, geographies, and customers is a competitive advantage during challenging times like these."
+ },
+ {
+  "id": "heard-4732",
+  "kind": "heard",
+  "file": "4359971",
+  "start": 1403.52,
+  "end": 1410.48,
+  "tap": 1410.98,
+  "sentence": "The near-term outlook for aerospace remains uncertain due to the effects from COVID-19 and the 737-Max."
+ },
+ {
+  "id": "heard-4765",
+  "kind": "heard",
+  "file": "4359971",
+  "start": 1598.24,
+  "end": 1601.92,
+  "tap": 1602.42,
+  "sentence": "And the other markets and each market is about 25% down."
+ },
+ {
+  "id": "heard-4797",
+  "kind": "heard",
+  "file": "4359971",
+  "start": 1817.28,
+  "end": 1821.04,
+  "tap": 1821.54,
+  "sentence": "I think Crown yesterday mentioned that Southern Europe was weak."
+ },
+ {
+  "id": "heard-4827",
+  "kind": "heard",
+  "file": "4359971",
+  "start": 1979.2,
+  "end": 1984.4,
+  "tap": 1984.9,
+  "sentence": "Your next question comes from the line of Josh Sullivan from The Benchmark Company."
+ },
+ {
+  "id": "heard-4874",
+  "kind": "heard",
+  "file": "4359971",
+  "start": 2192.08,
+  "end": 2203.2,
+  "tap": 2203.7,
+  "sentence": "Those programs are what is referred to as <inaudible> or short-time work and these government programs continue through 2020 and, in some cases, into 202."
+ },
+ {
+  "id": "heard-4927",
+  "kind": "heard",
+  "file": "4359971",
+  "start": 2533.12,
+  "end": 2539.36,
+  "tap": 2539.86,
+  "sentence": "So, um, you know, I'd say it's hard to give a- a really precise number o- on that, Curt."
+ },
+ {
+  "id": "heard-4960",
+  "kind": "heard",
+  "file": "4359971",
+  "start": 2810.56,
+  "end": 2815.44,
+  "tap": 2815.94,
+  "sentence": "Can you, can you comment at all on free cash flow potential in the back half of the year?"
+ },
+ {
+  "id": "heard-4992",
+  "kind": "heard",
+  "file": "4359971",
+  "start": 3048.08,
+  "end": 3056.16,
+  "tap": 3056.66,
+  "sentence": "And they'll do some things that help us in the future which they have already done in the past and that's already, uh, that's already happened, and that's continuing."
+ },
+ {
+  "id": "heard-5040",
+  "kind": "heard",
+  "file": "4359971",
+  "start": 3316.16,
+  "end": 3321.52,
+  "tap": 3322.02,
+  "sentence": "Uh, and the Swiss facility, uh, we don't have that drawn in- in most instances so-"
+ },
+ {
+  "id": "heard-5079",
+  "kind": "heard",
+  "file": "4359971",
+  "start": 3471.6,
+  "end": 3475.28,
+  "tap": 3475.78,
+  "sentence": "And if you can provide a little color what you're seeing there, that'd be very helpful."
+ },
+ {
+  "id": "heard-5701",
   "kind": "heard",
   "file": "4360674",
-  "start": 510.0,
-  "end": 520.48,
-  "tap": 520.98,
-  "sentence": "However, consistent with our focus on continuous improvement, we are not satisfied, and will continue our efforts to build an even more diverse and inclusive team going forward."
+  "start": 278.88,
+  "end": 285.36,
+  "tap": 285.86,
+  "sentence": "And we continue to remain focused on building a sustainable energy era, that is both clean, and affordable."
  },
  {
-  "id": "heard-5773",
+  "id": "heard-5717",
   "kind": "heard",
   "file": "4360674",
-  "start": 1110.24,
-  "end": 1121.84,
-  "tap": 1122.34,
-  "sentence": "Over the second quarter, Gulf Power experienced a more significant decline in underlying usage per customer than FPL, but also experienced an improvement as the economy began reopening in May, and June."
+  "start": 454.88,
+  "end": 460.32,
+  "tap": 460.82,
+  "sentence": "Our company has been focused on all of the elements of ESG for more than 25 years."
  },
  {
-  "id": "heard-5829",
+  "id": "heard-5733",
   "kind": "heard",
   "file": "4360674",
-  "start": 1747.28,
-  "end": 1756.24,
-  "tap": 1756.74,
-  "sentence": "The strong operational financial performance that NextEra Energy Partners highlights, that NextEra Energy Partners remained well positioned to continue to deliver on its outstanding growth pro- objective."
+  "start": 629.28,
+  "end": 639.12,
+  "tap": 639.62,
+  "sentence": "As result, in May, the company has filed an application with FERC, for an approval of an internal reorganization, whereby Gulf would merge into FPL."
  },
  {
-  "id": "heard-5894",
+  "id": "heard-5746",
   "kind": "heard",
   "file": "4360674",
-  "start": 2329.68,
-  "end": 2342.88,
-  "tap": 2343.38,
-  "sentence": "So we're really excited about hydrogen, in, in particular when we think about getting to a… Um, not a net zero emissions profile, but actually, a zero carbon emissions profile."
+  "start": 756.72,
+  "end": 766.88,
+  "tap": 767.38,
+  "sentence": "However, to achieve an emissions free future, we believe that other technologies will be necessary, and we are particularly excited about the long term potential of hydrogen."
  },
  {
-  "id": "heard-6014",
+  "id": "heard-5764",
   "kind": "heard",
   "file": "4360674",
-  "start": 3224.96,
-  "end": 3239.92,
-  "tap": 3240.42,
-  "sentence": "And there's also, I think, clearly, uh, an opportunity to make green hydrogen to, um, to rep- uh, to replace other types of hydrogen, or… And other feedstocks in industrial applications."
+  "start": 1022.48,
+  "end": 1032.32,
+  "tap": 1032.82,
+  "sentence": "FPL's second quarter retail sales decreased by 0.8%, year over year, as customer growth, and favorable weather were more than offset by a decline, and underlying usage per customer."
  },
  {
-  "id": "heard-7965",
+  "id": "heard-5776",
+  "kind": "heard",
+  "file": "4360674",
+  "start": 1146.0,
+  "end": 1152.8,
+  "tap": 1153.3,
+  "sentence": "Additional details on, on retail sales at GPL and Gulf Power are included in the appendix of today's presentation."
+ },
+ {
+  "id": "heard-5790",
+  "kind": "heard",
+  "file": "4360674",
+  "start": 1277.44,
+  "end": 1289.68,
+  "tap": 1290.18,
+  "sentence": "The continued strong demand for battery storage projects, highlights the rapid transition to the next phase of renewables development, that pairs low cost wind, and solar energy, with a low cost battery storage solution."
+ },
+ {
+  "id": "heard-5806",
+  "kind": "heard",
+  "file": "4360674",
+  "start": 1483.92,
+  "end": 1493.68,
+  "tap": 1494.18,
+  "sentence": "NextEra Energy's 2020 second quarter adjusted earnings, and adjusted EPS were 1.286 billion, and $2.61 cents, per share respectively."
+ },
+ {
+  "id": "heard-5824",
+  "kind": "heard",
+  "file": "4360674",
+  "start": 1680.16,
+  "end": 1689.04,
+  "tap": 1689.54,
+  "sentence": "We have a long term track record of delivering result for our customers, and shareholders, and we will remain intensely focused on continuing that track record."
+ },
+ {
+  "id": "heard-5840",
+  "kind": "heard",
+  "file": "4360674",
+  "start": 1852.8,
+  "end": 1865.28,
+  "tap": 1865.78,
+  "sentence": "Now that the PG&E bankruptcy has been favorably resolved, and distributions from our Desert Sunlight projects have resumed, cash available for distribution include all contributions from PG&E related projects."
+ },
+ {
+  "id": "heard-5857",
+  "kind": "heard",
+  "file": "4360674",
+  "start": 2038.8,
+  "end": 2048.24,
+  "tap": 2048.74,
+  "sentence": "We are pleased with NextEra Energy Partners year to date performance in 2020, and believe it continues to offer a best in class value proposition for investors."
+ },
+ {
+  "id": "heard-5880",
+  "kind": "heard",
+  "file": "4360674",
+  "start": 2216.8,
+  "end": 2226.96,
+  "tap": 2227.46,
+  "sentence": "Is that more in line with what you disclosed at your analyst day, or, um, shou- should we expect it to be at more of these robust, robust levels, looking forward?"
+ },
+ {
+  "id": "heard-5902",
+  "kind": "heard",
+  "file": "4360674",
+  "start": 2410.72,
+  "end": 2420.32,
+  "tap": 2420.82,
+  "sentence": "Um, you know, and, and for us to be able to pro- you know, produce that, uh, the green energy to produce the green hydrogen, uh, is a potential signif- significant opportunity for us."
+ },
+ {
+  "id": "heard-5944",
+  "kind": "heard",
+  "file": "4360674",
+  "start": 2694.88,
+  "end": 2702.4,
+  "tap": 2702.9,
+  "sentence": "Hey, um, on the same question, Jim, are you… what do you think is the most likely outcome from the congress these day?"
+ },
+ {
+  "id": "heard-5967",
+  "kind": "heard",
+  "file": "4360674",
+  "start": 2925.76,
+  "end": 2931.92,
+  "tap": 2932.42,
+  "sentence": "So, I think… we, uh… This won't be surprising, we remain interested in M&A."
+ },
+ {
+  "id": "heard-6013",
+  "kind": "heard",
+  "file": "4360674",
+  "start": 3212.0,
+  "end": 3224.96,
+  "tap": 3225.46,
+  "sentence": "I think there's also clearly an opportunity to make renewables, to displace diesel fuel, and perhaps even, uh, other types of transportation fuel, going forward."
+ },
+ {
+  "id": "heard-6047",
+  "kind": "heard",
+  "file": "4360674",
+  "start": 3480.8,
+  "end": 3491.12,
+  "tap": 3491.62,
+  "sentence": "You know, we continue to lead the industry in O&M cost, we continue to lead the industry in reliability and customer service, um, and the best way to keep doing that is execute."
+ },
+ {
+  "id": "heard-7941",
   "kind": "heard",
   "file": "4364366",
-  "start": 468.16,
-  "end": 472.4,
-  "tap": 472.9,
-  "sentence": "That's happened and now is outside of our cost structure."
+  "start": 270.4,
+  "end": 273.68,
+  "tap": 274.18,
+  "sentence": "<unk> Joc I'm going to start with some questions you received on costs."
  },
  {
-  "id": "heard-8036",
+  "id": "heard-7958",
   "kind": "heard",
   "file": "4364366",
-  "start": 1007.76,
-  "end": 1015.28,
-  "tap": 1015.78,
-  "sentence": "I have to reemphasize the value that MicroEssentials brings to the growers is showing positive returns for them on their investments."
+  "start": 406.8,
+  "end": 416.16,
+  "tap": 416.66,
+  "sentence": "Over the longterm though, the real differences have been structural and those are going to stay with us and those are going to continue and we're going to continue to improve those."
  },
  {
-  "id": "heard-8114",
+  "id": "heard-7978",
   "kind": "heard",
   "file": "4364366",
-  "start": 1570.08,
-  "end": 1575.04,
-  "tap": 1575.54,
-  "sentence": "So that allows us to understand what's the real underlying improvement."
+  "start": 550.88,
+  "end": 563.6,
+  "tap": 564.1,
+  "sentence": "However, the reason we filed this petition in the first place was to address and balances associated with unfair government subsidies on inputs and to highlight on equal requirements on environmental standards."
  },
  {
-  "id": "heard-8205",
+  "id": "heard-7998",
   "kind": "heard",
   "file": "4364366",
-  "start": 2254.64,
-  "end": 2266.0,
-  "tap": 2266.5,
-  "sentence": "Clearly oil seed and grain prices do have implications for us, but in general, the farmers tend to work a lot more on their needs to plant."
+  "start": 707.84,
+  "end": 717.6,
+  "tap": 718.1,
+  "sentence": "Joc, we received several questions asking about trade flows and implications to other markets, specifically, Adam Samuelson and seven others, uh, over the next six to 12 months."
  },
  {
-  "id": "heard-8292",
+  "id": "heard-8020",
   "kind": "heard",
   "file": "4364366",
-  "start": 2966.48,
-  "end": 2973.6,
-  "tap": 2974.1,
-  "sentence": "Uh, I wouldn't say we see increased demand, but we see demand that is getting back to its normal levels."
+  "start": 900.56,
+  "end": 911.52,
+  "tap": 912.02,
+  "sentence": "And as we introduce new management structures, incorporate automation for certain mining functions and accel- accelerate savings from adjustments to transportation."
  },
  {
-  "id": "heard-9313",
+  "id": "heard-8039",
+  "kind": "heard",
+  "file": "4364366",
+  "start": 1032.88,
+  "end": 1038.4,
+  "tap": 1038.9,
+  "sentence": "Joc, three analysts submitted multi-part questions related to our potash operations."
+ },
+ {
+  "id": "heard-8058",
+  "kind": "heard",
+  "file": "4364366",
+  "start": 1178.32,
+  "end": 1183.44,
+  "tap": 1183.94,
+  "sentence": "And what is the updated timeline now to shut down K1 and K2?"
+ },
+ {
+  "id": "heard-8083",
+  "kind": "heard",
+  "file": "4364366",
+  "start": 1361.84,
+  "end": 1370.64,
+  "tap": 1371.14,
+  "sentence": "We have four analysts, including John Roberts from UBS and Mark Conley from Stevens ask similar questions about the timing of volumes in Brazil."
+ },
+ {
+  "id": "heard-8106",
+  "kind": "heard",
+  "file": "4364366",
+  "start": 1525.44,
+  "end": 1528.64,
+  "tap": 1529.14,
+  "sentence": "And what specifically was the impact in the quarter and Mosaic <inaudible>?"
+ },
+ {
+  "id": "heard-8137",
+  "kind": "heard",
+  "file": "4364366",
+  "start": 1740.56,
+  "end": 1754.4,
+  "tap": 1754.9,
+  "sentence": "Now, obviously there's going to be local places where that impacts us, but in general, we've been able to work around that and kept the product moving to the end customer."
+ },
+ {
+  "id": "heard-8159",
+  "kind": "heard",
+  "file": "4364366",
+  "start": 1880.24,
+  "end": 1884.16,
+  "tap": 1884.66,
+  "sentence": "Sorry, you know, our first priority is to maintain the business."
+ },
+ {
+  "id": "heard-8183",
+  "kind": "heard",
+  "file": "4364366",
+  "start": 2107.6,
+  "end": 2116.16,
+  "tap": 2116.66,
+  "sentence": "Um, but then I would also call to your attention, um, that our cash tax, uh, rates, uh, and payments, uh, are much different than that."
+ },
+ {
+  "id": "heard-8207",
+  "kind": "heard",
+  "file": "4364366",
+  "start": 2271.76,
+  "end": 2277.68,
+  "tap": 2278.18,
+  "sentence": "And remember also the grain and oil seeds are just a few of the products that we fertilized."
+ },
+ {
+  "id": "heard-8236",
+  "kind": "heard",
+  "file": "4364366",
+  "start": 2492.72,
+  "end": 2498.88,
+  "tap": 2499.38,
+  "sentence": "And I would expect that under a more, uh, fair trade market that's what you would see."
+ },
+ {
+  "id": "heard-8265",
+  "kind": "heard",
+  "file": "4364366",
+  "start": 2760.16,
+  "end": 2765.76,
+  "tap": 2766.26,
+  "sentence": "Chinese exports over the first half of the year were lower by about 800000 tons from last year."
+ },
+ {
+  "id": "heard-8283",
+  "kind": "heard",
+  "file": "4364366",
+  "start": 2905.68,
+  "end": 2911.76,
+  "tap": 2912.26,
+  "sentence": "So, which means we would expect them to stay about the same run rate as we go forward as well."
+ },
+ {
+  "id": "heard-8305",
+  "kind": "heard",
+  "file": "4364366",
+  "start": 3081.12,
+  "end": 3088.32,
+  "tap": 3088.82,
+  "sentence": "And if you take 2019 out of it, uh, I think we still have stay just on that trend."
+ },
+ {
+  "id": "heard-9287",
   "kind": "heard",
   "file": "4366302",
-  "start": 480.0,
-  "end": 487.52,
-  "tap": 488.02,
-  "sentence": "Since then, physician offices and most of our markets have returned to seeing a majority of patients in person."
+  "start": 263.04,
+  "end": 272.96,
+  "tap": 273.46,
+  "sentence": "The healthcare sector receive more than 12% of all PPP loans of which the biggest recipients were physician offices at more than $8.40 billion."
  },
  {
-  "id": "heard-9376",
+  "id": "heard-9310",
   "kind": "heard",
   "file": "4366302",
-  "start": 1050.24,
-  "end": 1058.48,
-  "tap": 1058.98,
-  "sentence": "Trailing 12 month same-store NOI grew 1.9%, which was impacted by lockdowns in the quarter in three main ways."
+  "start": 452.0,
+  "end": 464.24,
+  "tap": 464.74,
+  "sentence": "HR's tenants on average are operating near full capacity and they are better prepared to provide ongoing outpatient care even in the event of a local surge."
+ },
+ {
+  "id": "heard-9329",
+  "kind": "heard",
+  "file": "4366302",
+  "start": 639.36,
+  "end": 646.08,
+  "tap": 646.58,
+  "sentence": "Louis-based Mercy for $244 million or $633 per square foot."
+ },
+ {
+  "id": "heard-9347",
+  "kind": "heard",
+  "file": "4366302",
+  "start": 832.64,
+  "end": 842.88,
+  "tap": 843.38,
+  "sentence": "Although a few buyers are temporarily on the sidelines, Cap rates are steady as investor demand is wide and deep for the stable cash flows from MOBs."
+ },
+ {
+  "id": "heard-9366",
+  "kind": "heard",
+  "file": "4366302",
+  "start": 980.4,
+  "end": 984.96,
+  "tap": 985.46,
+  "sentence": "We saw significant sequential improvements in May, June and July."
+ },
+ {
+  "id": "heard-9382",
+  "kind": "heard",
+  "file": "4366302",
+  "start": 1111.2,
+  "end": 1119.28,
+  "tap": 1119.78,
+  "sentence": "But for these three impacts, trailing 12 month same-store growth would have been approximately 20 basis points higher."
+ },
+ {
+  "id": "heard-9404",
+  "kind": "heard",
+  "file": "4366302",
+  "start": 1310.88,
+  "end": 1316.96,
+  "tap": 1317.46,
+  "sentence": "Uh, operator Chuck, we will be ready to open it up to the question and answer period."
+ },
+ {
+  "id": "heard-9446",
+  "kind": "heard",
+  "file": "4366302",
+  "start": 1552.32,
+  "end": 1555.6,
+  "tap": 1556.1,
+  "sentence": "Um, you know, we, we certainly looked at the Duke transaction hard and competed for that."
  },
  {
   "id": "heard-9480",
@@ -387,103 +1305,364 @@
   "sentence": "Uh, Chris mentioned low 90s for this year, and certainly we're trying to steadily improve that."
  },
  {
-  "id": "heard-9597",
+  "id": "heard-9506",
   "kind": "heard",
   "file": "4366302",
-  "start": 2550.32,
-  "end": 2555.76,
-  "tap": 2556.26,
-  "sentence": "Um, in terms of hotspots, I don't think it's, you know, nationwide shut it all down the way it was early on."
+  "start": 1900.24,
+  "end": 1907.92,
+  "tap": 1908.42,
+  "sentence": "I think with the ones we've been working on, building our presence in still look very attractive to us, you know, even with what's going on now."
  },
  {
-  "id": "heard-9703",
+  "id": "heard-9536",
   "kind": "heard",
   "file": "4366302",
-  "start": 3113.2,
-  "end": 3122.56,
-  "tap": 3123.06,
-  "sentence": "Um, they have, I would say that there are, have, certainly have physicians that are, you know, utilizing the hospital, um, next door."
+  "start": 2118.16,
+  "end": 2122.48,
+  "tap": 2122.98,
+  "sentence": "That said, of course, we, we look at the marketed deals and if they measure up, we certainly go after them."
  },
  {
-  "id": "heard-11594",
+  "id": "heard-9588",
+  "kind": "heard",
+  "file": "4366302",
+  "start": 2489.04,
+  "end": 2497.6,
+  "tap": 2498.1,
+  "sentence": "I do think, you know, we don't wanna be glib about the optimism because, you know, it's, it's a long road here and, um, you know, maybe the toughest time ahead of us."
+ },
+ {
+  "id": "heard-9616",
+  "kind": "heard",
+  "file": "4366302",
+  "start": 2672.64,
+  "end": 2676.88,
+  "tap": 2677.38,
+  "sentence": "You're gonna… it's, it's a classic, you know, problem that these crises just like the financial crisis caused."
+ },
+ {
+  "id": "heard-9642",
+  "kind": "heard",
+  "file": "4366302",
+  "start": 2811.6,
+  "end": 2816.4,
+  "tap": 2816.9,
+  "sentence": "Well, not, not, not to get religious, but it's like testing our faith, right?"
+ },
+ {
+  "id": "heard-9673",
+  "kind": "heard",
+  "file": "4366302",
+  "start": 2938.24,
+  "end": 2943.44,
+  "tap": 2943.94,
+  "sentence": "And, and what Chris always walks through is, okay, we, we grew the revenue at that level."
+ },
+ {
+  "id": "heard-9712",
+  "kind": "heard",
+  "file": "4366302",
+  "start": 3153.76,
+  "end": 3158.8,
+  "tap": 3159.3,
+  "sentence": "I know historically you guys are prepared to put some redevelopment dollars into them."
+ },
+ {
+  "id": "heard-9761",
+  "kind": "heard",
+  "file": "4366302",
+  "start": 3400.08,
+  "end": 3408.32,
+  "tap": 3408.82,
+  "sentence": "I mean, specifically, could we start to see deferrals going up again or, or, you know, would love for you to, to just kind of expand on that?"
+ },
+ {
+  "id": "heard-11560",
   "kind": "heard",
   "file": "4368670",
-  "start": 562.08,
-  "end": 567.76,
-  "tap": 568.26,
-  "sentence": "So preparatory, preparation work is continuing and going according to plan."
+  "start": 280.72,
+  "end": 288.0,
+  "tap": 288.5,
+  "sentence": "France was the only large market in Europe where we, where we were missing a pipeline and a strong development team."
  },
  {
-  "id": "heard-11700",
+  "id": "heard-11588",
   "kind": "heard",
   "file": "4368670",
-  "start": 1277.12,
-  "end": 1283.12,
-  "tap": 1283.62,
-  "sentence": "I mean, I would appreciate if you could get back to me on the, on the details, on the technical details on the negative power price."
+  "start": 510.16,
+  "end": 520.88,
+  "tap": 521.38,
+  "sentence": "It is progressing well, apart from some COVID-19 related delays, mainly at US construction sites, so that we had to shift UD of approximately 500 megawatt from ' 20 to ' 21."
  },
  {
-  "id": "heard-11856",
+  "id": "heard-11616",
   "kind": "heard",
   "file": "4368670",
-  "start": 2101.04,
-  "end": 2110.56,
-  "tap": 2111.06,
-  "sentence": "I think the investors of big oil and others needs to ask themselves the question, whether it's really green, a green investment, if you buy existing stuff from others."
+  "start": 700.56,
+  "end": 712.08,
+  "tap": 712.58,
+  "sentence": "Whether you drive us an increase in capacity of approximately 380 megawatts year on year, as well as higher earnings in Europe, from above average weather conditions in the first quarter of this year."
  },
  {
-  "id": "heard-12004",
+  "id": "heard-11640",
   "kind": "heard",
   "file": "4368670",
-  "start": 2924.8,
-  "end": 2932.88,
-  "tap": 2933.38,
-  "sentence": "So whatever we do on disposals, we will reach the 13 gigawatt net and also the EBITDA guide is for 2022."
+  "start": 885.76,
+  "end": 894.32,
+  "tap": 894.82,
+  "sentence": "Adjusted net income amounted to 795 million euros due to the high adjusted EBITDA of RWE group."
  },
  {
-  "id": "heard-12178",
+  "id": "heard-11668",
   "kind": "heard",
   "file": "4368670",
-  "start": 3818.48,
-  "end": 3824.8,
-  "tap": 3825.3,
-  "sentence": "I mean, you have also different… I mean, I'm not an expert on that, but you probably, you are, you have totally different approaches to that."
+  "start": 1119.6,
+  "end": 1124.48,
+  "tap": 1124.98,
+  "sentence": "And with this, I conclude my remarks, and I'm now happy to take all your questions."
  },
  {
-  "id": "heard-12585",
+  "id": "heard-11710",
+  "kind": "heard",
+  "file": "4368670",
+  "start": 1326.08,
+  "end": 1337.44,
+  "tap": 1337.94,
+  "sentence": "Because incentivizes investments in flexibilities like batteries, um, and that these… If you'll get more of that, it will definitely take at first the negative power prices away."
+ },
+ {
+  "id": "heard-11754",
+  "kind": "heard",
+  "file": "4368670",
+  "start": 1553.84,
+  "end": 1562.56,
+  "tap": 1563.06,
+  "sentence": "On average, we would at least expect 100 megawatts from the pipeline per annum, so that we have by 25, another 500 megawatts under operations."
+ },
+ {
+  "id": "heard-11802",
+  "kind": "heard",
+  "file": "4368670",
+  "start": 1802.56,
+  "end": 1814.56,
+  "tap": 1815.06,
+  "sentence": "But I mean 100 megawatts here and there that will not, uh, move the needle on the company of our size."
+ },
+ {
+  "id": "heard-11843",
+  "kind": "heard",
+  "file": "4368670",
+  "start": 2030.08,
+  "end": 2036.56,
+  "tap": 2037.06,
+  "sentence": "Um, and I mean, when you look at the, the, the potential sourcing of of financing, yes."
+ },
+ {
+  "id": "heard-11892",
+  "kind": "heard",
+  "file": "4368670",
+  "start": 2267.04,
+  "end": 2270.24,
+  "tap": 2270.74,
+  "sentence": "Is that underway or is that not this year's business?"
+ },
+ {
+  "id": "heard-11935",
+  "kind": "heard",
+  "file": "4368670",
+  "start": 2506.32,
+  "end": 2510.88,
+  "tap": 2511.38,
+  "sentence": "I just wanted to ask, um, two questions, one on returns and one on farm down."
+ },
+ {
+  "id": "heard-11984",
+  "kind": "heard",
+  "file": "4368670",
+  "start": 2797.12,
+  "end": 2804.88,
+  "tap": 2805.38,
+  "sentence": "Um, obviously it's a quite a small chart, but from maybe roughly 30 to 50%, which, uh, is probably more than you would normally do in a quarter."
+ },
+ {
+  "id": "heard-12026",
+  "kind": "heard",
+  "file": "4368670",
+  "start": 3041.84,
+  "end": 3050.96,
+  "tap": 3051.46,
+  "sentence": "Um, of course the tech support is a federal thing, um, but also the current administration, um, extended the PTCs, uh, given the COVID situation."
+ },
+ {
+  "id": "heard-12072",
+  "kind": "heard",
+  "file": "4368670",
+  "start": 3295.6,
+  "end": 3305.28,
+  "tap": 3305.78,
+  "sentence": "It's also since you can easily keep your certificates for longer, um, you can also say it's partly a view on what to come in future years."
+ },
+ {
+  "id": "heard-12138",
+  "kind": "heard",
+  "file": "4368670",
+  "start": 3597.6,
+  "end": 3604.24,
+  "tap": 3604.74,
+  "sentence": "And now we have not only a foot in the door, but a, a significant pipeline and the Nordex team was actually very successful in the French market."
+ },
+ {
+  "id": "heard-12175",
+  "kind": "heard",
+  "file": "4368670",
+  "start": 3792.24,
+  "end": 3799.84,
+  "tap": 3800.34,
+  "sentence": "I mean, we are not turbine manufacturers, so, um, we are not betting on a certain technology."
+ },
+ {
+  "id": "heard-12205",
+  "kind": "heard",
+  "file": "4368670",
+  "start": 3978.32,
+  "end": 3989.52,
+  "tap": 3990.02,
+  "sentence": "We said, Um, we want to continuously grow with the, grow the dividend broadly in, why line with the development of, of um, of the earnings of our operating core business."
+ },
+ {
+  "id": "heard-12560",
   "kind": "heard",
   "file": "4375653",
-  "start": 542.96,
-  "end": 551.6,
-  "tap": 552.1,
-  "sentence": "There is significant opportunity to improve outcomes for patients and the potential impact on families and communities highlights the importance of GRAIL's work."
+  "start": 275.52,
+  "end": 285.04,
+  "tap": 285.54,
+  "sentence": "Starting with GRAIL's, multi cancer detection test Galleri, which aims to reduce cancer deaths by transforming how and when cancer is detected."
  },
  {
-  "id": "heard-12660",
+  "id": "heard-12580",
   "kind": "heard",
   "file": "4375653",
-  "start": 1224.64,
-  "end": 1234.0,
-  "tap": 1234.5,
-  "sentence": "The number of shares issued be based on penetrate volume, weighted average price of Illumina common stock, 10 days prior to close."
+  "start": 486.4,
+  "end": 495.68,
+  "tap": 496.18,
+  "sentence": "Broader adoption of Galleri could avert nearly 40% of the five-year cancer mortality or around 100,000 deaths annually in the US."
  },
  {
-  "id": "heard-12749",
+  "id": "heard-12600",
   "kind": "heard",
   "file": "4375653",
-  "start": 1814.96,
-  "end": 1824.08,
-  "tap": 1824.58,
-  "sentence": "And you've seen us do that, for example, in the NIPT space where we brought innovations and intellectual property into that market, and I've put together an end to end solution."
+  "start": 693.84,
+  "end": 705.76,
+  "tap": 706.26,
+  "sentence": "Let's assume that ASP that starts around $1,200 and trends to about $300 in 2035, as we scale and drive adoption with increasingly accessible pricing."
  },
  {
-  "id": "heard-12841",
+  "id": "heard-12622",
   "kind": "heard",
   "file": "4375653",
-  "start": 2325.28,
-  "end": 2331.28,
-  "tap": 2331.78,
-  "sentence": "Plugging them into our commercial, uh, conversations with population sequencing efforts, for example."
+  "start": 908.64,
+  "end": 922.0,
+  "tap": 922.5,
+  "sentence": "In the process, we've also established an impressive IP portfolio with more than 230 patents granted globally, and another 170 pending patent applications."
+ },
+ {
+  "id": "heard-12645",
+  "kind": "heard",
+  "file": "4375653",
+  "start": 1115.12,
+  "end": 1119.76,
+  "tap": 1120.26,
+  "sentence": "As we evolve, Illumina remains committed to all of our customers and partners."
+ },
+ {
+  "id": "heard-12668",
+  "kind": "heard",
+  "file": "4375653",
+  "start": 1295.52,
+  "end": 1302.32,
+  "tap": 1302.82,
+  "sentence": "When we created GRAIL in 2016, we knew that its mission was a moonshot, but an important one."
+ },
+ {
+  "id": "heard-12690",
+  "kind": "heard",
+  "file": "4375653",
+  "start": 1444.24,
+  "end": 1454.24,
+  "tap": 1454.74,
+  "sentence": "Enabling groundbreaking genomic discoveries, including circulating fetal DNA in maternal blood and the impact of rare variants on cancer therapy response."
+ },
+ {
+  "id": "heard-12711",
+  "kind": "heard",
+  "file": "4375653",
+  "start": 1605.44,
+  "end": 1618.24,
+  "tap": 1618.74,
+  "sentence": "In closing, our mission to improve human health by unlocking the power of the genome and GRAIL's mission in detect cancer early when it can be cured could not be more consistent."
+ },
+ {
+  "id": "heard-12746",
+  "kind": "heard",
+  "file": "4375653",
+  "start": 1801.44,
+  "end": 1806.16,
+  "tap": 1806.66,
+  "sentence": "In those markets, we still enable our customers and partners to create a competing offering."
+ },
+ {
+  "id": "heard-12771",
+  "kind": "heard",
+  "file": "4375653",
+  "start": 1947.6,
+  "end": 1951.6,
+  "tap": 1952.1,
+  "sentence": "So what are the synergies that, you know, GRAIL will enjoy coming into Illumina?"
+ },
+ {
+  "id": "heard-12802",
+  "kind": "heard",
+  "file": "4375653",
+  "start": 2107.76,
+  "end": 2112.72,
+  "tap": 2113.22,
+  "sentence": "Third, you know, Francis, you talked about, uh, you know, uh, uh, competence in- in the core business."
+ },
+ {
+  "id": "heard-12828",
+  "kind": "heard",
+  "file": "4375653",
+  "start": 2238.96,
+  "end": 2242.48,
+  "tap": 2242.98,
+  "sentence": "It was unclear if the approach we were thinking about was the right approach."
+ },
+ {
+  "id": "heard-12853",
+  "kind": "heard",
+  "file": "4375653",
+  "start": 2396.08,
+  "end": 2403.28,
+  "tap": 2403.78,
+  "sentence": "And- and it took a while for us to work with- with the market to explain where we were going and why we thought that was a big opportunity."
+ },
+ {
+  "id": "heard-12883",
+  "kind": "heard",
+  "file": "4375653",
+  "start": 2642.88,
+  "end": 2650.96,
+  "tap": 2651.46,
+  "sentence": "So- so that, that's why it's the right thing to have a test that can really detect the maximum number of cancers possible."
+ },
+ {
+  "id": "heard-12906",
+  "kind": "heard",
+  "file": "4375653",
+  "start": 2801.04,
+  "end": 2812.08,
+  "tap": 2812.58,
+  "sentence": "Certainly if you look at… you're in technology, whether it's Apple or Amazon or Microsoft, they provide the platform, but then there are specific applications that they provide directly themselves."
  },
  {
   "id": "heard-12955",
@@ -495,40 +1674,148 @@
   "sentence": "Um, but, uh, to- to answer your question around the OPEX investments, Patrick, yes."
  },
  {
-  "id": "heard-18993",
+  "id": "heard-12980",
   "kind": "heard",
-  "file": "4397829",
-  "start": 641.84,
-  "end": 653.92,
-  "tap": 654.42,
-  "sentence": "These benefits were partially offset by 200 basis points impact from channel mix due to the anticipated larger proportion of total sales from digital channels versus the prior year."
+  "file": "4375653",
+  "start": 3253.12,
+  "end": 3258.4,
+  "tap": 3258.9,
+  "sentence": "And so this was a nice way to sort of bridge doctors, to say, look, we wanna make sure that we participate."
  },
  {
-  "id": "heard-19075",
+  "id": "heard-18961",
   "kind": "heard",
   "file": "4397829",
-  "start": 1396.64,
-  "end": 1406.0,
-  "tap": 1406.5,
-  "sentence": "In the Bed Bath and Beyond banner, BOPUS orders represented 15% of total digital sales and 17% of total digital orders."
+  "start": 329.44,
+  "end": 336.56,
+  "tap": 337.06,
+  "sentence": "First, I will provide perspective on the performance of our third quarter, as well as on December sales trends."
  },
  {
-  "id": "heard-19157",
+  "id": "heard-18987",
   "kind": "heard",
   "file": "4397829",
-  "start": 2209.76,
-  "end": 2221.68,
-  "tap": 2222.18,
-  "sentence": "Year to date we have gained nearly two million U.S. online customers, an increase of 46% over the last year, including more than a half a million new online customers in the third quarter."
+  "start": 593.12,
+  "end": 606.24,
+  "tap": 606.74,
+  "sentence": "These include special items such as losses on the sales of businesses, including cost plus world market, which has helped for sale, as well on non-cash charges for the impairment of certain long lived assets."
  },
  {
-  "id": "heard-19293",
+  "id": "heard-19011",
   "kind": "heard",
   "file": "4397829",
-  "start": 3093.76,
-  "end": 3099.6,
-  "tap": 3100.1,
-  "sentence": "There's a lot going on on the world and we want to make sure that we're being responsible in our planning."
+  "start": 823.6,
+  "end": 830.48,
+  "tap": 830.98,
+  "sentence": "We remain in a strong net cash position with an ending cash and investment balance of 1.5 billion."
+ },
+ {
+  "id": "heard-19035",
+  "kind": "heard",
+  "file": "4397829",
+  "start": 1046.0,
+  "end": 1053.2,
+  "tap": 1053.7,
+  "sentence": "We had already divested four banners, but we did not have a signed deal for cost plus world market yet."
+ },
+ {
+  "id": "heard-19062",
+  "kind": "heard",
+  "file": "4397829",
+  "start": 1291.52,
+  "end": 1300.48,
+  "tap": 1300.98,
+  "sentence": "With this momentum and based on current trends, we are on track to exceed our digital sales goal of $3 billion by the end of fiscal 2020."
+ },
+ {
+  "id": "heard-19084",
+  "kind": "heard",
+  "file": "4397829",
+  "start": 1471.6,
+  "end": 1478.56,
+  "tap": 1479.06,
+  "sentence": "Key drivers of the increase include, first, the relaunch of our mobile sites and mobile apps."
+ },
+ {
+  "id": "heard-19111",
+  "kind": "heard",
+  "file": "4397829",
+  "start": 1746.56,
+  "end": 1758.16,
+  "tap": 1758.66,
+  "sentence": "Not only do these new capabilities provide ease and convenience to our customers, they also help us to partially alleviate current shipping constraints and additional cost pressures in the supply chain."
+ },
+ {
+  "id": "heard-19135",
+  "kind": "heard",
+  "file": "4397829",
+  "start": 1990.4,
+  "end": 1993.76,
+  "tap": 1994.26,
+  "sentence": "Turning to our Bed Bath and Beyond store remodel program."
+ },
+ {
+  "id": "heard-19155",
+  "kind": "heard",
+  "file": "4397829",
+  "start": 2185.76,
+  "end": 2200.4,
+  "tap": 2200.9,
+  "sentence": "So, as consumer behavior shifted, we pivoted and leaned into digital to create an enhanced online experience with a more convenient suite of checkout options, including Afterpay, PayInfo, and Apple Pay."
+ },
+ {
+  "id": "heard-19180",
+  "kind": "heard",
+  "file": "4397829",
+  "start": 2394.4,
+  "end": 2402.24,
+  "tap": 2402.74,
+  "sentence": "These newly acquired muscles extended from product and price through messaging and digital expression to south floor and distribution center."
+ },
+ {
+  "id": "heard-19205",
+  "kind": "heard",
+  "file": "4397829",
+  "start": 2559.68,
+  "end": 2564.16,
+  "tap": 2564.66,
+  "sentence": "I'm proud of the commitment our team has shown and what we have achieved together."
+ },
+ {
+  "id": "heard-19266",
+  "kind": "heard",
+  "file": "4397829",
+  "start": 2937.92,
+  "end": 2944.96,
+  "tap": 2945.46,
+  "sentence": "And as a second part of that, um, where, what, what could be the driver that would cause that range to underperform?"
+ },
+ {
+  "id": "heard-19310",
+  "kind": "heard",
+  "file": "4397829",
+  "start": 3181.04,
+  "end": 3192.24,
+  "tap": 3192.74,
+  "sentence": "And based on foot traffic to stores, uh, customers being concerned around what the future held and real uncertainty in the market really began around the election period."
+ },
+ {
+  "id": "heard-19359",
+  "kind": "heard",
+  "file": "4397829",
+  "start": 3508.08,
+  "end": 3517.36,
+  "tap": 3517.86,
+  "sentence": "It is one of the sticky outcomes, all not just the, the progression in BOPUS, but how COVID has fortified this is a new muscle for most retailers."
+ },
+ {
+  "id": "heard-19397",
+  "kind": "heard",
+  "file": "4397829",
+  "start": 3724.56,
+  "end": 3734.0,
+  "tap": 3734.5,
+  "sentence": "I think of a couple of key areas to where, uh, we have had some, uh, some softness, um, I, I think cleaning is a really good example for us."
  },
  {
   "id": "heard-19434",
@@ -538,6 +1825,15 @@
   "end": 3970.96,
   "tap": 3971.46,
   "sentence": "What did share that, that digital growth there is 94% for the quarter Carla, so exceptionally strong."
+ },
+ {
+  "id": "heard-19479",
+  "kind": "heard",
+  "file": "4397829",
+  "start": 4272.08,
+  "end": 4278.0,
+  "tap": 4278.5,
+  "sentence": "So, the guidance we're providing a 2021 is already on our core banner basis."
  },
  {
   "id": "asked-185",
