@@ -50,6 +50,7 @@
 "All calls" = "Все звонки";
 "Allow" = "Разрешить";
 "Also: " = "Также: ";
+"Also: %@" = "Ещё: %@";
 "Always show the translation" = "Всегда показывать перевод";
 "American" = "Американский";
 "Anything else" = "Всё остальное";
@@ -164,6 +165,7 @@
 "In calls, also listen to my voice (and mark when I say \"sorry?\")" = "На звонках слушать и мой голос (и отмечать, когда я говорю «sorry?»)";
 "In calls, keep text only (no audio clip)" = "На звонках хранить только текст (без аудио)";
 "In calls, show a question asked to me, simply" = "На звонках показывать заданный мне вопрос простыми словами";
+"In practice: %@" = "На деле: %@";
 "In the first five minutes of a call you tap more: your ear needs a moment to tune in." = "В первые пять минут звонка вы нажимаете чаще: слуху нужно время, чтобы настроиться.";
 "In these calls LEXALIE doesn't listen at all: nothing is heard, nothing is kept." = "В этих звонках LEXALIE не слушает совсем: ничего не слышит и ничего не хранит.";
 "Indian" = "Индийский";

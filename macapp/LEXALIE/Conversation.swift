@@ -60,15 +60,30 @@ enum Conversation {
         guard !theirs.isEmpty else { return [] }
         let filler: (Int) -> Bool = { Ranking.isYeah(turns[$0].text) || Ranking.isLaugh(turns[$0].text) }
         let latest = theirs.last(where: { !filler($0) }) ?? theirs.last!
-        var out = [Ranking.Scored(index: latest, score: 1, reasons: ["latest"])]
+        var out: [Ranking.Scored] = []
+        // A piece that began less than a second before the tap is the answer starting, not what you
+        // missed: the sentence just before it comes first, the piece one touch away (comprehension
+        // bench P1, 06/10: "I think", "Sure, John" were shown instead of the question 3 times in 4).
+        if tapAt - turns[latest].start < justStarted,
+           let before = theirs.last(where: { $0 < latest && !filler($0) }),
+           turns[latest].start - turns[before].end < 2.5 {
+            out.append(Ranking.Scored(index: before, score: 1, reasons: ["latest", "before the answer"]))
+            out.append(Ranking.Scored(index: latest, score: 0.9, reasons: ["just started"]))
+        } else {
+            out.append(Ranking.Scored(index: latest, score: 1, reasons: ["latest"]))
+        }
         var rest = rank(turns, tapAt: tapAt, usualDelay: usualDelay, freshWithin: freshWithin, hardness: hardness)
         if rest.isEmpty { rest = rank(turns, tapAt: tapAt, usualDelay: usualDelay, hardness: hardness) }
-        out += rest.filter { $0.index != latest && !filler($0.index) }
+        let shown = Set(out.map(\.index))
+        out += rest.filter { !shown.contains($0.index) && !filler($0.index) }
         // Anything the ranking left out, most recent first, so going back never runs dry.
         let seen = Set(out.map(\.index))
         out += theirs.reversed().filter { !seen.contains($0) }.map { Ranking.Scored(index: $0, score: 0, reasons: ["earlier"]) }
         return out
     }
+
+    /// Seconds: a piece of theirs that began this close to the tap is someone starting to answer.
+    static let justStarted: Double = 1.0
 
     /// A turn longer than this is cut at the next small pause: one sentence on screen, not a speech.
     static let longTurnWords = 28

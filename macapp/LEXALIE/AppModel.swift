@@ -539,6 +539,7 @@ final class AppModel: ObservableObject {
             if mode != .silent, pausedAt == nil { moment.waitMs = Int(after * 1000) }
             moment.quickTranslation = quickTranslation
             moment.meant = explanation.meant
+            moment.inPractice = explanation.inPractice
             if !tone.isEmpty { moment.tone = tone }
             moment.with = talkingWith
             if let intent = explanation.intent?.trimmingCharacters(in: .whitespaces), !intent.isEmpty { moment.intent = intent }
@@ -692,6 +693,7 @@ final class AppModel: ObservableObject {
         if offline { moment.offline = true }
         moment.quickTranslation = quickTranslation
         moment.meant = result.meant
+        moment.inPractice = result.inPractice
         if let intent = result.intent?.trimmingCharacters(in: .whitespaces), !intent.isEmpty { moment.intent = intent }
         moment.trigger = trigger
         moment.turns = turns
@@ -793,6 +795,7 @@ final class AppModel: ObservableObject {
             saved.translation = explanation.translation
             saved.pieces = explanation.pieces
             saved.intent = explanation.intent
+            saved.inPractice = explanation.inPractice
             saved.provider = explanation.model ?? settings.provider.rawValue
             saved.offline = nil
             store.update(saved)
@@ -864,6 +867,7 @@ final class AppModel: ObservableObject {
             moment.chosen = best.index
             moment.alternative = ranked.dropFirst().first?.index
             moment.tapAt = mark.tapAt
+            moment.inPractice = explanation.inPractice
             if let intent = explanation.intent?.trimmingCharacters(in: .whitespaces), !intent.isEmpty { moment.intent = intent }
             if moment.context == "call" && (UserDefaults.standard.bool(forKey: Key.callsTextOnly) || Memory.shared.callsTextOnly) {
                 try? FileManager.default.removeItem(at: url)
@@ -977,6 +981,7 @@ final class AppModel: ObservableObject {
             moment.sent = sent
             moment.translation = explanation.translation
             moment.pieces = explanation.pieces
+            moment.inPractice = explanation.inPractice
             if moment.chosen != index { moment.alternative = moment.chosen }
             moment.chosen = index
             if let tapAt = moment.tapAt { moment.delay = max(0, tapAt - turns[index].end) }

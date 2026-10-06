@@ -50,6 +50,7 @@
 "All calls" = "Todas las llamadas";
 "Allow" = "Permitir";
 "Also: " = "También: ";
+"Also: %@" = "También: %@";
 "Always show the translation" = "Mostrar siempre la traducción";
 "American" = "Estadounidense";
 "Anything else" = "Todo lo demás";
@@ -164,6 +165,7 @@
 "In calls, also listen to my voice (and mark when I say \"sorry?\")" = "En llamadas, escuchar también mi voz (y marcar cuando digo «sorry?»)";
 "In calls, keep text only (no audio clip)" = "En llamadas, guardar solo texto (sin clip de audio)";
 "In calls, show a question asked to me, simply" = "En llamadas, mostrar de forma sencilla una pregunta que me hacen";
+"In practice: %@" = "En la práctica: %@";
 "In the first five minutes of a call you tap more: your ear needs a moment to tune in." = "En los primeros cinco minutos de una llamada tocas más: tu oído necesita un momento para adaptarse.";
 "In these calls LEXALIE doesn't listen at all: nothing is heard, nothing is kept." = "En estas llamadas LEXALIE no escucha nada: no oye nada, no guarda nada.";
 "Indian" = "Indio";

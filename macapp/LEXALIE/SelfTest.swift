@@ -71,6 +71,11 @@ enum SelfTest {
         let first = Conversation.offer(turns, tapAt: 12.5, usualDelay: nil, freshWithin: AppModel.reactionSeconds).first
         check("the tap offers the sentence just missed", first.map { turns[$0.index].text.contains("figures") } ?? false,
               first.map { turns[$0.index].text } ?? "nothing offered")
+        // Someone starts answering half a second before the tap: still the question first (bench P1).
+        let answering = Conversation.turns(others: heard + words("Sure, I", from: 10.4), mine: [], clipStart: start)
+        let beforeAnswer = Conversation.offer(answering, tapAt: 11.0, usualDelay: nil, freshWithin: AppModel.reactionSeconds).first
+        check("an answer just starting doesn't hide the question", beforeAnswer.map { answering[$0.index].text.contains("figures") } ?? false,
+              beforeAnswer.map { answering[$0.index].text } ?? "nothing offered")
     }
 
     // MARK: Example moments, so the windows show rows and not empty pages

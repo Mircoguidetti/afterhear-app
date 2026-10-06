@@ -34,6 +34,8 @@ R = [
 ("Open Accessibility", "Apri Accessibilità", "Abrir Accesibilidad", "Ouvrir Accessibilité", "Bedienungshilfen öffnen", "Открыть Универсальный доступ", "Abrir Acessibilidade"),
 ("Said %lld min ago", "Detta %lld min fa", "Dicha hace %lld min", "Dite il y a %lld min", "Vor %lld Min. gesagt", "Сказано %lld мин назад", "Dita há %lld min"),
 ("Said %lld s ago", "Detta %lld s fa", "Dicha hace %lld s", "Dite il y a %lld s", "Vor %lld s gesagt", "Сказано %lld с назад", "Dita há %lld s"),
+("In practice: %@", "In pratica: %@", "En la práctica: %@", "En pratique : %@", "Praktisch: %@", "На деле: %@", "Na prática: %@"),
+("Also: %@", "Anche: %@", "También: %@", "Aussi : %@", "Außerdem: %@", "Ещё: %@", "Também: %@"),
 ("Maybe they meant: %@", "Forse intendevano: %@", "Quizá querían decir: %@", "Peut-être voulaient-ils dire : %@", "Vielleicht war gemeint: %@", "Возможно, имелось в виду: %@", "Talvez quisessem dizer: %@"),
 ("Or: %@", "Oppure: %@", "O: %@", "Ou : %@", "Oder: %@", "Или: %@", "Ou: %@"),
 ("Maybe this one?", "Forse questa?", "¿Quizá esta?", "Peut-être celle-ci ?", "Vielleicht das?", "Может, это?", "Talvez esta?"),

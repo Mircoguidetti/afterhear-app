@@ -68,6 +68,13 @@ struct Explanation: Codable {
     let model: String?
     let ms: Int?
     var meant: Meant? = nil
+    /// "In practice": what the speaker is saying or asking, in plain words (block P2). Missing from older servers.
+    var inPractice: String? = nil
+
+    enum CodingKeys: String, CodingKey {
+        case transcript, translation, intent, pieces, provider, model, ms, meant
+        case inPractice = "in_practice"
+    }
 }
 
 /// The evening diary: why this moment was missed. It's the question the whole
@@ -180,6 +187,8 @@ struct Moment: Codable, Identifiable {
     var quickTranslation: String? = nil
     /// "Maybe they meant…" for this sentence, and how it was said (measured here).
     var meant: Meant? = nil
+    /// "In practice" (block P2): the one line under the hard word that says the point.
+    var inPractice: String? = nil
     var tone: String? = nil
     /// Spaced repetition: when it comes back in the review, and how many times it was known.
     var due: Date? = nil

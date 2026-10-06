@@ -2,6 +2,8 @@ import SwiftUI
 
 /// What appears next to the meeting: only the piece you missed.
 struct PanelView: View {
+    /// The card's second word, opened with one touch.
+    @State var moreWords = false
     enum Phase {
         case saved(String)
         /// Battery low: the mark is kept as sound. "Transcribe now?"
@@ -234,6 +236,26 @@ struct PanelView: View {
         }
     }
 
+    /// One word or phrase of the card: the words, what they mean here, how to catch them next time.
+    @ViewBuilder private func pieceView(_ piece: Piece) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(piece.text).font(.system(size: 18, weight: .semibold)).foregroundStyle(Brand.paper)
+                Spacer(minLength: 8)
+                Text(piece.guess == true ? String(localized: "Maybe this one?") : piece.causeLabel)
+                    .font(.system(size: 11)).foregroundStyle(Brand.paper.opacity(0.5))
+            }
+            Text(piece.gloss.map { "\($0) · \(piece.meaning)" } ?? piece.meaning).font(.system(size: 14))
+            if let subtext = piece.subtext, !subtext.isEmpty {
+                Text("Really means: \(subtext)").font(.system(size: 13, weight: .medium)).foregroundStyle(Brand.paper.opacity(0.9))
+            }
+            if !piece.note.isEmpty {
+                Text(piece.note).font(.system(size: 12)).foregroundStyle(Brand.paper.opacity(0.6))
+            }
+        }
+        .fixedSize(horizontal: false, vertical: true)
+    }
+
     /// Show the translation right away? Yes when you're still getting there, or if you asked for it always.
     private static var translationOpen: Bool {
         let level = UserDefaults.standard.string(forKey: Key.level) ?? "B2"
@@ -269,7 +291,15 @@ struct PanelView: View {
             TranslationLine(text: moment.quickTranslation ?? moment.translation, open: Self.translationOpen)
             if Self.explains {
                 Divider().overlay(Color.white.opacity(0.12))
-                if let meant = moment.meant, meant.shown {
+                // One card (block P2, owner 06/10): the hardest word, then "in practice", the point in plain
+                // words. A second word only one touch away; "maybe they meant" only where there's no such line.
+                if let piece = moment.pieces.first { pieceView(piece) }
+                if let practice = moment.inPractice?.trimmingCharacters(in: .whitespacesAndNewlines), !practice.isEmpty {
+                    Text("In practice: \(practice)")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(Brand.paper)
+                        .fixedSize(horizontal: false, vertical: true)
+                } else if let meant = moment.meant, meant.shown {
                     VStack(alignment: .leading, spacing: 3) {
                         HStack(alignment: .firstTextBaseline, spacing: 6) {
                             Image(systemName: "sparkles").font(.system(size: 11))
@@ -283,23 +313,15 @@ struct PanelView: View {
                     .fixedSize(horizontal: false, vertical: true)
                     .help(meant.evidence)
                 }
-                ForEach(Array(moment.pieces.prefix(2).enumerated()), id: \.offset) { _, piece in
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack(alignment: .firstTextBaseline) {
-                            Text(piece.text).font(.system(size: 18, weight: .semibold)).foregroundStyle(Brand.paper)
-                            Spacer(minLength: 8)
-                            Text(piece.guess == true ? String(localized: "Maybe this one?") : piece.causeLabel)
-                                .font(.system(size: 11)).foregroundStyle(Brand.paper.opacity(0.5))
+                if moment.pieces.count > 1 {
+                    if moreWords {
+                        pieceView(moment.pieces[1])
+                    } else {
+                        Button { moreWords = true } label: {
+                            Text("Also: \(moment.pieces[1].text)").font(.system(size: 12)).foregroundStyle(Brand.paper.opacity(0.6))
                         }
-                        Text(piece.gloss.map { "\($0) · \(piece.meaning)" } ?? piece.meaning).font(.system(size: 14))
-                        if let subtext = piece.subtext, !subtext.isEmpty {
-                            Text("Really means: \(subtext)").font(.system(size: 13, weight: .medium)).foregroundStyle(Brand.paper.opacity(0.9))
-                        }
-                        if !piece.note.isEmpty {
-                            Text(piece.note).font(.system(size: 12)).foregroundStyle(Brand.paper.opacity(0.6))
-                        }
+                        .buttonStyle(.plain)
                     }
-                    .fixedSize(horizontal: false, vertical: true)
                 }
                 if moment.pieces.isEmpty, moment.offline == true {
                     Text("Saved. The explanation will be waiting for you tonight.")
