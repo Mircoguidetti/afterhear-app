@@ -1,0 +1,65 @@
+name: Comprehension bench
+
+# Block P1 (docs/PIANO.md): when you tap because you got lost, does the card tell you what you
+# missed? Real earnings calls (Earnings-21, CC BY-SA 4.0), the app's path in a call: Parakeet,
+# Conversation.swift, Ranking.swift, Redactor.swift, then the real /api/explain and /api/judgecard.
+# The server calls cost credits: launched by hand only, with the owner's go (owner, 06/10).
+# Secret: ASAID_TESTER_CODE.
+
+on:
+  workflow_dispatch:
+    inputs:
+      sample:
+        description: "Cases per kind (0 = all 229). A small run first, to measure the cost."
+        type: string
+        default: "5"
+      max_calls:
+        description: "Hard cap on calls to the server (Gemini): the bench stops there."
+        type: string
+        default: "20"
+
+permissions:
+  contents: read
+
+jobs:
+  comprehension:
+    runs-on: macos-14
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install --quiet sherpa-onnx numpy && brew install ffmpeg
+      - uses: actions/cache@v4
+        with:
+          path: |
+            bench/out/comprehend/calls
+            bench/out/models
+          key: comprehension-${{ hashFiles('bench/comprehension/cases.json') }}
+      - name: The calls the cases need
+        run: python3 bench/comprehend.py audio
+      - name: The clip before every tap, through Parakeet
+        env:
+          COMPREHEND_SAMPLE: ${{ inputs.sample }}
+        run: python3 bench/comprehend.py hear
+      - name: The app's choosing and redacting, compiled
+        run: |
+          swiftc -O macapp/LEXALIE/Ranking.swift macapp/LEXALIE/Conversation.swift macapp/LEXALIE/Redactor.swift \
+            bench/comprehend/main.swift -o comprehend
+      - name: Cards, through the real server
+        env:
+          ASAID_TESTER_CODE: ${{ secrets.ASAID_TESTER_CODE }}
+          COMPREHEND_SAMPLE: ${{ inputs.sample }}
+          COMPREHEND_MAX_CALLS: ${{ inputs.max_calls }}
+        run: python3 bench/comprehend.py cards
+      - run: python3 bench/comprehend.py report
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: comprehension
+          path: |
+            bench/out/comprehend/rows.json
+            bench/out/comprehend/summary.json
+            bench/out/comprehend/heard.json
+            bench/out/comprehend/taps.json
