@@ -16,10 +16,13 @@ references are written by hand in bench/comprehension/picks.py.
 
 Marks: 2 = the first card answers it; 1 = one touch away (the card answers it in part, or tapping
 the word, or the second sentence offered, does); 0 = not there.
-- heard: the first sentence offered is the one said (2), the second one is (1).
-- asked: the card says the question was for you and what it was (/api/judgecard "asked"); with a
-  listener who wasn't named (control) and with a name only mentioned, it must not say so.
-- word, who, meant: /api/judgecard against the reference, for an Italian listener (B2) and a native.
+- heard: the first sentence offered is the one said (2), the second one is (1). No server call.
+- asked: the card says the question was for you and what it was; for a listener who wasn't named
+  (the same card: no name goes to the server) and for a name only mentioned, it must not say so.
+- word, who, meant: the card against the reference, for an Italian listener (B2).
+The cards come from the real server (Gemini: it costs, so only with the owner's go, and never more
+than COMPREHEND_MAX_CALLS calls); the marks are given afterwards by hand in marks.json, no paid judge.
+COMPREHEND_SAMPLE=n takes n cases per kind (a small run, to measure the cost first).
 """
 import concurrent.futures
 import difflib
@@ -29,7 +32,9 @@ import os
 import re
 import subprocess
 import sys
+import threading
 import time
+import urllib.error
 import urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -204,7 +209,7 @@ def recogniser():
 def hear():
     """The last 190 s before every tap (and 1 s after), through Parakeet: what the app would have."""
     rec = recogniser()
-    listed = json.load(open(CASES))
+    listed = sample(json.load(open(CASES)))
     calls, heard = {}, {}
     for c in listed:
         if c['file'] not in calls:
@@ -219,23 +224,39 @@ def hear():
 
 # ---------------------------------------------------------------- cards (runner, server)
 
+# Spending (owner, 06/10): every call to the server is counted, and the bench stops at the cap.
+MAX_CALLS = int(os.environ.get('COMPREHEND_MAX_CALLS', '300'))
+SAMPLE = int(os.environ.get('COMPREHEND_SAMPLE', '0'))  # cases per kind, 0 = all
+_calls = {'n': 0}
+_lock = threading.Lock()
+
+
 def post(path, body):
+    with _lock:
+        if _calls['n'] >= MAX_CALLS:
+            return {'error': f'cap: {MAX_CALLS} calls reached, not sent'}
+        _calls['n'] += 1
     code = os.environ.get('ASAID_TESTER_CODE')
     req = urllib.request.Request(SERVER + path, method='POST', data=json.dumps(body).encode(),
                                  headers={'content-type': 'application/json', 'x-lexalie-code': code or ''})
-    for attempt in range(3):
+    error = ''
+    for attempt in range(2):
         try:
             return json.loads(urllib.request.urlopen(req, timeout=90).read())
+        except urllib.error.HTTPError as e:
+            error = f'HTTP {e.code}: {e.read()[:200]!r}'
+            if e.code < 500:
+                break  # a refusal is not worth a second (paid) try
         except Exception as e:
             error = str(e)[:200]
-            time.sleep(3 * (attempt + 1))
+        time.sleep(3)
     return {'error': error}
 
 
-def explain(offered, listener, focus=''):
-    """The body AppModel.captureMoment sends for a tap in a call (known/struggling: a new user). No name
-    ever goes: the Mac marks you as [tu] and puts names back on the card itself (block P3)."""
-    p = picks.LISTENERS[listener]
+def explain(offered, focus=''):
+    """The body AppModel.captureMoment sends for a tap in a call, for an Italian listener (B2) and a new
+    user. No name ever goes: the Mac marks you as [tu] and puts names back on the card itself (P3)."""
+    p = picks.LISTENERS['it-B2']
     return post('/api/explain', {'text': offered['sent'], 'heard': 'en-US', 'native': p['native'], 'level': p['level'],
                                  'known': [], 'struggling': [], 'watch': [], 'profile': '', 'source': '', 'overlap': False,
                                  'provider': 'gemini', 'focus': focus, 'tone': '', 'before': offered['before'],
@@ -245,16 +266,9 @@ def explain(offered, listener, focus=''):
 def card(body, offered):
     """What the panel shows: the sentence, then what came back."""
     if not isinstance(body, dict) or 'error' in body:
-        return None
+        return {'error': (body or {}).get('error', 'no answer') if isinstance(body, dict) else 'no answer'}
     keep = {k: body.get(k) for k in ('translation', 'intent', 'pieces', 'meant', 'for_you', 'asked', 'who', 'in_practice') if k in body}
     return {'sentence': offered['text'], **keep}
-
-
-def judge(kind, c, listener_label, shown):
-    if shown is None:
-        return {'answered': 'error'}
-    return post('/api/judgecard', {'kind': kind, 'sentence': c['sentence'][:2000], 'target': (c.get('target') or c.get('name', ''))[:300],
-                                   'reference': c['reference'][:1000], 'listener': listener_label[:200], 'card': shown})
 
 
 def same(offered, c, clip_start):
@@ -268,57 +282,55 @@ def contains(text, target):
     return bool(t) and sum(w in h for w in t) >= max(1, round(0.6 * len(t)))
 
 
-def mark_case(c, offered, clip_start, listener):
-    """One case, one listener: the mark and why, with what was shown."""
-    row = {'id': c['id'], 'kind': c['kind'], 'listener': listener, 'sentence': c['sentence'],
-           'offered': offered[0]['text'] if offered else ''}
+def explained(shown, target):
+    """The card already has a piece about the target: no need to ask for the touch card."""
+    return any(contains(' '.join(str(p.get(k, '')) for k in ('text', 'heard_as')), target) for p in (shown.get('pieces') or []))
+
+
+def card_case(c, offered, clip_start):
+    """One case: the sentence offered and the card for it. The marks are given afterwards, by hand,
+    against the reference (bench/out/comprehend/marks.json): no paid judge."""
+    row = {'id': c['id'], 'kind': c['kind'], 'sentence': c['sentence'], 'offered': offered[0]['text'] if offered else ''}
     right = [same(o, c, clip_start) for o in offered]
     row['first_right'] = bool(right) and right[0]
     if c['kind'] == 'heard':
         row['mark'] = 2 if right[:1] == [True] else 1 if True in right[1:2] else 0
         return row
+    for k in ('target', 'name', 'reference'):
+        if k in c:
+            row[k] = c[k]
     if not offered:
-        row['mark'] = 0
         return row
-    if c['kind'] in ('asked', 'named'):
-        name = c['name']
-        shown = card(explain(offered[0], 'it-B2'), offered[0])
-        verdict = judge('asked', c, f"{picks.LISTENERS['it-B2']['label']}, named {name}", shown)
-        row.update(listener=listener, name=name, card=shown, judge=verdict)
-        said = verdict.get('answered')
-        if listener == 'control' or c['kind'] == 'named':
-            row['false_alarm'] = said in ('yes', 'partly')
-            row['mark'] = 0 if row['false_alarm'] else 2
-        else:
-            row['mark'] = 2 if said == 'yes' else 1 if said == 'partly' else 0
+    # One card, the same for the one named and for a listener who isn't (no name goes to the server).
+    row['card'] = card(explain(offered[0]), offered[0])
+    if c['kind'] in ('asked', 'named') or 'error' in row['card']:
         return row
-    label = picks.LISTENERS[listener]['label']
-    shown = card(explain(offered[0], listener), offered[0])
-    verdict = judge(c['kind'], c, label, shown)
-    row.update(card=shown, judge=verdict)
-    if verdict.get('answered') == 'yes':
-        row['mark'] = 2
-        return row
-    # One touch: tap the word in the sentence shown, or take the second sentence offered.
-    touch = None
-    if contains(offered[0]['text'], c['target']):
-        touch = ('focus', card(explain(offered[0], listener, focus=c['target'][:120]), offered[0]))
-    elif len(offered) > 1 and contains(offered[1]['text'], c['target']):
-        touch = ('second', card(explain(offered[1], listener), offered[1]))
-    if touch:
-        again = judge(c['kind'], c, label, touch[1])
-        row.update(touch=touch[0], touch_card=touch[1], touch_judge=again)
-        row['mark'] = 1 if again.get('answered') == 'yes' or verdict.get('answered') == 'partly' else 0
-    else:
-        row['mark'] = 1 if verdict.get('answered') == 'partly' else 0
+    # One touch, only when the card didn't take up the word: tap it, or take the second sentence offered.
+    if not explained(row['card'], c['target']):
+        if contains(offered[0]['text'], c['target']):
+            row['touch'] = 'focus'
+            row['touch_card'] = card(explain(offered[0], focus=c['target'][:120]), offered[0])
+        elif len(offered) > 1 and contains(offered[1]['text'], c['target']):
+            row['touch'] = 'second'
+            row['touch_card'] = card(explain(offered[1]), offered[1])
     return row
+
+
+def sample(listed):
+    if not SAMPLE:
+        return listed
+    out = []
+    for kind in NAMES:
+        mine = [c for c in listed if c['kind'] == kind]
+        out += mine[::max(1, len(mine) // SAMPLE)][:SAMPLE]
+    return out
 
 
 def cards():
     if not os.environ.get('ASAID_TESTER_CODE'):
         print('ASAID_TESTER_CODE is not set: the cards need the server.')
         return 1
-    listed = json.load(open(CASES))
+    listed = sample(json.load(open(CASES)))
     heard = json.load(open(os.path.join(OUT, 'heard.json')))
     taps = [{'id': c['id'], 'words': [[str(w[0]), str(w[1]), w[2]] for w in heard[c['id']]['words']],
              'tapAt': c['tap'] - heard[c['id']]['clip_start']} for c in listed if c['id'] in heard]
@@ -326,42 +338,24 @@ def cards():
     json.dump(taps, open(path, 'w'))
     res = subprocess.run([BIN, path], capture_output=True, text=True, check=True)
     offers = {r['id']: r['offered'] for r in map(json.loads, res.stdout.splitlines())}
-    jobs = []
-    for c in listed:
-        if c['id'] not in offers:
-            continue
-        if c['kind'] == 'heard':
-            listeners = ['it-B2']
-        elif c['kind'] == 'asked':
-            listeners = ['named', 'control']
-        elif c['kind'] == 'named':
-            listeners = ['mentioned']
-        else:
-            listeners = list(picks.LISTENERS)
-        for listener in listeners:
-            jobs.append((c, listener))
 
-    def one(job):
-        c, listener = job
-        if listener == 'control':
-            c = dict(c, name=picks.CONTROL_NAME,
-                     reference=f"nobody asks {picks.CONTROL_NAME} anything here (the question is for {c['name']})")
+    def one(c):
         try:
-            return mark_case(c, offers[c['id']], heard[c['id']]['clip_start'], listener)
+            return card_case(c, offers[c['id']], heard[c['id']]['clip_start'])
         except Exception as e:
-            return {'id': c['id'], 'kind': c['kind'], 'listener': listener, 'sentence': c['sentence'], 'offered': '',
-                    'mark': 0, 'error': str(e)[:300]}
+            return {'id': c['id'], 'kind': c['kind'], 'sentence': c['sentence'], 'offered': '', 'error': str(e)[:300]}
 
-    with concurrent.futures.ThreadPoolExecutor(6) as pool:
-        rows = list(pool.map(one, jobs))
+    with concurrent.futures.ThreadPoolExecutor(4) as pool:
+        rows = list(pool.map(one, [c for c in listed if c['id'] in offers]))
     json.dump(rows, open(os.path.join(OUT, 'rows.json'), 'w'), indent=1, ensure_ascii=False)
-    print(len(rows), 'cards marked,', sum('error' in r or (r.get('judge') or {}).get('answered') == 'error' for r in rows), 'errors')
+    errors = [r for r in rows if 'error' in r or 'error' in (r.get('card') or {}) or 'error' in (r.get('touch_card') or {})]
+    print(len(rows), 'cases,', _calls['n'], 'calls to the server (cap', MAX_CALLS, '),', len(errors), 'with an error')
     return 0
 
 
 # ---------------------------------------------------------------- report
 
-NAMES = {'heard': "Didn't hear it: the sentence", 'asked': 'They asked you: "they asked you…"',
+NAMES = {'heard': "Didn't hear it: the sentence", 'asked': 'They asked you: "they asked you…"', 'named': 'Name only mentioned',
          'word': "A word you don't know (foreign or jargon)", 'who': 'Who or what it is', 'meant': 'Got the words, not the meaning'}
 
 
@@ -370,44 +364,59 @@ def pct(a, n):
 
 
 def report():
+    """Marks: heard from the tap; the others from marks.json, given by hand against the reference:
+    {"<id>": "yes" | "partly" | "no", "<id>|touch": …, "<id>|control": …} (asked: "yes" = the card
+    says it was for you; control and named: "yes" = it wrongly says so)."""
     rows = json.load(open(os.path.join(OUT, 'rows.json')))
+    path = os.path.join(OUT, 'marks.json')
+    marks = json.load(open(path)) if os.path.exists(path) else {}
+    calls = sum(k in r and 'error' not in r[k] for r in rows for k in ('card', 'touch_card'))
     lines = ['## Comprehension bench: when you get lost, does the card tell you?', '',
              'Real earnings calls (Earnings-21, CC BY-SA 4.0), the tap 0.5 s after the sentence, the same path as the Mac app in a '
-             'call: the last 190 s through Parakeet, Conversation.swift, Ranking.swift, Redactor.swift, the real /api/explain. '
-             'Mark 2 = the first card answers it, 1 = one touch away, 0 = not there. Score = marks over the most possible.', '',
-             '| Way of getting lost | Listener | Cases | Score | Answered at once | One touch away | Not there | Right sentence first |',
-             '|---|---|---|---|---|---|---|---|']
-    summary = {}
-    groups = {}
-    for r in rows:
-        if r['kind'] in ('named',) or r.get('listener') == 'control':
+             'call: the last 190 s through Parakeet, Conversation.swift, Ranking.swift, Redactor.swift, the real /api/explain, '
+             f'for an Italian listener (B2). {calls} calls to the server. Mark 2 = the first card answers it, 1 = one touch away '
+             '(or the card answers in part), 0 = not there.', '',
+             '| Way of getting lost | Cases | Score | Answered at once | One touch away | Not there | Right sentence first |',
+             '|---|---|---|---|---|---|---|']
+    summary, alarms, pending = {}, [], 0
+    for kind in NAMES:
+        xs = [r for r in rows if r['kind'] == kind]
+        if not xs or kind == 'named':
+            alarms += [marks.get(r['id']) for r in xs]
             continue
-        groups.setdefault((r['kind'], r['listener']), []).append(r)
-    for kind in NAMES:
-        for (k, listener), xs in sorted(groups.items()):
-            if k != kind:
+        got = []
+        for r in xs:
+            if kind == 'heard':
+                got.append(r['mark'])
                 continue
-            n = len(xs)
-            marks = [x.get('mark', 0) for x in xs]
-            score = sum(marks) / (2 * n) if n else 0
-            summary[f'{kind} · {listener}'] = round(100 * score, 1)
-            lines.append(f"| {NAMES[kind]} | {listener} | {n} | **{100 * score:.0f}%** | {pct(marks.count(2), n)} | {pct(marks.count(1), n)} | "
-                         f"{pct(marks.count(0), n)} | {pct(sum(x.get('first_right', False) for x in xs), n)} |")
-    alarms = [r for r in rows if r.get('listener') == 'control' or r['kind'] == 'named']
+            if 'card' not in r or 'error' in r.get('card', {}):
+                got.append(0)
+                continue
+            first, touch = marks.get(r['id']), marks.get(r['id'] + '|touch')
+            if first is None:
+                pending += 1
+                continue
+            got.append(2 if first == 'yes' else 1 if first == 'partly' or touch == 'yes' else 0)
+            if kind == 'asked':
+                alarms.append(marks.get(r['id'] + '|control'))
+        n = len(got)
+        if not n:
+            continue
+        score = sum(got) / (2 * n)
+        summary[kind] = round(100 * score, 1)
+        lines.append(f"| {NAMES[kind]} | {n} | **{100 * score:.0f}%** | {pct(got.count(2), n)} | {pct(got.count(1), n)} | "
+                     f"{pct(got.count(0), n)} | {pct(sum(x.get('first_right', False) for x in xs), n)} |")
+    alarms = [a for a in alarms if a is not None]
     if alarms:
-        wrong = sum(r.get('false_alarm', False) for r in alarms)
-        summary['asked · false alarms'] = round(100 * wrong / len(alarms), 1)
-        lines += ['', f"Said \"they asked you\" when nobody had: {pct(wrong, len(alarms))} ({wrong}/{len(alarms)}: "
-                  f"the same questions for a listener who wasn't named, and names only mentioned)."]
-    errors = [r for r in rows if 'error' in r or (r.get('judge') or {}).get('error')]
+        wrong = sum(a in ('yes', 'partly') for a in alarms)
+        summary['false alarms'] = round(100 * wrong / len(alarms), 1)
+        lines += ['', f'Said "they asked you" when nobody had: {pct(wrong, len(alarms))} ({wrong}/{len(alarms)}).']
+    if pending:
+        lines += ['', f'{pending} cards still to be marked by hand (bench/out/comprehend/marks.json).']
+    errors = [r for r in rows if 'error' in r or 'error' in (r.get('card') or {})]
     if errors:
-        lines += ['', f'{len(errors)} cases had a server error (counted as 0): `{(errors[0].get("error") or errors[0]["judge"].get("error", ""))[:200]}`']
-    lines += ['', '### Some misses', '']
-    for kind in NAMES:
-        miss = [r for r in rows if r['kind'] == kind and r.get('mark') == 0 and r.get('listener') != 'control'][:4]
-        for r in miss:
-            why = (r.get('judge') or {}).get('why', '') if kind != 'heard' else f"offered “{r['offered'][:100]}”"
-            lines.append(f"- {kind}/{r['listener']}: “{r['sentence'][:110]}” — {why[:200]}")
+        e = errors[0].get('error') or errors[0]['card']['error']
+        lines += ['', f'{len(errors)} cases had no card (counted as 0): `{e[:200]}`']
     tap.run.summary('\n'.join(lines))
     json.dump(summary, open(os.path.join(OUT, 'summary.json'), 'w'), indent=1)
     return 0

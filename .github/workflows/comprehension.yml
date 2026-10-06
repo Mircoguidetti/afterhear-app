@@ -8,6 +8,15 @@ name: Comprehension bench
 
 on:
   workflow_dispatch:
+    inputs:
+      sample:
+        description: "Cases per kind (0 = all 229). A small run first, to measure the cost."
+        type: string
+        default: "5"
+      max_calls:
+        description: "Hard cap on calls to the server (Gemini): the bench stops there."
+        type: string
+        default: "20"
 
 permissions:
   contents: read
@@ -31,6 +40,8 @@ jobs:
       - name: The calls the cases need
         run: python3 bench/comprehend.py audio
       - name: The clip before every tap, through Parakeet
+        env:
+          COMPREHEND_SAMPLE: ${{ inputs.sample }}
         run: python3 bench/comprehend.py hear
       - name: The app's choosing and redacting, compiled
         run: |
@@ -39,6 +50,8 @@ jobs:
       - name: Cards, through the real server
         env:
           ASAID_TESTER_CODE: ${{ secrets.ASAID_TESTER_CODE }}
+          COMPREHEND_SAMPLE: ${{ inputs.sample }}
+          COMPREHEND_MAX_CALLS: ${{ inputs.max_calls }}
         run: python3 bench/comprehend.py cards
       - run: python3 bench/comprehend.py report
       - uses: actions/upload-artifact@v4
@@ -49,3 +62,4 @@ jobs:
             bench/out/comprehend/rows.json
             bench/out/comprehend/summary.json
             bench/out/comprehend/heard.json
+            bench/out/comprehend/taps.json
