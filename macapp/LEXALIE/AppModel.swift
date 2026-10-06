@@ -122,6 +122,7 @@ final class AppModel: ObservableObject {
             Task { @MainActor in
                 if AppModel.shared.state == .listening { AppModel.shared.store.addListening(seconds: 30) }
                 await AppModel.shared.resumeIfDue()
+                await Evening.check()
             }
         }
         let ring = audio.ring

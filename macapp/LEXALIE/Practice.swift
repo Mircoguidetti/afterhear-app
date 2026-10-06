@@ -1,7 +1,8 @@
 import SwiftUI
 
 /// Evening practice around one moment (docs/BRAIN.md § 5.6, § 5.8, § 4.5):
-/// the enriched lesson, dictation with the real voice, and saying it yourself.
+/// the enriched lesson and dictation with the real voice. No "say it yourself": LEXALIE is about
+/// what you hear (owner, 06/10 night).
 enum LessonClient {
     struct Lesson: Codable, Hashable {
         struct Example: Codable, Hashable { let sentence: String; let translation: String }
@@ -37,8 +38,6 @@ struct PracticeView: View {
     @State private var error: String?
     @State private var typed = ""
     @State private var checked = false
-    @State private var said: String?
-    @State private var listening = false
 
     init(moment: Moment) {
         self.moment = moment
@@ -55,17 +54,6 @@ struct PracticeView: View {
                     Button("Check") { checked = true }.disabled(typed.isEmpty)
                 }
                 if checked { Text(Self.compare(typed, with: moment.transcript)).font(.callout) }
-            }
-            // Shadowing: say it after them; your Mac's own recogniser listens.
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Say it yourself").font(.caption.weight(.semibold)).foregroundStyle(.secondary)
-                HStack {
-                    Button(listening ? String(localized: "Listening…") : String(localized: "Say it")) { Task { await shadow() } }.disabled(listening)
-                    if let said {
-                        let score = Self.overlap(said, moment.transcript)
-                        Text("\(Int(score * 100))% of the words · “\(said)”").font(.callout).foregroundStyle(score > 0.7 ? Brand.accent : .secondary).lineLimit(2)
-                    }
-                }
             }
             // The enriched lesson.
             if lessons.isEmpty {
@@ -92,16 +80,6 @@ struct PracticeView: View {
         loading = true
         defer { loading = false }
         do { lessons = try await LessonClient.lessons(for: moment.pieces) } catch { self.error = error.localizedDescription }
-    }
-
-    /// Plays the line, then listens to you for a few seconds with the microphone already on.
-    private func shadow() async {
-        guard AppModel.shared.voiceIsOn else { said = String(localized: "Turn on “Also listen to my voice” in Settings."); return }
-        listening = true
-        AppModel.shared.play(moment, slow: false)
-        try? await Task.sleep(nanoseconds: UInt64((Double(moment.transcript.split(separator: " ").count) * 0.45 + 5) * 1_000_000_000))
-        said = AppModel.shared.myRecentWords(seconds: 7)
-        listening = false
     }
 
     static func words(_ s: String) -> [String] {

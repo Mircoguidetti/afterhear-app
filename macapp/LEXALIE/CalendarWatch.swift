@@ -341,6 +341,10 @@ final class CalendarWatch: NSObject, ObservableObject, UNUserNotificationCenterD
                 CallGuard.shared.markTold()
             } else if kind == "quiz" {
                 ModelWatch.shared.openQuiz(since: Date(timeIntervalSince1970: (since ?? 0) - 1))
+            } else if kind == "evening" {
+                Evening.open()
+            } else if kind == "sunday" {
+                Podcast.shared.open()
             } else if kind == "report", let id {
                 CallCoach.shared.openReport(id)
             } else if let id, let call = CalendarWatch.shared.calls.first(where: { $0.id == id }) {

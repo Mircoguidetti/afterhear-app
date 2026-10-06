@@ -57,6 +57,12 @@ struct SettingsView: View {
             Section("When you ask for help (\(DoubleTapOption.nowLabel))") {
                 Toggle("Pause the video while I read", isOn: $pauseVideo)
             }
+            // One evening moment (block SERA): at this hour, only on a day with moments; Sunday, the week.
+            Section("Tonight") {
+                Picker("Tonight's moment at", selection: Binding(get: { Evening.hour }, set: { UserDefaults.standard.set($0, forKey: Evening.hourKey) })) {
+                    ForEach(17..<24, id: \.self) { Text(verbatim: "\($0):00").tag($0) }
+                }
+            }
             Section("Gestures") {
                 Text("\(DoubleTapOption.label): mark it for tonight. \(DoubleTapOption.nowLabel): help me now.")
                     .font(.callout).foregroundStyle(.secondary)

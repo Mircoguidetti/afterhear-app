@@ -540,6 +540,17 @@ final class Store: ObservableObject {
             let created = (try? file.resourceValues(forKeys: [.creationDateKey]))?.creationDate ?? .distantPast
             if created < limit { try? FileManager.default.removeItem(at: file) }
         }
+        // The conversation around a tap goes too (owner, 06/10 night): after a week only the sentence
+        // stays, with what was explained. Nothing else of what you heard is kept.
+        var changed = false
+        for i in moments.indices where moments[i].date < limit && moments[i].turns != nil {
+            moments[i].turns = nil
+            moments[i].chosen = nil
+            moments[i].alternative = nil
+            moments[i].others = nil
+            changed = true
+        }
+        if changed { save() }
     }
 
     /// Percentages per cause, to paste into the plan.

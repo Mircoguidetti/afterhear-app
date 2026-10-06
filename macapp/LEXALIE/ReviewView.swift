@@ -184,6 +184,7 @@ struct ReviewView: View {
             } else {
                 Text("\(knownCount) you know · \(againCount) back tomorrow").font(.title3)
             }
+            RefrainLine()
             weeks
             Spacer()
             Button("Start again") { load() }.disabled(only == nil && store.reviewQueue.isEmpty)
