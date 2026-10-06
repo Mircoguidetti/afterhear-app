@@ -16,7 +16,6 @@ enum ServerAccess {
 enum ExplainClient {
     private struct Body: Encodable {
         let text: String
-        let audio: String?
         let heard: String
         let native: String
         let level: String
@@ -37,7 +36,7 @@ enum ExplainClient {
         let error: String?
     }
 
-    static func explain(_ text: String, audio: Data? = nil, settings: AppSettings, known: [String],
+    static func explain(_ text: String, settings: AppSettings, known: [String],
                         struggling: [String] = [], watch: [String] = [], profile: String = "",
                         source: String = "", overlap: Bool = false, focus: String = "", tone: String = "",
                         before: [String] = [], after: [String] = []) async throws -> Explanation {
@@ -52,7 +51,6 @@ enum ExplainClient {
         try await ServerAccess.authorize(&request, settings: settings)
         request.httpBody = try JSONEncoder().encode(Body(
             text: text,
-            audio: audio?.base64EncodedString(),
             heard: settings.heard.rawValue,
             native: settings.native.rawValue,
             level: settings.level,

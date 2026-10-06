@@ -70,25 +70,15 @@ enum NativeLanguage: String, CaseIterable, Identifiable {
     }
 }
 
-/// Who turns the last seconds into text.
-enum Transcription: String, CaseIterable, Identifiable {
-    case mac, gemini
-    var id: String { rawValue }
-    var label: String {
-        self == .mac ? String(localized: "On the Mac (private)") : String(localized: "Gemini listens to the audio (more accurate, the voice leaves the Mac)")
-    }
-}
-
 /// What appears during the conversation.
 enum HelpMode: String, CaseIterable, Identifiable {
     case silent, glance, full, pause
     var id: String { rawValue }
 }
 
-enum Provider: String, CaseIterable, Identifiable {
-    case claude, gemini
-    var id: String { rawValue }
-    var label: String { self == .claude ? "Claude" : "Gemini" }
+/// The only AI is Gemini, through our server (owner, 06/10).
+enum Provider: String {
+    case gemini
 }
 
 /// Keys shared by `@AppStorage` in the views and `AppSettings.current` in the model.
@@ -101,7 +91,6 @@ enum Key {
     static let provider = "provider"
     static let seconds = "seconds"
     static let onDeviceOnly = "onDeviceOnly"
-    static let transcription = "transcription"
     static let mode = "helpMode"
     static let sorry = "sorryDetection"
     static let doubleTap = "doubleTapOption"
@@ -115,20 +104,13 @@ enum Key {
     static let callsTextOnly = "callsTextOnly"
     static let myName = "myFirstName"
     static let askedMe = "showQuestionsToMe"
-    static let opener = "suggestOpener"
     /// Gone (§ 19.26: voices never leave the devices); kept only to switch it off for old installs.
     static let syncAudio = "syncAudio"
-    /// "Help me now": also the explanation (default), or only the subtitle and its translation.
-    static let nowExplain = "nowExplain"
-    /// Show the translation under the sentence even at B2/C1 (A2/B1 always see it).
-    static let translationAlways = "translationAlways"
     /// The first-run setup is done.
     static let onboarded = "onboardedV2"
     static let dictionary = "myDictionary"
     static let useModel = "useYourModel"
     static let modelHints = "modelHints"
-    /// Suggestions on or off, per kind of call (a title without numbers and dates).
-    static let callHints = "callHintsByTitle"
     /// "Tell me before calls": all, hard, never (§ 19.15).
     static let callNotice = "callNotice"
     /// "Now" in a video pauses it (default); off: the video keeps playing under the explanation.
@@ -154,7 +136,6 @@ struct AppSettings {
     var provider: Provider
     var seconds: Double
     var onDeviceOnly: Bool
-    var transcription: Transcription
     var mode: HelpMode
     var sorry: Bool
     var doubleTap: Bool
@@ -171,11 +152,8 @@ struct AppSettings {
             Key.native: NativeLanguage.system.rawValue,
             Key.level: "B2",
             Key.provider: Provider.gemini.rawValue,
-            Key.nowExplain: true,
-            Key.translationAlways: false,
             Key.seconds: 8.0,
             Key.onDeviceOnly: true,
-            Key.transcription: Transcription.mac.rawValue,
             Key.mode: HelpMode.silent.rawValue,
             Key.pauseVideo: true,
             Key.pauseTap: true,
@@ -204,7 +182,6 @@ struct AppSettings {
             provider: .gemini,
             seconds: d.double(forKey: Key.seconds),
             onDeviceOnly: d.bool(forKey: Key.onDeviceOnly),
-            transcription: Transcription(rawValue: d.string(forKey: Key.transcription) ?? "") ?? .mac,
             mode: HelpMode(rawValue: d.string(forKey: Key.mode) ?? "") ?? .glance,
             sorry: d.bool(forKey: Key.sorry),
             doubleTap: d.bool(forKey: Key.doubleTap)
@@ -215,7 +192,6 @@ struct AppSettings {
 extension AppSettings {
     /// What "help me now" does here. Always the whole explanation, never a quick line (owner, 05/10):
     /// in a video it pauses it while you read (or not); in a call it stays until you close it.
-    /// With or without the explanation is "Show" in Settings (Key.nowExplain).
     static func nowMode(for context: AppContext) -> HelpMode {
         switch context {
         case .video: UserDefaults.standard.bool(forKey: Key.pauseVideo) ? .pause : .full

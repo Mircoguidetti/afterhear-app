@@ -113,13 +113,6 @@ final class Memory: ObservableObject {
         Sync.shared.schedule(after: 5)
     }
 
-    /// Your own speaking, from the call report: the better way to say it, and what to avoid.
-    func recordSpeaking(text: String, avoid: String?, meaning: String) {
-        queue += [Signal(kind: "tap", text: String(text.prefix(200)), meaning: String(meaning.prefix(1000)), cause: "speaking",
-                         at: ISO8601DateFormatter().string(from: Date()), context: "call", avoid: avoid.map { String($0.prefix(200)) })]
-        Sync.shared.schedule(after: 5)
-    }
-
     /// What you said lately: did you use the better phrase, or slip back to the old one? (§ 4.4, § 12.7)
     func scanMine(_ recent: String) {
         let hay = " " + Self.key(recent) + " "

@@ -184,7 +184,6 @@ struct ReviewView: View {
             } else {
                 Text("\(knownCount) you know · \(againCount) back tomorrow").font(.title3)
             }
-            AccentQuestion(names: queue.compactMap(\.with))
             weeks
             Spacer()
             Button("Start again") { load() }.disabled(only == nil && store.reviewQueue.isEmpty)
@@ -207,55 +206,6 @@ struct ReviewView: View {
                             .frame(width: 44, height: max(4, 90 * rates[i] / top))
                         Text(row.label).font(.caption2).foregroundStyle(.secondary)
                     }
-                }
-            }
-        }
-    }
-}
-
-/// "What accent does Sarah have?", asked once per person whose accent is missing (F2): the accent
-/// comes from you, never from their voice.
-private struct AccentQuestion: View {
-    let names: [String]
-    @EnvironmentObject private var store: Store
-    @AppStorage("accentAsked") private var askedRaw = ""
-
-    private var asked: Set<String> { Set(askedRaw.split(separator: "\n").map(String.init)) }
-
-    private var name: String? {
-        var seen = Set<String>()
-        return names.first { name in
-            guard seen.insert(name).inserted, !asked.contains(name) else { return false }
-            let accent = store.accent(of: name)
-            return accent == nil || Person.english(accent ?? "") == "Other / not sure"
-        }
-    }
-
-    var body: some View {
-        if let name {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("What accent does \(name) have?").font(.headline)
-                FlowButtons(name: name, choose: { accent in
-                    store.upsertPerson(Person(name: name, accent: accent))
-                    remember(name)
-                })
-                Button("I don't know") { remember(name) }.buttonStyle(.link).font(.caption)
-            }
-        }
-    }
-
-    private func remember(_ name: String) {
-        askedRaw = (asked.union([name])).sorted().joined(separator: "\n")
-    }
-
-    private struct FlowButtons: View {
-        let name: String
-        let choose: (String) -> Void
-        var body: some View {
-            let accents = Person.accents.filter { $0 != "Other / not sure" }
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 110), alignment: .leading)], alignment: .leading, spacing: 6) {
-                ForEach(accents, id: \.self) { accent in
-                    Button(Person.label(accent)) { choose(accent) }.controlSize(.small)
                 }
             }
         }

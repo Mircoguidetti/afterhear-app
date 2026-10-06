@@ -87,7 +87,6 @@ final class CalendarWatch: NSObject, ObservableObject, UNUserNotificationCenterD
         }
         GoogleCalendar.shared.start()
         _ = try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound])
-        CallNotice.registerCategory()
         refresh()
         timer?.invalidate()
         timer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { _ in
@@ -270,19 +269,17 @@ final class CalendarWatch: NSObject, ObservableObject, UNUserNotificationCenterD
         }
     }
 
-    /// The notice 15 minutes before (§ 19.15): last time with these people, and this call's mode,
-    /// already chosen; the buttons change it with one tap, and it's remembered.
+    /// The notice 15 minutes before (§ 19.15): last time with these people. In the call nothing
+    /// shows up by itself: you tap when you need it (owner, 06/10).
     private func scheduleNotice(_ call: Call, now: Date, keep: inout Set<String>) {
         let notice = CallNotice.current
         guard notice != .never, notice == .all || CallHistory.isHard(call) else { return }
         let at = call.start.addingTimeInterval(-CallNotice.minutes * 60)
         guard at > now else { return }
-        let mode = CallModes.mode(for: call)
+        guard let recap = CallHistory.last(like: call, before: call.start).map(CallHistory.recap) else { return }
         let content = UNMutableNotificationContent()
-        content.title = String(localized: "\(call.who) at \(call.start.formatted(date: .omitted, time: .shortened)) · \(mode.label)")
-        let recap = CallHistory.last(like: call, before: call.start).map(CallHistory.recap)
-        content.body = (recap.map { $0 + " " } ?? "") + mode.detail + " " + String(localized: "Change it below.")
-        content.categoryIdentifier = CallNotice.category
+        content.title = String(localized: "\(call.who) at \(call.start.formatted(date: .omitted, time: .shortened))")
+        content.body = recap
         content.userInfo = ["kind": "notice", "call": call.id]
         let id = "notice-\(call.id)"
         keep.insert(id)
@@ -342,8 +339,6 @@ final class CalendarWatch: NSObject, ObservableObject, UNUserNotificationCenterD
                 await GoogleCalendar.shared.addNotice(to: event)
             } else if action == "participants.told" {
                 CallGuard.shared.markTold()
-            } else if action.hasPrefix("mode."), let mode = CallMode(rawValue: String(action.dropFirst(5))) {
-                CallModes.set(mode, for: CalendarWatch.shared.calls.first { $0.id == id })
             } else if kind == "quiz" {
                 ModelWatch.shared.openQuiz(since: Date(timeIntervalSince1970: (since ?? 0) - 1))
             } else if kind == "report", let id {
@@ -446,7 +441,6 @@ struct PrepView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
-            YourselfCard(people: call.people)
             Divider()
             PrepCard(call: call)
             Spacer(minLength: 0)

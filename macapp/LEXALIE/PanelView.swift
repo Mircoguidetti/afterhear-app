@@ -256,15 +256,10 @@ struct PanelView: View {
         .fixedSize(horizontal: false, vertical: true)
     }
 
-    /// Show the translation right away? Yes when you're still getting there, or if you asked for it always.
+    /// Show the translation right away? Only while you're still getting there (A2/B1); otherwise it's a
+    /// reserve, one click away: the card is the explanation (owner, 06/10).
     private static var translationOpen: Bool {
-        let level = UserDefaults.standard.string(forKey: Key.level) ?? "B2"
-        return ["A2", "B1"].contains(level) || UserDefaults.standard.bool(forKey: Key.translationAlways)
-    }
-
-    /// Only the sentence and its translation, when you chose so in Settings.
-    private static var explains: Bool {
-        UserDefaults.standard.object(forKey: Key.nowExplain) == nil || UserDefaults.standard.bool(forKey: Key.nowExplain)
+        ["A2", "B1"].contains(UserDefaults.standard.string(forKey: Key.level) ?? "B2")
     }
 
     /// One look, one order (owner, 02/10): the sentence as a subtitle, its translation under it, then
@@ -289,51 +284,49 @@ struct PanelView: View {
             }
             ClickableSentence(moment: moment)
             TranslationLine(text: moment.quickTranslation ?? moment.translation, open: Self.translationOpen)
-            if Self.explains {
-                Divider().overlay(Color.white.opacity(0.12))
-                // One card (block P2, owner 06/10): the hardest word, then "in practice", the point in plain
-                // words. A second word only one touch away; "maybe they meant" only where there's no such line.
-                if let piece = moment.pieces.first { pieceView(piece) }
-                if let practice = moment.inPractice?.trimmingCharacters(in: .whitespacesAndNewlines), !practice.isEmpty {
-                    Text("In practice: \(practice)")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(Brand.paper)
-                        .fixedSize(horizontal: false, vertical: true)
-                } else if let meant = moment.meant, meant.shown {
-                    VStack(alignment: .leading, spacing: 3) {
-                        HStack(alignment: .firstTextBaseline, spacing: 6) {
-                            Image(systemName: "sparkles").font(.system(size: 11))
-                            Text("Maybe they meant: \(meant.text)").font(.system(size: 14, weight: .semibold))
-                        }
-                        .foregroundStyle(Brand.accent)
-                        if !meant.alternative.isEmpty {
-                            Text("Or: \(meant.alternative)").font(.system(size: 12)).foregroundStyle(Brand.paper.opacity(0.55))
-                        }
-                    }
+            Divider().overlay(Color.white.opacity(0.12))
+            // One card (block P2, owner 06/10): the hardest word, then "in practice", the point in plain
+            // words. A second word only one touch away; "maybe they meant" only where there's no such line.
+            if let piece = moment.pieces.first { pieceView(piece) }
+            if let practice = moment.inPractice?.trimmingCharacters(in: .whitespacesAndNewlines), !practice.isEmpty {
+                Text("In practice: \(practice)")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(Brand.paper)
                     .fixedSize(horizontal: false, vertical: true)
-                    .help(meant.evidence)
-                }
-                if moment.pieces.count > 1 {
-                    if moreWords {
-                        pieceView(moment.pieces[1])
-                    } else {
-                        Button { moreWords = true } label: {
-                            Text("Also: \(moment.pieces[1].text)").font(.system(size: 12)).foregroundStyle(Brand.paper.opacity(0.6))
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-                if moment.pieces.isEmpty, moment.offline == true {
-                    Text("Saved. The explanation will be waiting for you tonight.")
-                        .font(.system(size: 12)).foregroundStyle(Brand.paper.opacity(0.6))
-                } else if moment.offline == true {
+            } else if let meant = moment.meant, meant.shown {
+                VStack(alignment: .leading, spacing: 3) {
                     HStack(alignment: .firstTextBaseline, spacing: 6) {
-                        Image(systemName: "airplane").font(.system(size: 11))
-                        Text("Quick explanation from this Mac. The full one comes as soon as our server answers.").font(.system(size: 12))
+                        Image(systemName: "sparkles").font(.system(size: 11))
+                        Text("Maybe they meant: \(meant.text)").font(.system(size: 14, weight: .semibold))
                     }
-                    .foregroundStyle(Brand.paper.opacity(0.55))
-                    .fixedSize(horizontal: false, vertical: true)
+                    .foregroundStyle(Brand.accent)
+                    if !meant.alternative.isEmpty {
+                        Text("Or: \(meant.alternative)").font(.system(size: 12)).foregroundStyle(Brand.paper.opacity(0.55))
+                    }
                 }
+                .fixedSize(horizontal: false, vertical: true)
+                .help(meant.evidence)
+            }
+            if moment.pieces.count > 1 {
+                if moreWords {
+                    pieceView(moment.pieces[1])
+                } else {
+                    Button { moreWords = true } label: {
+                        Text("Also: \(moment.pieces[1].text)").font(.system(size: 12)).foregroundStyle(Brand.paper.opacity(0.6))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            if moment.pieces.isEmpty, moment.offline == true {
+                Text("Saved. The explanation will be waiting for you tonight.")
+                    .font(.system(size: 12)).foregroundStyle(Brand.paper.opacity(0.6))
+            } else if moment.offline == true {
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    Image(systemName: "airplane").font(.system(size: 11))
+                    Text("Quick explanation from this Mac. The full one comes as soon as our server answers.").font(.system(size: 12))
+                }
+                .foregroundStyle(Brand.paper.opacity(0.55))
+                .fixedSize(horizontal: false, vertical: true)
             }
             // Not this one? The others it could be, one touch away; ‹ › go further (owner, 05/10).
             if let turns = moment.turns {
@@ -467,9 +460,6 @@ private struct ProgressSteps: View {
     let step: PanelView.Progress
     @State private var pulse = false
     @State private var tied: CGFloat = 0
-    private var explains: Bool {
-        UserDefaults.standard.object(forKey: Key.nowExplain) == nil || UserDefaults.standard.bool(forKey: Key.nowExplain)
-    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -477,7 +467,7 @@ private struct ProgressSteps: View {
                 stage(step.sentence == nil ? String(localized: "Listening back…") : String(localized: "Heard"), done: step.sentence != nil, active: step.sentence == nil)
                 if step.savedOffline {
                     stage(String(localized: "Saved for tonight"), done: true, active: false)
-                } else if explains {
+                } else {
                     stage(String(localized: "Explaining"), done: false, active: step.sentence != nil)
                 }
                 Spacer(minLength: 0)
@@ -520,7 +510,7 @@ private struct ProgressSteps: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .onAppear { withAnimation(.easeInOut(duration: 0.9)) { tied = 1 } }
-            } else if explains {
+            } else {
                 VStack(alignment: .leading, spacing: 7) {
                     ghost(width: 0.75)
                     ghost(width: 0.95)

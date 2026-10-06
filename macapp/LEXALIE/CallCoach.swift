@@ -9,30 +9,18 @@ enum CoachClient {
         let last_question: String
         let points: [String]
         let question_to_you: String
-        let opener: String
     }
 
     struct Report: Codable {
         struct Missed: Codable { let question: String; let simple: String; let why: String }
         struct OffTopic: Codable { let question: String; let your_answer: String; let they_asked: String }
-        struct Correction: Codable { let you_said: String; let better: String; let why: String; let kind: String }
-        struct Phrase: Codable { let situation: String; let phrase: String; let meaning: String }
         struct Request: Codable { let request: String; let when: String }
         struct Hesitation: Codable { let question: String; let language: Bool; let note: String }
-        struct Good: Codable { let phrase: String; let situation: String }
-        struct LookedFor: Codable { let you_said: String; let word: String; let meaning: String }
         let summary: String
         let missed_questions: [Missed]
         let off_topic: [OffTopic]
-        let corrections: [Correction]
-        let missing_phrases: [Phrase]
         let requests: [Request]
         let hesitations: [Hesitation]
-        // The brain of yourself (§ 6) and the words you looked for (§ 4.3). Missing in older reports.
-        var good_phrases: [Good]? = nil
-        var decisions: [String]? = nil
-        var facts_you_said: [String]? = nil
-        var words_you_looked_for: [LookedFor]? = nil
     }
 
     static func post<T: Decodable>(_ path: String, _ body: [String: Any]) async throws -> T {
@@ -86,9 +74,7 @@ final class CallCoach: ObservableObject {
         let start: Date
         var lastInCall: Date
         var pairs: [Pair] = []
-        var mine: [String] = []
         var requests: [String] = []
-        var searches: [String] = []
         var seen: Set<String> = []
         var theirTurns = 0
         var hesitations = 0
@@ -104,7 +90,6 @@ final class CallCoach: ObservableObject {
     private static let questionStart = #"^(what|when|where|why|how|who|which|whose|do|does|did|are|is|was|were|can|could|would|will|shall|should|have|has|had|any|so what|and what|right)\b"#
     private static let requestCue = #"\b(can you|could you|would you|will you|please|send|share|follow up|get back|by (monday|tuesday|wednesday|thursday|friday|tomorrow|tonight|eod|end of)|let me know)\b"#
     /// You, looking for a word mid-sentence (§ 4.3).
-    private static let searching = #"\b(how do you say|what's the word|what is the word|what do you call|how can i say|what's it called|how do i say|come si dice|the the|a a|i i)\b|\b(\w+)\.\.\. \2\b"#
     private static let genericAnswer = #"^(yeah|yes|yep|sure|right|ok|okay|mm+|uh huh|exactly|absolutely|totally|of course)( (yeah|yes|sure|right|ok|okay|exactly))*[.!]?$"#
 
     /// Your first name, to notice when someone asks you something. Stays on this Mac.
@@ -174,16 +159,8 @@ final class CallCoach: ObservableObject {
             // A turn still growing is seen again with more words: only count it once it has settled.
             guard turn.end < 57, !s.seen.contains(key) else { continue }
             s.seen.insert(key)
-            if turn.isMine {
-                if text.split(separator: " ").count >= 4 && s.mine.count < 80 { s.mine.append(String(text.prefix(400))) }
-                // Fillers in the middle of a sentence, or "how do you say…": you were looking for a word.
-                let words = text.lowercased().split(separator: " ").map { $0.trimmingCharacters(in: .punctuationCharacters) }
-                let midFillers = words.dropFirst(2).dropLast().filter { Self.fillers.contains($0) && $0 != "like" && $0 != "well" }.count
-                if (text.lowercased().range(of: Self.searching, options: .regularExpression) != nil || midFillers >= 2) && s.searches.count < 20 {
-                    s.searches.append(String(text.prefix(400)))
-                }
-                continue
-            }
+            // Your own sentences are not kept nor judged: LEXALIE is about what you hear (owner, 06/10).
+            if turn.isMine { continue }
             s.theirTurns += 1
             let lower = text.lowercased()
             if !name.isEmpty, lower.range(of: "\\b\(NSRegularExpression.escapedPattern(for: name))\\b", options: .regularExpression) != nil,
@@ -221,12 +198,10 @@ final class CallCoach: ObservableObject {
     // MARK: They asked me
 
     private func askedMe() async {
-        // "Just mark" shows nothing; "With me" always helps; "Suggestions" follows your setting.
-        let mode = CallModes.mode(for: CalendarWatch.shared.current)
-        guard mode != .mark, mode == .withMe || UserDefaults.standard.bool(forKey: Key.askedMe), !myName.isEmpty,
+        // Only if you turned it on in Settings: the question put to you, simply. Never the answer.
+        guard UserDefaults.standard.bool(forKey: Key.askedMe), !myName.isEmpty,
               Date().timeIntervalSince(lastAsked) > 30 else { return }
         let turns = AppModel.shared.recentTurns(seconds: 90)
-        let people = session?.people ?? []
         guard let last = turns.last(where: { !$0.isMine }), (turns.last?.end ?? 0) - last.end < 4 else { return }
         let lower = last.text.lowercased()
         guard lower.range(of: "\\b\(NSRegularExpression.escapedPattern(for: myName.lowercased()))\\b", options: .regularExpression) != nil,
@@ -234,15 +209,11 @@ final class CallCoach: ObservableObject {
         lastAsked = Date()
         do {
             let answer: CoachClient.CatchUp = try await CoachClient.post("api/catchup", [
-                "turns": Self.payload(turns), "mode": "question", "opener": UserDefaults.standard.bool(forKey: Key.opener) || CallModes.mode(for: CalendarWatch.shared.current) == .withMe,
-                // The answer with your words (§ 6, level 3): your facts and your phrases, one line each.
-                "facts": Yourself.facts(with: people, limit: 20).map { Redactor.redact($0.text) },
-                "phrases": Yourself.phrases(limit: 20).map(\.phrase),
+                "turns": Self.payload(turns), "mode": "question",
             ])
             guard !answer.question_to_you.isEmpty else { return }
-            var lines = [String(localized: "They asked you: \(answer.question_to_you)")]
-            if !answer.opener.isEmpty { lines.append(String(localized: "You could start: “\(answer.opener)”")) }
-            panel.show(CatchUpView(lines: lines, points: []), autoHide: 10, width: 440)
+            // Never the answer, nor how to start it (owner, 06/10: no cheating).
+            panel.show(CatchUpView(lines: [String(localized: "They asked you: \(answer.question_to_you)")], points: []), autoHide: 10, width: 440)
         } catch {}
     }
 
@@ -250,7 +221,7 @@ final class CallCoach: ObservableObject {
 
     private func finish(_ s: Session, ended: Date) async {
         // The report is yours to turn on, and only about understanding (F5, decision 3): what they
-        // asked, what they asked you to do, what was decided. Nothing about how you speak.
+        // asked, what they asked you to do. Not what was decided (no minutes), nothing about how you speak.
         guard UserDefaults.standard.bool(forKey: Key.callReport), !s.pairs.isEmpty || !s.requests.isEmpty else { return }
         let store = AppModel.shared.store
         let tapped = store.moments.filter { $0.date >= s.start && $0.date <= ended.addingTimeInterval(60) && $0.trigger != "hesitation" }.count
@@ -259,9 +230,7 @@ final class CallCoach: ObservableObject {
             report = try await CoachClient.post("api/report", [
                 "pairs": s.pairs.map { ["question": Redactor.redact($0.question), "answer": Redactor.redact($0.answer),
                                         "pause_s": min($0.pause, 120), "fillers": min($0.fillers, 50)] as [String: Any] },
-                "mine": [String](),
                 "requests": s.requests.map { Redactor.redact($0) },
-                "searches": [String](),
             ])
         } catch {}
         let missed = tapped + s.hesitations + (report?.off_topic.count ?? 0)
@@ -405,7 +374,6 @@ struct ReportView: View {
                     section(String(localized: "They asked you to"), r.requests.map { ($0.request, $0.when) })
                     section(String(localized: "Questions that slipped past you"), r.missed_questions.map { ($0.question, "\($0.simple) · \($0.why)") })
                     section(String(localized: "You answered something else"), r.off_topic.map { ("“\($0.your_answer)”", String(localized: "They asked: \($0.they_asked)")) })
-                    section(String(localized: "Decided"), (r.decisions ?? []).map { ($0, "") })
                 } else {
                     Text("The detailed report couldn't be made this time (no connection or no tester code).").foregroundStyle(.secondary)
                 }

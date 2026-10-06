@@ -129,7 +129,6 @@ struct EarProfile {
     /// Taps in the first five minutes of calls against the rest, per minute.
     let earlyTapsPerMinute: Double?
     let laterTapsPerMinute: Double?
-    let byAccent: [(String, Int)]
 
     static let enough = 30
 
@@ -151,9 +150,6 @@ struct EarProfile {
             earlyTapsPerMinute = nil
             laterTapsPerMinute = nil
         }
-        var accents: [String: Int] = [:]
-        for m in moments where !m.isModel { if let a = m.signals?.accent { accents[a, default: 0] += 1 } }
-        byAccent = accents.sorted { $0.value > $1.value }.map { ($0.key, $0.value) }
     }
 
     /// One or two sentences for the model that explains (numbers only, no names).
@@ -192,11 +188,6 @@ struct EarProfileView: View {
             if let early = profile.earlyTapsPerMinute, let later = profile.laterTapsPerMinute, early > later * 1.5 {
                 Text("In the first five minutes of a call you tap more: your ear needs a moment to tune in.")
                     .fixedSize(horizontal: false, vertical: true)
-            }
-            if profile.byAccent.count > 1 {
-                let list = profile.byAccent.prefix(4).map { "\(Person.label($0.0)) \($0.1)" }.joined(separator: " · ")
-                Text("Moments by accent: \(list)")
-                    .font(.callout).foregroundStyle(.secondary)
             }
         }
     }

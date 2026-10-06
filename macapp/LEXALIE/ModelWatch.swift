@@ -65,30 +65,11 @@ final class ModelWatch: ObservableObject {
 
     var enabled: Bool { UserDefaults.standard.bool(forKey: Key.useModel) }
 
-    // MARK: The mode of this call (§ 19.7, § 19.15)
-
-    /// Just mark, Suggestions or With me: chosen in the notice before the call, or from the menu bar.
-    @Published private(set) var callMode: CallMode = .mark
-    var callHints: Bool { callMode.hints }
-    private var lastHint = Date.distantPast
-    /// At most one suggestion every this many seconds (§ 19.8).
-    static let hintGap: TimeInterval = 90
-
     /// "Watch with me" from the menu: your model on, silent until the end (§ 19.8).
     func setWatching(_ on: Bool) {
         UserDefaults.standard.set(on, forKey: Key.useModel)
         if on { lastSpot = .distantPast }
         objectWillChange.send()
-    }
-
-    /// From the menu bar during the call: remembered for these people or this meeting.
-    func setCallMode(_ mode: CallMode) {
-        CallModes.set(mode, for: CalendarWatch.shared.current)
-    }
-
-    func modeChanged(_ mode: CallMode) {
-        callMode = mode
-        if mode.hints { lastSpot = .distantPast }
     }
 
     /// Where you are, for signals and moments ("song" when music is playing and you're not in a call).
@@ -114,15 +95,10 @@ final class ModelWatch: ObservableObject {
                 if let old = session { await finish(old) }
                 session = (current, title, now, now)
                 spottedKeys = []
-                if current == .call {
-                    callMode = CallModes.mode(for: CalendarWatch.shared.current)
-                    panel.show(PanelView(phase: .saved(String(localized: "This call: \(callMode.label). Change it from the menu bar."))), autoHide: 3, width: 360)
-                }
             }
             session?.lastActive = now
             if session?.title == nil { session?.title = title }
-            // In a call, turning suggestions on is enough: your model listens for this call.
-            guard enabled || (current == .call && callHints) else { return }
+            guard enabled else { return }
             if now.timeIntervalSince(lastSpot) >= 60, !spotting { await spot(current) }
         } else if let old = session, now.timeIntervalSince(old.lastActive) > 180 {
             session = nil
@@ -154,13 +130,7 @@ final class ModelWatch: ObservableObject {
             let piece = Piece(text: p.text, heardAs: nil, gloss: p.gloss, meaning: p.meaning, note: "", cause: p.cause, level: p.level)
             model.addModelMoment(piece, line: p.line, kind: kind, show: session?.title)
         }
-        // Your model never interrupts. The one exception is the one you choose: Suggestions in
-        // this call (§ 19.7, § 19.15), at most one every minute and a half.
-        if kind == .call, callHints, Date().timeIntervalSince(lastHint) >= Self.hintGap,
-           let top = fresh.max(by: { $0.likelihood < $1.likelihood }), top.likelihood >= 0.7 {
-            lastHint = Date()
-            panel.show(PanelView(phase: .saved("“\(top.text)” → \(top.gloss)")), autoHide: 6, width: 380)
-        }
+        // Your model never interrupts, in calls neither: only the tap shows something (owner, 06/10).
     }
 
     // MARK: Songs

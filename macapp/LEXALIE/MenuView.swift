@@ -15,17 +15,9 @@ struct MenuView: View {
 
     @ObservedObject private var watch = ModelWatch.shared
 
-    /// In a call: Just mark, Suggestions or With me, for this call and the ones like it (§ 19.15).
+    /// Watching a video: your model, in silence, with you (§ 19.8).
     @ViewBuilder private var callSuggestions: some View {
-        if watch.kind == .call {
-            VStack(alignment: .leading, spacing: 4) {
-                Picker("This call", selection: Binding(get: { watch.callMode }, set: { watch.setCallMode($0) })) {
-                    ForEach(CallMode.allCases) { Text($0.label).tag($0) }
-                }
-                .pickerStyle(.segmented)
-                Text(watch.callMode.detail).font(.caption).foregroundStyle(.secondary)
-            }
-        } else if watch.kind == .video {
+        if watch.kind == .video {
             // "Use your model", where it matters (§ 19.8): watching together, a light sign at most every 90 s.
             Toggle(isOn: Binding(get: { watch.enabled },
                                  set: { watch.setWatching($0) })) {

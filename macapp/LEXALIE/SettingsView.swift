@@ -15,7 +15,6 @@ struct SettingsView: View {
     @AppStorage(Key.callReport) private var callReport = false
     @AppStorage(Key.myName) private var myName = ""
     @AppStorage(Key.askedMe) private var askedMe = false
-    @AppStorage(Key.opener) private var opener = false
     @AppStorage(Key.dictionary) private var dictionary = ""
     @AppStorage(Key.useModel) private var useModel = false
     @AppStorage(Key.songs) private var songs = true
@@ -23,8 +22,6 @@ struct SettingsView: View {
     @AppStorage(Key.pauseTap) private var pauseTap = true
     @AppStorage("googleClientID") private var googleClientID = ""
 
-    @AppStorage(Key.nowExplain) private var nowExplain = true
-    @AppStorage(Key.translationAlways) private var translationAlways = false
     @State private var advanced = false
     /// Tester code, Google client ID, server and web app: ours, for tests (owner, 04/10). Hidden unless
     /// `defaults write app.lexalie.mac developer -bool YES`.
@@ -59,10 +56,6 @@ struct SettingsView: View {
                 TranslationRow(heard: HeardLanguage(rawValue: heard) ?? .enGB, native: NativeLanguage(rawValue: native) ?? .system)
             }
             Section("When you ask for help (\(DoubleTapOption.nowLabel))") {
-                Picker("Show", selection: $nowExplain) {
-                    Text("The sentence, its translation and the explanation").tag(true)
-                    Text("Only the sentence and its translation").tag(false)
-                }
                 Toggle("Pause the video while I read", isOn: $pauseVideo)
             }
             Section("Gestures") {
@@ -110,14 +103,12 @@ struct SettingsView: View {
     @ViewBuilder private var advancedOptions: some View {
         Toggle("Your model: it follows calls, films and songs and picks what you probably missed, without a tap", isOn: $useModel)
         Toggle("Know which song is playing in Spotify or Music", isOn: $songs)
-        Toggle("Always show the translation", isOn: $translationAlways)
         VStack(alignment: .leading, spacing: 4) {
             Text("Your words: names and jargon to expect, one per line").font(.callout)
             TextEditor(text: $dictionary).frame(height: 60).font(.body)
         }
         TextField("Your first name (to notice when someone asks you)", text: $myName)
         Toggle("In calls, show a question asked to me, simply", isOn: $askedMe)
-        Toggle("…and suggest how to start the answer", isOn: $opener).disabled(!askedMe)
         Toggle("In calls, also listen to my voice (and mark when I say \"sorry?\")", isOn: $sorry)
             .onChange(of: sorry) { _ in AppModel.shared.applyTriggers() }
         // The microphone is on only in calls, with the toggle above (owner, 04/10: say where it works).

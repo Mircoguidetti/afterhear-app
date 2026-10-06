@@ -38,10 +38,8 @@ struct PrepCard: View {
 
     struct Card: Decodable {
         struct Term: Decodable, Hashable { let term: String; let meaning: String }
-        struct Phrase: Decodable, Hashable { let phrase: String; let when: String }
         let focus: String
         let terms: [Term]
-        let phrases: [Phrase]
         let listen_for: String
     }
 
@@ -58,10 +56,6 @@ struct PrepCard: View {
                     Text("Words you'll probably hear").font(.caption).foregroundStyle(.secondary)
                     ForEach(card.terms, id: \.self) { t in Text("**\(t.term)** · \(t.meaning)").font(.callout) }
                 }
-                if !card.phrases.isEmpty {
-                    Text("Phrases you might need").font(.caption).foregroundStyle(.secondary)
-                    ForEach(card.phrases, id: \.self) { p in Text("**\(p.phrase)** · \(p.when)").font(.callout) }
-                }
             } else if !failed {
                 HStack { ProgressView().controlSize(.small); Text("Preparing your card…").font(.caption).foregroundStyle(.secondary) }
             }
@@ -76,13 +70,11 @@ struct PrepCard: View {
 
     private func load() async {
         let missed = CalendarWatch.shared.prep(for: call).flatMap(\.pieces).map(\.text)
-        let speaking = Memory.shared.items.values.filter { $0.cause == "speaking" && $0.state != "promoted" }.prefix(8).map(\.text)
         do {
             card = try await CoachClient.post("api/prep", [
                 "title": String(call.title.prefix(200)),
                 "people": call.people.map { ["name": $0, "accent": store.accent(of: $0) ?? ""] },
                 "missed": Array(missed.prefix(20)),
-                "speaking": Array(speaking),
             ])
         } catch {
             failed = true
