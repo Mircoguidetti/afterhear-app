@@ -190,7 +190,8 @@ def audio():
 
 
 def recogniser():
-    """Parakeet on the processor, as ParakeetCPU.swift (bench/tap.py downloads the same model)."""
+    """Parakeet on the processor, as ParakeetCPU.swift (bench/tap.py downloads the same model). All the
+    runner's cores: the words are the same, only the time changes (it is not what we measure here)."""
     import tarfile
     import sherpa_onnx
     models = os.path.join(HERE, 'out', 'models')
@@ -203,7 +204,7 @@ def recogniser():
     pick = lambda part: sorted(glob.glob(os.path.join(folder, f'{part}*.onnx')))[0]  # noqa: E731
     return sherpa_onnx.OfflineRecognizer.from_transducer(
         encoder=pick('encoder'), decoder=pick('decoder'), joiner=pick('joiner'), tokens=os.path.join(folder, 'tokens.txt'),
-        num_threads=max(1, (os.cpu_count() or 2) // 2), model_type='nemo_transducer', decoding_method='greedy_search')
+        num_threads=os.cpu_count() or 2, model_type='nemo_transducer', decoding_method='greedy_search')
 
 
 def hear():
