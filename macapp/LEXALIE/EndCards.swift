@@ -71,8 +71,8 @@ enum EndCards {
     /// What's still open for you (a request with your name, a question you didn't really answer), why
     /// they laughed (only if the words before were heard well), and your next call if it's close.
     static func afterCall(open: [String], laughed: String?, with people: [String], reportID: String?) async {
-        var items: [EndCard.Item] = open.prefix(2).map {
-            .init(kind: .open, label: String(localized: "Still open for you"), quote: $0, detail: nil, moment: nil)
+        var items: [EndCard.Item] = open.prefix(2).map { line in
+            EndCard.Item(kind: .open, label: String(localized: "Still open for you"), quote: line, detail: nil, moment: nil)
         }
         if let laughed {
             let id = AppModel.shared.addLaughMoment(line: laughed)

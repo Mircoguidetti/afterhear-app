@@ -147,7 +147,6 @@ struct PanelView: View {
         .padding(16)
         .background(RoundedRectangle(cornerRadius: 14).fill(Brand.onyx))
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(Brand.paper.opacity(0.08)))
-        .shadow(color: .black.opacity(0.25), radius: 20, y: 10)
         .foregroundStyle(Brand.paper)
     }
 
