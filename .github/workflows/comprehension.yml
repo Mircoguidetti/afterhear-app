@@ -3,10 +3,13 @@ name: Comprehension bench
 # Block P1 (docs/PIANO.md): when you tap because you got lost, does the card tell you what you
 # missed? Real earnings calls (Earnings-21, CC BY-SA 4.0), the app's path in a call: Parakeet,
 # Conversation.swift, Ranking.swift, Redactor.swift, then the real /api/explain and /api/judgecard.
-# The server calls cost a little: launched by hand only (and by a workflow that calls it).
+# The server calls cost a little: launched by hand, by a workflow that calls it, and when the
+# cases themselves change (a new set of cases needs its first measure).
 # Secret: ASAID_TESTER_CODE.
 
 on:
+  push:
+    paths: ["bench/comprehension/cases.json"]
   workflow_dispatch:
   workflow_call:
 
