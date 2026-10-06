@@ -55,6 +55,11 @@ jobs:
         with:
           name: tapcases
           path: bench/out/tap
+      - name: The words heard last time (same recogniser, same clips)
+        uses: actions/cache@v4
+        with:
+          path: bench/out/heard
+          key: tap-heard-${{ matrix.os }}-${{ hashFiles('bench/tap.py', 'bench/out/tap/cases.json') }}
       - run: python3 bench/tap.py clips
       - name: The app's choosing, compiled
         run: swiftc -O macapp/LEXALIE/Ranking.swift macapp/LEXALIE/Conversation.swift bench/tap/main.swift -o turns
@@ -81,9 +86,16 @@ jobs:
         with:
           name: tapcases
           path: bench/out/tap
+      - name: The words heard last time (same recogniser, same clips)
+        id: heard
+        uses: actions/cache@v4
+        with:
+          path: bench/out/heard
+          key: tap-heard-macos-26-${{ hashFiles('bench/tap.py', 'bench/fluid/**', 'bench/out/tap/cases.json') }}
       - run: python3 bench/tap.py clips
       - run: swiftc -O macapp/LEXALIE/Ranking.swift macapp/LEXALIE/Conversation.swift bench/tap/main.swift -o turns
       - name: FluidAudio, as the app
+        if: steps.heard.outputs.cache-hit != 'true'
         run: cd bench/fluid && swift build -c release --product fluidwords
       - run: python3 bench/tap.py tool "Parakeet, Neural Engine (FluidAudio v2)" bench/fluid/.build/release/fluidwords v2
       - name: Apple's new recogniser (may not run on a runner)

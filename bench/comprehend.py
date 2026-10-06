@@ -209,8 +209,15 @@ def recogniser():
 
 def hear():
     """The last 190 s before every tap (and 1 s after), through Parakeet: what the app would have."""
-    rec = recogniser()
     listed = sample(json.load(open(CASES)))
+    path = os.path.join(OUT, 'heard.json')
+    # Kept between runs (actions/cache): the same clips through the same recogniser give the same words.
+    if os.path.exists(path):
+        kept = json.load(open(path))
+        if all(c['id'] in kept for c in listed):
+            print(len(listed), 'taps: the words heard last time')
+            return 0
+    rec = recogniser()
     calls, heard = {}, {}
     for c in listed:
         if c['file'] not in calls:

@@ -37,6 +37,11 @@ jobs:
             bench/out/comprehend/calls
             bench/out/models
           key: comprehension-${{ hashFiles('bench/comprehension/cases.json') }}
+      - name: The words heard last time (same recogniser, same taps)
+        uses: actions/cache@v4
+        with:
+          path: bench/out/comprehend/heard.json
+          key: comprehension-heard-${{ hashFiles('bench/comprehension/cases.json', 'bench/tap.py') }}-${{ inputs.sample }}
       - name: The calls the cases need
         run: python3 bench/comprehend.py audio
       - name: The clip before every tap, through Parakeet

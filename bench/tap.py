@@ -184,7 +184,33 @@ def sherpa_words(rec, pcm):
     return out
 
 
+# What a recogniser heard in every clip, kept between runs (actions/cache, keyed on the recognisers'
+# code and the clips): when only the app's choosing changes, nothing is heard again (owner, 06/10:
+# ninety minutes for a one-line change). Delete bench/out/heard to hear everything again.
+HEARD = os.path.join(OUT, 'heard')
+
+
+def kept(engine):
+    path = os.path.join(HEARD, re.sub(r'[^a-z0-9]+', '-', f"{os.environ.get('RUNNER_LABEL', 'local')}-{engine}".lower()) + '.json')
+    clips = sorted(os.path.basename(p) for p in glob.glob(os.path.join(CASES, 'clips', '*.wav')))
+    if os.path.exists(path):
+        heard = json.load(open(path))
+        if clips and all(c in heard for c in clips):
+            print(engine, ': the words heard last time (same recogniser, same clips)')
+            return path, heard
+    return path, None
+
+
+def keep(path, heard):
+    os.makedirs(HEARD, exist_ok=True)
+    json.dump(heard, open(path, 'w'))
+
+
 def sherpa():
+    engine = 'Parakeet compressed, processor (sherpa-onnx int8)'
+    path, heard = kept(engine)
+    if heard is not None:
+        return score(engine, heard)
     import tarfile
     import urllib.request
     import sherpa_onnx
@@ -205,11 +231,15 @@ def sherpa():
         t0 = time.time()
         words = sherpa_words(rec, run_samples(path))
         heard[os.path.basename(path)] = {'seconds': time.time() - t0, 'words': words}
-    return score('Parakeet compressed, processor (sherpa-onnx int8)', heard)
+    keep(kept(engine)[0], heard)
+    return score(engine, heard)
 
 
 def tool(name, binary, *args):
     """A Swift tool that prints {"file", "seconds", "words"} per clip."""
+    path, heard = kept(name)
+    if heard is not None:
+        return score(name, heard)
     res = subprocess.run([binary, *args, os.path.join(CASES, 'clips')], capture_output=True, text=True)
     print(res.stderr[-3000:])
     heard = {}
@@ -221,6 +251,7 @@ def tool(name, binary, *args):
         heard[row['file']] = {'seconds': row['seconds'], 'words': [[float(w[0]), float(w[1]), w[2]] for w in row['words']]}
     if not heard:
         return save([{'engine': name, 'machine': machine(), 'failed': (res.stderr or res.stdout or 'no output')[-400:]}], name)
+    keep(path, heard)
     return score(name, heard)
 
 
