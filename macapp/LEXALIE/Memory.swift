@@ -102,6 +102,7 @@ final class Memory: ObservableObject {
                    at: at, context: moment?.context, person: moment?.with, moment_id: moment?.id.uuidString.lowercased())
         }
         guard !new.isEmpty else { return }
+        if kind == "tap" { Nodes.shared.reacted(pieces.map(\.text)) }
         queue += new
         Sync.shared.schedule(after: 5)
     }

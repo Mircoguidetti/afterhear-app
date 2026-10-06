@@ -102,6 +102,11 @@ final class ModelWatch: ObservableObject {
             if current == .video {
                 RewindWatch.shared.observe(model.recentTurns(seconds: 60), since: now.addingTimeInterval(-60), show: session?.title)
             }
+            // The names and terms you hear, as nodes on this Mac (block MEM): never in songs.
+            if current != .song {
+                Nodes.shared.scan(model.recentTurns(seconds: 60), since: now.addingTimeInterval(-60), context: current.rawValue,
+                                  source: session?.title ?? (current == .call ? String(localized: "a call") : String(localized: "a video")))
+            }
             guard enabled else { return }
             if now.timeIntervalSince(lastSpot) >= 60, !spotting { await spot(current) }
         } else if let old = session, now.timeIntervalSince(old.lastActive) > 180 {

@@ -75,13 +75,23 @@ struct SettingsView: View {
             Section("Privacy") {
                 PrivateModelRow(heard: HeardLanguage(rawValue: heard) ?? .enGB)
                 Toggle("In calls, keep text only (no audio clip)", isOn: $callsTextOnly)
-                Text("Voices never leave your devices: everything is transcribed here. Only the text of the sentence you ask about, without names or numbers, goes to our model to explain it. A moment's audio stays on this Mac for \(Store.clipDays) days, then it's deleted.")
+                Text("Voices never leave your devices: everything is transcribed here. Only the text of the sentence you ask about goes to our model to explain it. In calls without people's names, numbers or your own names (the people you talk with, your words, your calendar); companies, products and places stay, so it can tell you who or what they are. A moment's audio stays on this Mac for \(Store.clipDays) days, then it's deleted.")
                     .font(.caption).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
                 Toggle("A report after each call", isOn: $callReport)
-                Text("Only about understanding: what they asked you, what they asked you to do, what was decided. When the call ends, the questions of the others and your answers, as text without names or numbers, go to our model to write it. Nothing about how you speak.")
+                Text("Only about understanding: what they asked you and what they asked you to do. When the call ends, the questions of the others and your answers, as text without names or numbers, go to our model to write it. Nothing about how you speak.")
                     .font(.caption).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
+                // Block MEM: the names and terms LEXALIE noticed, only on this Mac, gone in 60 days or now.
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Names and terms you heard")
+                        Text("Only on this Mac, never the sentences around them: for what comes back often. They fade after 60 days.")
+                            .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                    }
+                    Spacer()
+                    Button("Delete all") { Nodes.shared.deleteAll() }.controlSize(.small)
+                }
                 NeverCallsSection()
             }
             AccountSection(webApp: webApp)

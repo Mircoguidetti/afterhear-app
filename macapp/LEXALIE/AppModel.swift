@@ -1178,6 +1178,14 @@ final class AppModel: ObservableObject {
         return moment
     }
 
+    /// "What is it?" on a refrain (block RIC): only the term goes, never where you heard it.
+    func explainTerm(_ text: String) async -> String? {
+        let settings = AppSettings.current
+        guard let e = try? await ExplainClient.explain(text, settings: settings, known: [], focus: text, publicMedia: true),
+              let piece = e.pieces.first else { return nil }
+        return piece.gloss.map { "\($0) · \(piece.meaning)" } ?? piece.meaning
+    }
+
     /// The last seconds of sound at full quality, for laughter (SoundAnalysis, on the Mac).
     func recentVoice(seconds: Double) -> ([Float], Double) { audio.hiRing.last(seconds) }
 

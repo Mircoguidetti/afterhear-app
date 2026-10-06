@@ -5,7 +5,7 @@ import SwiftUI
 /// the notifications ("Five minutes now?", the quiz after a video): nothing arrives as a notification.
 struct EndCard {
     struct Item: Identifiable {
-        enum Kind { case rewound, spotted, open, laughed }
+        enum Kind { case rewound, spotted, open, laughed, refrain }
         let id = UUID()
         let kind: Kind
         /// "You went back here", "Still open for you", "Why they laughed".
@@ -16,6 +16,8 @@ struct EndCard {
         let detail: String?
         /// The moment behind it, for Replay and "I knew it".
         let moment: UUID?
+        /// A refrain's term, explained only if you ask ("What is it?").
+        var term: String? = nil
     }
 
     let title: String
@@ -58,6 +60,7 @@ enum EndCards {
             items.append(.init(kind: .spotted, label: local ? String(localized: "What a local got") : piece.causeLabel,
                                quote: moment.transcript, detail: detail(piece, practice: moment.inPractice), moment: moment.id))
         }
+        if let refrain = refrainItem(context: "video") { items.append(refrain) }
         let name = title ?? String(localized: "the video")
         show(EndCard(title: local ? String(localized: "3 things a local got · \(name)") : String(localized: "After \(name)"),
                      items: items, next: nextCall()))
@@ -79,8 +82,19 @@ enum EndCards {
                                    detail: why, moment: moment.id))
             }
         }
+        // Your team's jargon: what keeps coming back in your calls (CTX 1, RIC 3).
+        if let refrain = refrainItem(context: "call") { items.append(refrain) }
         let who = people.isEmpty ? String(localized: "your call") : ListFormatter.localizedString(byJoining: people)
         show(EndCard(title: String(localized: "After the call with \(who)"), items: items, next: nextCall(), reportID: reportID))
+    }
+
+    /// One refrain at most, and only when it really comes back (Nodes.refrain).
+    static func refrainItem(context: String?) -> EndCard.Item? {
+        guard let r = Nodes.shared.refrain(in: context) else { return nil }
+        Nodes.shared.markShown(r.node.key)
+        let places = r.sources.prefix(3).joined(separator: ", ")
+        return EndCard.Item(kind: .refrain, label: String(localized: "Comes back often · \(r.times) times this week"),
+                            quote: r.node.text, detail: String(localized: "Heard in: \(places)"), moment: nil, term: r.node.text)
     }
 
     /// The next call within the hour: the card says it, instead of one more notification.
@@ -101,6 +115,7 @@ enum EndCards {
 struct EndCardView: View {
     let card: EndCard
     @State private var done: Set<UUID> = []
+    @State private var explained: [UUID: String] = [:]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -147,8 +162,15 @@ struct EndCardView: View {
             if let detail = item.detail, !detail.isEmpty {
                 Text(detail).font(.system(size: 13)).foregroundStyle(Brand.paper.opacity(0.85)).fixedSize(horizontal: false, vertical: true)
             }
+            if let what = explained[item.id] {
+                Text(what).font(.system(size: 13, weight: .medium)).fixedSize(horizontal: false, vertical: true)
+            }
             HStack(spacing: 14) {
-                if item.kind == .open {
+                if item.kind == .refrain, let term = item.term, explained[item.id] == nil {
+                    Button("What is it?") {
+                        Task { explained[item.id] = await AppModel.shared.explainTerm(term) ?? String(localized: "Couldn't explain it now.") }
+                    }
+                } else if item.kind == .open {
                     // "I handled it": gone, and LEXALIE learns what matters to you.
                     Button(done.contains(item.id) ? String(localized: "Noted") : String(localized: "I handled it")) { done.insert(item.id) }
                 } else if let id = item.moment, let moment = AppModel.shared.store.moments.first(where: { $0.id == id }) {
