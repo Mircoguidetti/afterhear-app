@@ -127,6 +127,20 @@ final class Nodes {
         return candidates.max { ($0.node.reacted ? 1 : 0, $0.times) < ($1.node.reacted ? 1 : 0, $1.times) }
     }
 
+    /// Links between sources (RIC 4): a title you watched in the last month that this explanation
+    /// names ("That's what she said" → The Office), with the day you watched it. Only an exact title.
+    func watched(in text: String) -> (title: String, at: Date)? {
+        let lower = text.lowercased()
+        var seen: [String: Date] = [:]
+        for moment in AppModel.shared.store.moments where moment.date > Date().addingTimeInterval(-30 * 86_400) {
+            if let show = moment.show, show.count >= 4 { seen[show] = max(seen[show] ?? .distantPast, moment.date) }
+        }
+        for node in nodes.values {
+            for s in node.sightings where s.context == "video" && s.source.count >= 4 { seen[s.source] = max(seen[s.source] ?? .distantPast, s.at) }
+        }
+        return seen.filter { lower.contains($0.key.lowercased()) }.max { $0.key.count < $1.key.count }.map { ($0.key, $0.value) }
+    }
+
     func markShown(_ key: String) {
         nodes[key]?.shownAt = Date()
         dirty = true

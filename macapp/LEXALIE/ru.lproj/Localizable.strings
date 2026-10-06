@@ -482,6 +482,7 @@
 "You paused here. Was it the language?" = "Здесь вы замялись. Дело было в языке?";
 "You speak" = "Вы говорите на";
 "You want to understand" = "Хотите понимать";
+"You watched %@ on %@." = "Ты смотрел %@: %@.";
 "You went back %lld times here" = "Ты возвращался сюда %lld раза";
 "You went back here" = "Здесь ты вернулся назад";
 "You were signed out. Sign in again to keep syncing." = "Вы вышли из аккаунта. Войдите снова, чтобы продолжить синхронизацию.";

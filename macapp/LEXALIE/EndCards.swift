@@ -79,7 +79,7 @@ enum EndCards {
             if let moment = await AppModel.shared.explainSaved(id, tone: "laughter right after"),
                let why = [moment.meant?.text, moment.inPractice, moment.pieces.first?.meaning].compactMap({ $0 }).first(where: { !$0.isEmpty }) {
                 items.append(.init(kind: .laughed, label: String(localized: "Why they laughed"), quote: moment.transcript,
-                                   detail: why, moment: moment.id))
+                                   detail: linked(why), moment: moment.id))
             }
         }
         // Your team's jargon: what keeps coming back in your calls (CTX 1, RIC 3).
@@ -104,10 +104,17 @@ enum EndCards {
             .min { $0.start < $1.start }
     }
 
+    /// "It's from The Office: you watched it on Thursday" when the explanation names something you saw.
+    private static func linked(_ text: String) -> String {
+        guard let found = Nodes.shared.watched(in: text) else { return text }
+        let title = found.title, day = found.at.formatted(.dateTime.weekday(.wide))
+        return text + "\n" + String(localized: "You watched \(title) on \(day).")
+    }
+
     private static func detail(_ piece: Piece, practice: String?) -> String {
         let what = piece.gloss.map { "\(piece.text): \($0) · \(piece.meaning)" } ?? "\(piece.text): \(piece.meaning)"
-        guard let practice, !practice.isEmpty else { return what }
-        return what + "\n" + String(localized: "In practice: \(practice)")
+        guard let practice, !practice.isEmpty else { return linked(what) }
+        return linked(what + "\n" + String(localized: "In practice: \(practice)"))
     }
 }
 

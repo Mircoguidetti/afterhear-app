@@ -482,6 +482,7 @@
 "You paused here. Was it the language?" = "Aquí hiciste una pausa. ¿Era el idioma?";
 "You speak" = "Hablas";
 "You want to understand" = "Quieres entender";
+"You watched %@ on %@." = "Viste %@ el %@.";
 "You went back %lld times here" = "Volviste atrás %lld veces aquí";
 "You went back here" = "Volviste atrás aquí";
 "You were signed out. Sign in again to keep syncing." = "Se ha cerrado tu sesión. Vuelve a entrar para seguir sincronizando.";
