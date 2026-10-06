@@ -14,6 +14,17 @@ struct MenuView: View {
     @State private var songLine: String?
 
     @ObservedObject private var watch = ModelWatch.shared
+    @AppStorage(Key.tapLater) private var tapLater = false
+
+    /// What LEXALIE is hearing now, in a word (block M).
+    private var hearing: String {
+        switch watch.kind {
+        case .call: String(localized: "Listening to a call")
+        case .video: String(localized: "Listening to a video")
+        case .song: String(localized: "Listening to music")
+        case nil: String(localized: "Listening")
+        }
+    }
 
     /// Watching a video: your model, in silence, with you (§ 19.8).
     @ViewBuilder private var callSuggestions: some View {
@@ -23,7 +34,7 @@ struct MenuView: View {
                                  set: { watch.setWatching($0) })) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Watch with me")
-                    Text("Your model listens in silence, never interrupts: a quiz at the end.")
+                    Text("Your model listens in silence, never interrupts: at the end, what a local got.")
                         .font(.caption).foregroundStyle(.secondary)
                 }
             }
@@ -38,7 +49,7 @@ struct MenuView: View {
             status
             if model.state == .listening {
                 Button {
-                    Task { await model.captureMoment(now: true) }
+                    Task { await model.captureMoment(trigger: "menu", now: true) }
                 } label: {
                     HStack {
                         Text("What did I miss?")
@@ -49,8 +60,20 @@ struct MenuView: View {
                 }
                 .controlSize(.large)
                 .keyboardShortcut(.defaultAction)
-                Text("\(DoubleTapOption.label): mark for tonight · \(DoubleTapOption.nowLabel): help me now")
-                    .font(.caption).foregroundStyle(.secondary)
+                // The one switch (block M): what every tap does, until you change it.
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("When I tap").font(.caption).foregroundStyle(.secondary)
+                    Picker("When I tap", selection: $tapLater) {
+                        Text("Explain now").tag(false)
+                        Text("Keep for tonight").tag(true)
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                    .onChange(of: tapLater) { _ in model.objectWillChange.send() }
+                }
+                // Not now, without quitting: back by itself in an hour or at the end of the call (block M).
+                Button("Pause for an hour") { Task { await model.togglePause() } }
+                    .controlSize(.small)
                 if model.needsAccessibility {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("The gestures need the \"Accessibility\" permission: turn on LEXALIE, then reopen it.")
@@ -69,7 +92,11 @@ struct MenuView: View {
                         Text("Private model: \(Parakeet.status.label)").font(.caption).foregroundStyle(.secondary)
                     }
                 }
-                if watch.kind == .call { callSuggestions }
+                if watch.kind == .video { callSuggestions }
+                if watch.kind == .call {
+                    // Telling the others (block N), here and not in a notification at the start of the call.
+                    Button("Copy the message for the others in the call") { ParticipantNotice.copy() }.controlSize(.small)
+                }
                 CallGuardRow()
                 nextCall
             }
@@ -94,7 +121,8 @@ struct MenuView: View {
             }
             Divider()
             HStack {
-                Button("Review (\(store.reviewQueue.count))") { open("review") }
+                // One evening moment (block SERA): today's moments with the real voice, "I know it / again".
+                Button("Tonight (\(store.reviewQueue.count))") { open("review") }
                     .disabled(store.reviewQueue.isEmpty)
                 Button("Progress") {
                     AppWindows.show(id: "progress", title: String(localized: "Your progress"), width: 480, height: 520) { ProgressStoryView() }
@@ -104,12 +132,7 @@ struct MenuView: View {
                     Button("Diary") { open("diary") }
                     Button("Your week") { Podcast.shared.open() }
                     Button("Is everything ready?") { HealthCheck.shared.open() }
-                    if quizCount > 0 { Button("Quiz (\(quizCount))") { ModelWatch.shared.openAllQuiz() } }
                     Divider()
-                    Button(model.state == .paused ? String(localized: "Resume listening") : String(localized: "Pause listening")) {
-                        Task { await model.togglePause() }
-                    }
-                    .disabled(model.state == .starting)
                     Button("Quit LEXALIE") { NSApp.terminate(nil) }
                 }
                 .menuStyle(.borderlessButton)
@@ -246,13 +269,17 @@ struct MenuView: View {
             Label("Starting…", systemImage: "hourglass")
         case .listening:
             VStack(alignment: .leading, spacing: 4) {
-                Label("Listening", systemImage: "waveform").foregroundStyle(Brand.paper)
+                Label(hearing, systemImage: tapLater ? "waveform.circle" : "waveform.circle.fill").foregroundStyle(Brand.paper)
                 Text("Only the last few minutes stay in memory. Nothing is saved until you tap.")
                     .font(.caption).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
         case .paused:
-            Label("Paused: not listening", systemImage: "pause.circle")
+            VStack(alignment: .leading, spacing: 6) {
+                Label("Paused: not listening", systemImage: "waveform.slash")
+                Text("It starts again by itself in an hour, or when this call ends.").font(.caption).foregroundStyle(.secondary)
+                Button("Listen again") { Task { await model.togglePause() } }.controlSize(.small)
+            }
         case .needsPermission(let message):
             VStack(alignment: .leading, spacing: 8) {
                 Label("Permission needed", systemImage: "exclamationmark.circle").foregroundStyle(.orange)

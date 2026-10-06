@@ -91,6 +91,8 @@ enum Key {
     static let level = "level"
     /// The sentence in your language under each card's sentence: your choice (owner, 06/10 night).
     static let showTranslation = "showTranslation"
+    /// The menu's switch (block M): a tap explains now, or keeps it for tonight. Every tap follows it.
+    static let tapLater = "tapKeepsForTonight"
     /// Times in a row you opened it with it off; the card then asks once to keep it open.
     static let translationOpenedInARow = "translationOpenedInARow"
     static let translationKeepAsked = "translationKeepAsked"

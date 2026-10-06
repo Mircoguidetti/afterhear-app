@@ -48,10 +48,11 @@ final class AppModel: ObservableObject {
     private var player: AVAudioPlayer?
     fileprivate var busy = false
 
+    /// The icon says the state (block M): full = explain now, empty = keep for tonight, crossed = paused.
     var menuIcon: String {
         switch state {
-        case .listening: "waveform"
-        case .paused: "pause.circle"
+        case .listening: UserDefaults.standard.bool(forKey: Key.tapLater) ? "waveform.circle" : "waveform.circle.fill"
+        case .paused: "waveform.slash"
         case .starting, .needsPermission: "exclamationmark.circle"
         }
     }
@@ -120,6 +121,7 @@ final class AppModel: ObservableObject {
         listeningTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { _ in
             Task { @MainActor in
                 if AppModel.shared.state == .listening { AppModel.shared.store.addListening(seconds: 30) }
+                await AppModel.shared.resumeIfDue()
             }
         }
         let ring = audio.ring
@@ -153,8 +155,24 @@ final class AppModel: ObservableObject {
             await audio.stop()
             live.stop()
             state = .paused
+            // It comes back by itself after an hour, or when the call you paused in ends (block M).
+            pausedUntil = Date().addingTimeInterval(3600)
+            pausedInCall = ContextDetector.current() == .call
             applyTriggers()
         } else {
+            pausedUntil = nil
+            await start()
+        }
+    }
+
+    private var pausedUntil: Date?
+    private var pausedInCall = false
+
+    /// Every half minute: a pause you made ends by itself.
+    private func resumeIfDue() async {
+        guard state == .paused, !guardPaused, let until = pausedUntil else { return }
+        if Date() >= until || (pausedInCall && ContextDetector.current() != .call) {
+            pausedUntil = nil
             await start()
         }
     }
@@ -255,6 +273,9 @@ final class AppModel: ObservableObject {
     /// `pausedAt`: you paused the video yourself and asked for the explanation (§ pause = tap): the
     /// moment is when you paused, nothing gets paused again, and Continue plays it.
     func captureMoment(trigger: String = "tap", now: Bool = false, pausedAt: Date? = nil) async {
+        // Every tap follows the menu's switch (block M): explain now, or keep it for tonight.
+        var now = now
+        if ["tap", "sorry", "airpods", "siri"].contains(trigger) { now = !UserDefaults.standard.bool(forKey: Key.tapLater) }
         if pausedAt != nil { Self.offered = false } // the offer was taken: nothing to hide later
         if videoPaused, pausedAt == nil {
             resumeVideo()
