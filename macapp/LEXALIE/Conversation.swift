@@ -62,13 +62,13 @@ enum Conversation {
         let latest = theirs.last(where: { !filler($0) }) ?? theirs.last!
         var out: [Ranking.Scored] = []
         // A piece that began less than a second before the tap is the answer starting, not what you
-        // missed: the sentence just before it comes first, the piece one touch away (comprehension
-        // bench P1, 06/10: "I think", "Sure, John" were shown instead of the question 3 times in 4).
+        // missed: the sentence just before it comes first (comprehension bench P1, 06/10: "I think",
+        // "Sure, John" were shown instead of the question 3 times in 4). The piece keeps its place in
+        // the ranking, so the sentences around your usual delay stay one touch away (tap bench).
         if tapAt - turns[latest].start < justStarted,
            let before = theirs.last(where: { $0 < latest && !filler($0) }),
            turns[latest].start - turns[before].end < 2.5 {
             out.append(Ranking.Scored(index: before, score: 1, reasons: ["latest", "before the answer"]))
-            out.append(Ranking.Scored(index: latest, score: 0.9, reasons: ["just started"]))
         } else {
             out.append(Ranking.Scored(index: latest, score: 1, reasons: ["latest"]))
         }
