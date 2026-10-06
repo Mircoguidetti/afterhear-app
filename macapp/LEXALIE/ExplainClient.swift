@@ -19,6 +19,12 @@ enum ExplainClient {
         let heard: String
         let native: String
         let level: String
+        /// The level is estimated, never asked: how far to trust it (LevelEstimate).
+        let level_reliability: String
+        /// Whether the listener sees the sentence in their language, and the literal one they see
+        /// (Apple's, on this Mac): "in practice" then says what it adds, never repeats it.
+        let translation_shown: Bool
+        let literal: String?
         let known: [String]
         let struggling: [String]
         let watch: [String]
@@ -39,7 +45,7 @@ enum ExplainClient {
     static func explain(_ text: String, settings: AppSettings, known: [String],
                         struggling: [String] = [], watch: [String] = [], profile: String = "",
                         source: String = "", overlap: Bool = false, focus: String = "", tone: String = "",
-                        before: [String] = [], after: [String] = []) async throws -> Explanation {
+                        before: [String] = [], after: [String] = [], literal: String? = nil) async throws -> Explanation {
         guard let base = URL(string: settings.server.trimmingCharacters(in: .whitespaces)) else {
             throw LexalieError.server("url")
         }
@@ -54,6 +60,9 @@ enum ExplainClient {
             heard: settings.heard.rawValue,
             native: settings.native.rawValue,
             level: settings.level,
+            level_reliability: LevelEstimate.reliability,
+            translation_shown: UserDefaults.standard.bool(forKey: Key.showTranslation),
+            literal: literal.map { String(Redactor.redact($0).prefix(600)) },
             known: Array(known.prefix(500)),
             struggling: Array(struggling.prefix(200)),
             watch: Array(watch.prefix(200)),

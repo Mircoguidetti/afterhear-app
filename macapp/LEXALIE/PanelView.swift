@@ -256,11 +256,9 @@ struct PanelView: View {
         .fixedSize(horizontal: false, vertical: true)
     }
 
-    /// Show the translation right away? Only while you're still getting there (A2/B1); otherwise it's a
-    /// reserve, one click away: the card is the explanation (owner, 06/10).
-    private static var translationOpen: Bool {
-        ["A2", "B1"].contains(UserDefaults.standard.string(forKey: Key.level) ?? "B2")
-    }
+    /// The sentence in your language, open under the sentence: your choice, in the first minute or in
+    /// Settings, and from the card itself (owner, 06/10 night).
+    private static var translationOpen: Bool { UserDefaults.standard.bool(forKey: Key.showTranslation) }
 
     /// One look, one order (owner, 02/10): the sentence as a subtitle, its translation under it, then
     /// the explanation below a line. Few buttons, no labels about who did what.
@@ -401,26 +399,61 @@ private struct ClickableSentence: View {
     }
 }
 
-/// The translation under the sentence: open, or one click away at B2/C1.
+/// The sentence in your language: open when you chose so, else "in your language" one click away.
+/// Opened three times in a row, the card asks once whether to keep it open.
 private struct TranslationLine: View {
     let text: String
     let open: Bool
     @State private var shown = false
+    @State private var askKeep = false
 
     var body: some View {
         if !text.isEmpty {
             if open || shown {
-                Text(text)
-                    .font(.system(size: 13))
-                    .foregroundStyle(Brand.paper.opacity(0.55))
-                    .fixedSize(horizontal: false, vertical: true)
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(text)
+                        .font(.system(size: 13))
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    if askKeep {
+                        HStack(spacing: 10) {
+                            Text("Keep it always open?").font(.system(size: 12))
+                            Button("Yes") { keep(true) }.buttonStyle(.link).font(.system(size: 12))
+                            Button("No") { keep(false) }.buttonStyle(.link).font(.system(size: 12))
+                        }
+                        .foregroundStyle(.secondary)
+                    }
+                }
             } else {
-                Button("Show translation") { shown = true }
+                Button("in your language") { reveal() }
                     .buttonStyle(.plain)
                     .font(.system(size: 12))
-                    .foregroundStyle(Brand.paper.opacity(0.45))
+                    .foregroundStyle(.secondary)
+                    .onAppear {
+                        // "In a row": a card left closed starts the count again.
+                        let d = UserDefaults.standard
+                        if !d.bool(forKey: "translationLastOpened") { d.set(0, forKey: Key.translationOpenedInARow) }
+                        d.set(false, forKey: "translationLastOpened")
+                    }
             }
         }
+    }
+
+    private func reveal() {
+        shown = true
+        let d = UserDefaults.standard
+        d.set(true, forKey: "translationLastOpened")
+        let inARow = d.integer(forKey: Key.translationOpenedInARow) + 1
+        d.set(inARow, forKey: Key.translationOpenedInARow)
+        askKeep = inARow >= 3 && !d.bool(forKey: Key.translationKeepAsked)
+    }
+
+    private func keep(_ on: Bool) {
+        let d = UserDefaults.standard
+        d.set(true, forKey: Key.translationKeepAsked)
+        d.set(0, forKey: Key.translationOpenedInARow)
+        if on { d.set(true, forKey: Key.showTranslation) }
+        askKeep = false
     }
 }
 
@@ -485,7 +518,7 @@ private struct ProgressSteps: View {
                     .foregroundStyle(Brand.paper)
                     .fixedSize(horizontal: false, vertical: true)
                     .transition(.opacity)
-                if let translation = step.translation {
+                if let translation = step.translation, UserDefaults.standard.bool(forKey: Key.showTranslation) {
                     Text(translation)
                         .font(.system(size: 13))
                         .foregroundStyle(Brand.paper.opacity(0.55))

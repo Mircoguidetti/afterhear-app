@@ -77,7 +77,7 @@ struct OnboardingView: View {
     @State private var step = 0
     @AppStorage(Key.native) private var native = NativeLanguage.it.rawValue
     @AppStorage(Key.heard) private var heard = HeardLanguage.enGB.rawValue
-    @AppStorage(Key.level) private var level = "B2"
+    @AppStorage(Key.showTranslation) private var showTranslation = true
     @State private var trusted = AXIsProcessTrusted()
     @State private var translation: Translator.Status = .unavailable
     @State private var downloading = false
@@ -147,12 +147,6 @@ struct OnboardingView: View {
             Picker("You want to understand", selection: $heard) {
                 ForEach(HeardLanguage.allCases) { Text($0.label).tag($0.rawValue) }
             }
-            Picker("How well, today", selection: $level) {
-                Text("Getting there").tag("B1")
-                Text("Quite well").tag("B2")
-                Text("Very well").tag("C1")
-            }
-            .pickerStyle(.segmented)
         }
     }
 
@@ -168,16 +162,26 @@ struct OnboardingView: View {
 
     private var translations: some View {
         VStack(alignment: .leading, spacing: 18) {
-            title(String(localized: "Instant translations."), String(localized: "The translation under each sentence, at once and offline. A one-time download from Apple."))
-            switch translation {
-            case .ready:
-                Label("Ready", systemImage: "checkmark.circle.fill").foregroundStyle(Brand.paper)
-            case .needsDownload:
-                Button(downloading ? String(localized: "Downloading…") : String(localized: "Download")) { downloading = true }
-                    .disabled(downloading).controlSize(.large)
-            case .unsupported, .unavailable:
-                Text("On this Mac the translation comes with the explanation, a second later.")
-                    .foregroundStyle(Brand.paper.opacity(0.65))
+            // One question instead of the level (owner, 06/10 night): a preference, not a skill.
+            title(String(localized: "When a sentence slips past you, do you also want to see it in your language?"),
+                  String(localized: "You can change it from any card."))
+            Picker("", selection: $showTranslation) {
+                Text("Yes, under the sentence").tag(true)
+                Text("No, the meaning is enough").tag(false)
+            }
+            .pickerStyle(.radioGroup)
+            .labelsHidden()
+            // Apple's translator, on this Mac, only where it exists (macOS 26) and only if you want it.
+            if showTranslation {
+                switch translation {
+                case .ready:
+                    Label("Ready", systemImage: "checkmark.circle.fill").foregroundStyle(Brand.paper)
+                case .needsDownload:
+                    Button(downloading ? String(localized: "Downloading…") : String(localized: "Download it now, it comes at once")) { downloading = true }
+                        .disabled(downloading).controlSize(.large)
+                case .unsupported, .unavailable:
+                    EmptyView()
+                }
             }
         }
     }

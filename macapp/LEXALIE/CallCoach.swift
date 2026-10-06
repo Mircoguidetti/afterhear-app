@@ -36,6 +36,7 @@ enum CoachClient {
         full["heard"] = settings.heard.rawValue
         full["native"] = settings.native.rawValue
         full["level"] = settings.level
+        full["level_reliability"] = LevelEstimate.reliability
         full["provider"] = settings.provider.rawValue
         request.httpBody = try JSONSerialization.data(withJSONObject: full)
         let (data, response) = try await URLSession.shared.data(for: request)

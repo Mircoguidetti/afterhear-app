@@ -510,7 +510,8 @@ final class AppModel: ObservableObject {
                     explanation = try await ExplainClient.explain(sent, settings: settings, known: known,
                                                                   struggling: store.struggling, watch: Memory.shared.watch,
                                                                   profile: store.listeningProfile, source: source, overlap: overlap,
-                                                                  tone: tone, before: linesBefore, after: linesAfter)
+                                                                  tone: tone, before: linesBefore, after: linesAfter,
+                                                                  literal: quickTranslation)
                 } catch {
                     // The server didn't answer: saved, and shown whole as soon as it does.
                     explanation = Explanation(transcript: nil, translation: quickTranslation ?? "", intent: nil, pieces: [],
@@ -677,7 +678,8 @@ final class AppModel: ObservableObject {
                                                               watch: Memory.shared.watch, profile: store.listeningProfile, source: source,
                                                               overlap: false, tone: "",
                                                               before: lines[max(0, index - 2)..<index].map(\.text),
-                                                              after: lines[(index + 1)..<min(lines.count, index + 3)].map(\.text))
+                                                              after: lines[(index + 1)..<min(lines.count, index + 3)].map(\.text),
+                                                              literal: quickTranslation)
             } catch {
                 problem = error
             }

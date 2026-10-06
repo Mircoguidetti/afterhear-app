@@ -6,7 +6,7 @@ struct SettingsView: View {
     @AppStorage(Key.webApp) private var webApp = AppSettings.defaultWebApp
     @AppStorage(Key.heard) private var heard = HeardLanguage.enGB.rawValue
     @AppStorage(Key.native) private var native = NativeLanguage.system.rawValue
-    @AppStorage(Key.level) private var level = "B2"
+    @AppStorage(Key.showTranslation) private var showTranslation = true
     @AppStorage(Key.pauseVideo) private var pauseVideo = true
     @AppStorage(Key.sorry) private var sorry = true
     @AppStorage(Key.doubleTap) private var doubleTap = true
@@ -48,10 +48,10 @@ struct SettingsView: View {
                     ForEach(HeardLanguage.allCases) { Text($0.label).tag($0.rawValue) }
                 }
                 .onChange(of: heard) { _ in AppModel.shared.languageChanged() }
-                Picker("How well you understand it", selection: $level) {
-                    Text("Getting there").tag("B1")
-                    Text("Quite well").tag("B2")
-                    Text("Very well").tag("C1")
+                // No level to choose (owner, 06/10 night): LEXALIE learns it from your cards.
+                VStack(alignment: .leading, spacing: 2) {
+                    Toggle("The sentence in your language too", isOn: $showTranslation)
+                    Text("Under each sentence, what it says in your language.").font(.caption).foregroundStyle(.secondary)
                 }
                 TranslationRow(heard: HeardLanguage(rawValue: heard) ?? .enGB, native: NativeLanguage(rawValue: native) ?? .system)
             }

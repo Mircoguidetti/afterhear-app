@@ -87,7 +87,13 @@ enum Key {
     static let code = "testerCode"
     static let heard = "heardLanguage"
     static let native = "nativeLanguage"
+    /// The level you once chose; now only the start of the estimate (LevelEstimate), never asked.
     static let level = "level"
+    /// The sentence in your language under each card's sentence: your choice (owner, 06/10 night).
+    static let showTranslation = "showTranslation"
+    /// Times in a row you opened it with it off; the card then asks once to keep it open.
+    static let translationOpenedInARow = "translationOpenedInARow"
+    static let translationKeepAsked = "translationKeepAsked"
     static let provider = "provider"
     static let seconds = "seconds"
     static let onDeviceOnly = "onDeviceOnly"
@@ -142,7 +148,6 @@ struct AppSettings {
 
     static let defaultServer = "https://asaid-nine.vercel.app"
     static let defaultWebApp = "https://asaid-cx6u.vercel.app"
-    static let levels = ["A2", "B1", "B2", "C1"]
 
     static func registerDefaults() {
         UserDefaults.standard.register(defaults: [
@@ -151,6 +156,7 @@ struct AppSettings {
             Key.heard: HeardLanguage.enGB.rawValue,
             Key.native: NativeLanguage.system.rawValue,
             Key.level: "B2",
+            Key.showTranslation: true,
             Key.provider: Provider.gemini.rawValue,
             Key.seconds: 8.0,
             Key.onDeviceOnly: true,
@@ -177,7 +183,8 @@ struct AppSettings {
             code: d.string(forKey: Key.code) ?? "",
             heard: HeardLanguage(rawValue: d.string(forKey: Key.heard) ?? "") ?? .enGB,
             native: NativeLanguage(rawValue: d.string(forKey: Key.native) ?? "") ?? .system,
-            level: d.string(forKey: Key.level) ?? "B2",
+            // Never asked: estimated from your cards (LevelEstimate).
+            level: LevelEstimate.current,
             // The AI is ours: always Gemini, never chosen nor shown (owner, 02/10, § 19.27).
             provider: .gemini,
             seconds: d.double(forKey: Key.seconds),
