@@ -1147,7 +1147,8 @@ final class AppModel: ObservableObject {
     /// Who you are and the names that are only yours, for what leaves the Mac (P3, P4): your first
     /// name becomes [tu]; people, your words and your calendar's guests and projects never go out.
     static func syncRedactor() {
-        Redactor.me = UserDefaults.standard.string(forKey: Key.myName) ?? ""
+        // The name you typed, else the first name of your account.
+        Redactor.me = CallCoach.shared.myName
         var names = Set(shared.store.people.map { $0.name.lowercased() })
         names.formUnion(Memory.shared.dictionary.map { $0.lowercased() })
         for call in CalendarWatch.shared.calls {

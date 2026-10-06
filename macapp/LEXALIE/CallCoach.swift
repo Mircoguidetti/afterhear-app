@@ -83,7 +83,6 @@ final class CallCoach: ObservableObject {
 
     private let panel = FloatingPanel(position: .topCenter)
     private var session: Session?
-    private var lastAsked = Date.distantPast
     private var lastHesitation = Date.distantPast
     private var ticking = false
 
@@ -124,7 +123,8 @@ final class CallCoach: ObservableObject {
     }
 
     private static func payload(_ turns: [Turn]) -> [[String: String]] {
-        turns.suffix(80).map { ["who": $0.isMine ? "you" : "them", "text": String(Redactor.redact($0.text).prefix(2000))] }
+        AppModel.syncRedactor()
+        return turns.suffix(80).map { ["who": $0.isMine ? "you" : "them", "text": String(Redactor.redact($0.text).prefix(2000))] }
     }
 
     // MARK: Every few seconds
@@ -142,7 +142,8 @@ final class CallCoach: ObservableObject {
             }
             session?.lastInCall = now
             observe(AppModel.shared.recentTurns(seconds: 60))
-            await askedMe()
+            // Nothing shows up by itself during a call (owner, 06/10 night): a question put to you is on
+            // the card when you tap, and at the end of the call among what is still open for you.
         } else if let s = session, now.timeIntervalSince(s.lastInCall) > 90 {
             session = nil
             await finish(s, ended: s.lastInCall)
@@ -196,28 +197,6 @@ final class CallCoach: ObservableObject {
         return t.hasSuffix("?") || t.range(of: questionStart, options: .regularExpression) != nil
     }
 
-    // MARK: They asked me
-
-    private func askedMe() async {
-        // Only if you turned it on in Settings: the question put to you, simply. Never the answer.
-        guard UserDefaults.standard.bool(forKey: Key.askedMe), !myName.isEmpty,
-              Date().timeIntervalSince(lastAsked) > 30 else { return }
-        let turns = AppModel.shared.recentTurns(seconds: 90)
-        guard let last = turns.last(where: { !$0.isMine }), (turns.last?.end ?? 0) - last.end < 4 else { return }
-        let lower = last.text.lowercased()
-        guard lower.range(of: "\\b\(NSRegularExpression.escapedPattern(for: myName.lowercased()))\\b", options: .regularExpression) != nil,
-              Self.isQuestion(last.text) || lower.range(of: Self.requestCue, options: .regularExpression) != nil else { return }
-        lastAsked = Date()
-        do {
-            let answer: CoachClient.CatchUp = try await CoachClient.post("api/catchup", [
-                "turns": Self.payload(turns), "mode": "question",
-            ])
-            guard !answer.question_to_you.isEmpty else { return }
-            // Never the answer, nor how to start it (owner, 06/10: no cheating).
-            panel.show(CatchUpView(lines: [String(localized: "They asked you: \(answer.question_to_you)")], points: []), autoHide: 10, width: 440)
-        } catch {}
-    }
-
     // MARK: After the call
 
     private func finish(_ s: Session, ended: Date) async {
@@ -228,6 +207,7 @@ final class CallCoach: ObservableObject {
         let tapped = store.moments.filter { $0.date >= s.start && $0.date <= ended.addingTimeInterval(60) && $0.trigger != "hesitation" }.count
         var report: CoachClient.Report?
         do {
+            AppModel.syncRedactor()
             report = try await CoachClient.post("api/report", [
                 "pairs": s.pairs.map { ["question": Redactor.redact($0.question), "answer": Redactor.redact($0.answer),
                                         "pause_s": min($0.pause, 120), "fillers": min($0.fillers, 50)] as [String: Any] },

@@ -109,7 +109,6 @@ enum Key {
     static let prepLead = "prepLeadMinutes"
     static let callsTextOnly = "callsTextOnly"
     static let myName = "myFirstName"
-    static let askedMe = "showQuestionsToMe"
     /// Gone (§ 19.26: voices never leave the devices); kept only to switch it off for old installs.
     static let syncAudio = "syncAudio"
     /// The first-run setup is done.

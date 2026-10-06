@@ -14,7 +14,6 @@ struct SettingsView: View {
     @AppStorage(Key.callsTextOnly) private var callsTextOnly = false
     @AppStorage(Key.callReport) private var callReport = false
     @AppStorage(Key.myName) private var myName = ""
-    @AppStorage(Key.askedMe) private var askedMe = false
     @AppStorage(Key.dictionary) private var dictionary = ""
     @AppStorage(Key.useModel) private var useModel = false
     @AppStorage(Key.songs) private var songs = true
@@ -108,7 +107,6 @@ struct SettingsView: View {
             TextEditor(text: $dictionary).frame(height: 60).font(.body)
         }
         TextField("Your first name (to notice when someone asks you)", text: $myName)
-        Toggle("In calls, show a question asked to me, simply", isOn: $askedMe)
         Toggle("In calls, also listen to my voice (and mark when I say \"sorry?\")", isOn: $sorry)
             .onChange(of: sorry) { _ in AppModel.shared.applyTriggers() }
         // The microphone is on only in calls, with the toggle above (owner, 04/10: say where it works).
