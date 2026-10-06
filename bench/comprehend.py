@@ -27,6 +27,7 @@ COMPREHEND_SAMPLE=n takes n cases per kind (a small run, to measure the cost fir
 import concurrent.futures
 import difflib
 import glob
+import hashlib
 import json
 import os
 import re
@@ -212,14 +213,16 @@ def hear():
     listed = sample(json.load(open(CASES)))
     path = os.path.join(OUT, 'heard.json')
     # Kept between runs (actions/cache): the same clips through the same recogniser give the same words.
-    if os.path.exists(path):
-        kept = json.load(open(path))
-        if all(c['id'] in kept for c in listed):
-            print(len(listed), 'taps: the words heard last time')
-            return 0
+    # Only the taps not heard yet go through Parakeet (new cases, or a cache from fewer cases).
+    heard = json.load(open(path)) if os.path.exists(path) else {}
+    todo = [c for c in listed if c['id'] not in heard]
+    if not todo:
+        print(len(listed), 'taps: the words heard last time')
+        return 0
+    print(len(listed) - len(todo), 'taps kept from last time,', len(todo), 'to hear')
     rec = recogniser()
-    calls, heard = {}, {}
-    for c in listed:
+    calls = {}
+    for c in todo:
         if c['file'] not in calls:
             calls[c['file']] = tap.run_samples(os.path.join(OUT, 'calls', c['file'] + '.wav'))
         a = max(0.0, c['tap'] - WINDOW)
@@ -239,7 +242,45 @@ _calls = {'n': 0}
 _lock = threading.Lock()
 
 
+# Answers kept between runs (actions/cache), keyed by the server's version of the instructions and the
+# exact request: an unchanged case costs nothing. GET /api/explain gives the version without calling Gemini.
+_answers = {'version': None, 'kept': {}, 'reused': 0}
+
+
+def answers_load():
+    try:
+        with urllib.request.urlopen(SERVER + '/api/explain', timeout=30) as r:
+            _answers['version'] = json.loads(r.read()).get('version')
+    except Exception as e:
+        print('No instructions version from the server (', str(e)[:80], '): nothing reused this time.')
+        return
+    path = os.path.join(OUT, 'answers.json')
+    if os.path.exists(path):
+        _answers['kept'] = json.load(open(path))
+    print('Instructions version', _answers['version'] + ':', len(_answers['kept']), 'answers kept from earlier runs')
+
+
+def answers_save():
+    if _answers['version']:
+        json.dump(_answers['kept'], open(os.path.join(OUT, 'answers.json'), 'w'))
+
+
 def post(path, body):
+    key = None
+    if _answers['version']:
+        key = hashlib.sha256((_answers['version'] + path + json.dumps(body, sort_keys=True)).encode()).hexdigest()
+        if key in _answers['kept']:
+            with _lock:
+                _answers['reused'] += 1
+            return _answers['kept'][key]
+    answer = _post(path, body)
+    if key and 'error' not in answer:
+        with _lock:
+            _answers['kept'][key] = answer
+    return answer
+
+
+def _post(path, body):
     with _lock:
         if _calls['n'] >= MAX_CALLS:
             return {'error': f'cap: {MAX_CALLS} calls reached, not sent'}
@@ -353,11 +394,14 @@ def cards():
         except Exception as e:
             return {'id': c['id'], 'kind': c['kind'], 'sentence': c['sentence'], 'offered': '', 'error': str(e)[:300]}
 
+    answers_load()
     with concurrent.futures.ThreadPoolExecutor(4) as pool:
         rows = list(pool.map(one, [c for c in listed if c['id'] in offers]))
+    answers_save()
     json.dump(rows, open(os.path.join(OUT, 'rows.json'), 'w'), indent=1, ensure_ascii=False)
     errors = [r for r in rows if 'error' in r or 'error' in (r.get('card') or {}) or 'error' in (r.get('touch_card') or {})]
-    print(len(rows), 'cases,', _calls['n'], 'calls to the server (cap', MAX_CALLS, '),', len(errors), 'with an error')
+    print(len(rows), 'cases,', _calls['n'], 'calls to the server (cap', MAX_CALLS, '),', _answers['reused'], 'answers reused,',
+          len(errors), 'with an error')
     return 0
 
 

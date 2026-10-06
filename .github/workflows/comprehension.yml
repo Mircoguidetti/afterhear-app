@@ -42,6 +42,14 @@ jobs:
         with:
           path: bench/out/comprehend/heard.json
           key: comprehension-heard-${{ hashFiles('bench/comprehension/cases.json', 'bench/tap.py') }}-${{ inputs.sample }}
+          # A cache from other cases still helps: only the new taps are heard again.
+          restore-keys: comprehension-heard-
+      - name: The answers kept from earlier runs (reused while the server's instructions don't change)
+        uses: actions/cache@v4
+        with:
+          path: bench/out/comprehend/answers.json
+          key: comprehension-answers-${{ github.run_id }}
+          restore-keys: comprehension-answers-
       - name: The calls the cases need
         run: python3 bench/comprehend.py audio
       - name: The clip before every tap, through Parakeet
