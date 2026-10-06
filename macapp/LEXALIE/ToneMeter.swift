@@ -109,6 +109,12 @@ enum ToneMeter {
 
     // MARK: - Laughter: Apple's built-in sound classifier, on the device.
 
+    /// Laughter anywhere in these seconds (the end card's "why they laughed", in calls).
+    static func laughter(in voice: [Float], rate: Double) -> Bool {
+        guard rate > 0 else { return false }
+        return laughs(voice, rate: rate, from: 0, seconds: Double(voice.count) / rate)
+    }
+
     private static func laughs(_ voice: [Float], rate: Double, from: Double, seconds: Double) -> Bool {
         guard rate > 0, from >= 0 else { return false }
         let a = Int(from * rate), b = min(voice.count, a + Int(seconds * rate))

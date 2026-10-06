@@ -79,6 +79,9 @@ final class CallCoach: ObservableObject {
         var seen: Set<String> = []
         var theirTurns = 0
         var hesitations = 0
+        /// The line just before the last laugh LEXALIE heard (SoundAnalysis, on the Mac).
+        var laughed: String? = nil
+        var lastLaughCheck = Date.distantPast
     }
 
     private let panel = FloatingPanel(position: .topCenter)
@@ -142,6 +145,7 @@ final class CallCoach: ObservableObject {
             }
             session?.lastInCall = now
             observe(AppModel.shared.recentTurns(seconds: 60))
+            listenForLaughter(now: now)
             // Nothing shows up by itself during a call (owner, 06/10 night): a question put to you is on
             // the card when you tap, and at the end of the call among what is still open for you.
         } else if let s = session, now.timeIntervalSince(s.lastInCall) > 90 {
@@ -197,45 +201,59 @@ final class CallCoach: ObservableObject {
         return t.hasSuffix("?") || t.range(of: questionStart, options: .regularExpression) != nil
     }
 
+    // MARK: Laughter
+
+    /// Every 10 seconds in a call: did they laugh? Then the line just before is "why they laughed" at the
+    /// end, but only if it was heard well (a real sentence, not a few broken words).
+    private func listenForLaughter(now: Date) {
+        guard let s = session, now.timeIntervalSince(s.lastLaughCheck) >= 10 else { return }
+        session?.lastLaughCheck = now
+        let (voice, rate) = AppModel.shared.recentVoice(seconds: 10)
+        guard !voice.isEmpty, ToneMeter.laughter(in: voice, rate: rate) else { return }
+        let turns = AppModel.shared.recentTurns(seconds: 25)
+        guard let line = turns.last(where: { !$0.isMine && !Ranking.isLaugh($0.text) && $0.text.split(separator: " ").count >= 4 }) else { return }
+        session?.laughed = line.text
+    }
+
     // MARK: After the call
 
     private func finish(_ s: Session, ended: Date) async {
         // The report is yours to turn on, and only about understanding (F5, decision 3): what they
         // asked, what they asked you to do. Not what was decided (no minutes), nothing about how you speak.
-        guard UserDefaults.standard.bool(forKey: Key.callReport), !s.pairs.isEmpty || !s.requests.isEmpty else { return }
-        let store = AppModel.shared.store
-        let tapped = store.moments.filter { $0.date >= s.start && $0.date <= ended.addingTimeInterval(60) && $0.trigger != "hesitation" }.count
-        var report: CoachClient.Report?
-        do {
-            AppModel.syncRedactor()
-            report = try await CoachClient.post("api/report", [
-                "pairs": s.pairs.map { ["question": Redactor.redact($0.question), "answer": Redactor.redact($0.answer),
-                                        "pause_s": min($0.pause, 120), "fillers": min($0.fillers, 50)] as [String: Any] },
-                "requests": s.requests.map { Redactor.redact($0) },
-            ])
-        } catch {}
-        let missed = tapped + s.hesitations + (report?.off_topic.count ?? 0)
-        let score = max(0, min(100, 100 - Int((100 * Double(missed) / Double(max(s.theirTurns, 1))).rounded())))
-        var saved = SavedReport(id: s.id, title: s.title, people: s.people, start: s.start, end: ended,
-                                score: score, turns: s.theirTurns, report: report)
-        saved.taps = tapped
-        let call = Call(id: s.id, title: s.title, start: s.start, end: ended, people: s.people, guests: 0)
-        let improved = CallHistory.improvements(now: saved, taps: tapped, previous: CallHistory.last(like: call, before: s.start))
-        saved.improved = improved
-        Reports.shared.add(saved)
-        Sync.shared.saveCallReport(saved)
-
-        let content = UNMutableNotificationContent()
-        let who = s.people.isEmpty ? s.title : ListFormatter.localizedString(byJoining: s.people)
-        content.title = String(localized: "Your call with \(who): \(score)% understood")
-        var body: [String] = []
-        // What got better since last time comes first: that's what you want to know (§ 19.16).
-        if let first = improved.first { body.append(String(localized: "Better than last time: \(first)")) }
-        if tapped > 0 { body.append(tapped == 1 ? String(localized: "1 thing slipped past you") : String(localized: "\(tapped) things slipped past you")) }
-        if let n = report?.requests.count, n > 0 { body.append(n == 1 ? String(localized: "1 thing they asked you to do") : String(localized: "\(n) things they asked you to do")) }
-        content.body = (body.isEmpty ? String(localized: "The report is ready.") : body.joined(separator: " · ") + ".") + " " + String(localized: "Five minutes now?")
-        content.userInfo = ["kind": "report", "call": s.id]
-        try? await UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: "report-\(s.id)", content: content, trigger: nil))
+        // It no longer arrives as a notification: the end card says what matters and opens it.
+        var reportID: String?
+        var open: [String] = []
+        if UserDefaults.standard.bool(forKey: Key.callReport), !s.pairs.isEmpty || !s.requests.isEmpty {
+            let store = AppModel.shared.store
+            let tapped = store.moments.filter { $0.date >= s.start && $0.date <= ended.addingTimeInterval(60) && $0.trigger != "hesitation" }.count
+            var report: CoachClient.Report?
+            do {
+                AppModel.syncRedactor()
+                report = try await CoachClient.post("api/report", [
+                    "pairs": s.pairs.map { ["question": Redactor.redact($0.question), "answer": Redactor.redact($0.answer),
+                                            "pause_s": min($0.pause, 120), "fillers": min($0.fillers, 50)] as [String: Any] },
+                    "requests": s.requests.map { Redactor.redact($0) },
+                ])
+            } catch {}
+            let missed = tapped + s.hesitations + (report?.off_topic.count ?? 0)
+            let score = max(0, min(100, 100 - Int((100 * Double(missed) / Double(max(s.theirTurns, 1))).rounded())))
+            var saved = SavedReport(id: s.id, title: s.title, people: s.people, start: s.start, end: ended,
+                                    score: score, turns: s.theirTurns, report: report)
+            saved.taps = tapped
+            let call = Call(id: s.id, title: s.title, start: s.start, end: ended, people: s.people, guests: 0)
+            saved.improved = CallHistory.improvements(now: saved, taps: tapped, previous: CallHistory.last(like: call, before: s.start))
+            Reports.shared.add(saved)
+            Sync.shared.saveCallReport(saved)
+            reportID = saved.id
+            // In plain words and in your language, with the deadline.
+            open = report?.requests.map { $0.when.isEmpty ? $0.request : "\($0.request) · \($0.when)" } ?? []
+        }
+        // Without the report, the words themselves: a request with your name, a question to you.
+        if open.isEmpty {
+            let name = myName.lowercased()
+            open = s.requests + s.pairs.filter { !name.isEmpty && $0.question.lowercased().contains(name) }.map(\.question)
+        }
+        await EndCards.afterCall(open: open, laughed: s.laughed, with: s.people, reportID: reportID)
     }
 
     func openReport(_ id: String) {

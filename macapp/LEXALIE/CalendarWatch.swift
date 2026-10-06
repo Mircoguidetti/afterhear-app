@@ -128,7 +128,7 @@ final class CalendarWatch: NSObject, ObservableObject, UNUserNotificationCenterD
         calls = found.sorted { $0.start < $1.start }
         followCurrentCall()
         schedulePreps()
-        sendLessons()
+        // No "Five minutes now?" after a call any more: the end card says what matters (06/10 night).
         Sync.shared.calendarChanged()
     }
 

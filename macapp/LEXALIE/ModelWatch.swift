@@ -98,6 +98,10 @@ final class ModelWatch: ObservableObject {
             }
             session?.lastActive = now
             if session?.title == nil { session?.title = title }
+            // Going back in a video is a tap (block R): noticed from the words, explained at the end.
+            if current == .video {
+                RewindWatch.shared.observe(model.recentTurns(seconds: 60), since: now.addingTimeInterval(-60), show: session?.title)
+            }
             guard enabled else { return }
             if now.timeIntervalSince(lastSpot) >= 60, !spotting { await spot(current) }
         } else if let old = session, now.timeIntervalSince(old.lastActive) > 180 {
@@ -142,15 +146,11 @@ final class ModelWatch: ObservableObject {
 
     // MARK: The quiz
 
+    /// The end of a video or an episode: one card, only if something is worth it (owner, 06/10 night).
+    /// "Watch with me" and its quiz notification become this card. Music: only the tap, never a card.
     private func finish(_ s: (kind: Kind, title: String?, start: Date, lastActive: Date)) async {
-        let lines = quiz(since: s.start)
-        guard !lines.isEmpty, s.kind != .call else { return }
-        let content = UNMutableNotificationContent()
-        let what = s.title ?? (s.kind == .song ? String(localized: "your music") : String(localized: "your video"))
-        content.title = s.kind == .song ? String(localized: "\(lines.count) lines you probably missed in \(what)") : String(localized: "We watched \(what) together")
-        content.body = (Self.eveningLine().map { $0 + " " } ?? "") + String(localized: "Did you get them? One minute.")
-        content.userInfo = ["kind": "quiz", "since": s.start.timeIntervalSince1970]
-        try? await UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: "quiz-\(Int(s.start.timeIntervalSince1970))", content: content, trigger: nil))
+        guard s.kind == .video else { return }
+        await EndCards.afterWatching(title: s.title, since: s.start)
     }
 
     func quiz(since: Date) -> [Moment] {

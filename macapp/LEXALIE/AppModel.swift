@@ -1087,6 +1087,79 @@ final class AppModel: ObservableObject {
         Memory.shared.record("model_catch", pieces: [piece], moment: moment)
     }
 
+    /// A sentence you went back to hear again (block R): kept like a tap, with its voice, and explained
+    /// in the card at the end of the video (rewinding doesn't open anything: you just wanted to hear it).
+    func addRewindMoment(line: String, show: String?) -> UUID {
+        let started = Date()
+        let (samples, rate) = audio.ring.last(75)
+        let clipLength = rate > 0 ? Double(samples.count) / rate : 0
+        let clipStart = started.addingTimeInterval(-clipLength)
+        var clipName: String?
+        if clipLength > 1 {
+            let url = store.newClipURL("m4a")
+            let (voice, voiceRate) = audio.hiRing.last(clipLength)
+            let wrote = voiceRate > 0 && !voice.isEmpty
+                ? (try? Clip.writeVoice(voice, rate: voiceRate, to: url)) != nil
+                : (try? Clip.writeVoice(samples, rate: rate, to: url)) != nil
+            if wrote { clipName = url.lastPathComponent }
+        }
+        let text = String(line.prefix(600))
+        var moment = Moment(date: started, transcript: text, sent: Redactor.redact(text, publicMedia: true),
+                            translation: "", pieces: [], clipFile: clipName, provider: "rewind", latencyMs: 0)
+        moment.trigger = "rewind"
+        moment.context = "video"
+        moment.show = show.map { String($0.prefix(200)) }
+        let turns = Conversation.turns(others: live.timedWords(since: clipStart), mine: [], clipStart: clipStart)
+        if let chosen = turns.lastIndex(where: { Memory.key($0.text) == Memory.key(text) }) {
+            moment.turns = turns
+            moment.chosen = chosen
+        }
+        moment.offline = true
+        store.add(moment)
+        return moment.id
+    }
+
+    /// The line just before a laugh in a call: kept (text only if you chose so) and explained at the end
+    /// of the call as "why they laughed".
+    func addLaughMoment(line: String) -> UUID {
+        let text = String(line.prefix(600))
+        var moment = Moment(date: Date(), transcript: text, sent: Redactor.redact(text),
+                            translation: "", pieces: [], clipFile: nil, provider: "laugh", latencyMs: 0)
+        moment.trigger = "laugh"
+        moment.context = "call"
+        let call = CalendarWatch.shared.current
+        moment.call = call?.id
+        moment.callTitle = call.map { String($0.title.prefix(200)) }
+        moment.offline = true
+        store.add(moment)
+        return moment.id
+    }
+
+    /// Explain a moment already saved, in place (the end card, the evening): one call to our server.
+    func explainSaved(_ id: UUID, tone: String = "") async -> Moment? {
+        guard var moment = store.moments.first(where: { $0.id == id }) else { return nil }
+        if !moment.pieces.isEmpty { return moment }
+        let settings = AppSettings.current
+        let known = Array(store.known) + Memory.shared.knownWell + Memory.shared.dictionary
+        let source = moment.show.map { "video: \($0)" } ?? ""
+        guard let e = try? await ExplainClient.explain(moment.sent, settings: settings, known: known, struggling: store.struggling,
+                                                       watch: Memory.shared.watch, profile: store.listeningProfile, source: source,
+                                                       tone: tone, publicMedia: moment.context != "call") else { return nil }
+        moment.translation = e.translation
+        moment.pieces = e.pieces
+        moment.intent = e.intent
+        moment.meant = e.meant
+        moment.inPractice = e.inPractice
+        moment.forYou = e.forYou
+        moment.offline = nil
+        store.update(moment)
+        Memory.shared.record("tap", pieces: e.pieces, moment: moment)
+        return moment
+    }
+
+    /// The last seconds of sound at full quality, for laughter (SoundAnalysis, on the Mac).
+    func recentVoice(seconds: Double) -> ([Float], Double) { audio.hiRing.last(seconds) }
+
     /// The last minutes as turns, them and you, for the catch-up and the call coach.
     func recentTurns(seconds: Double) -> [Turn] {
         let start = Date().addingTimeInterval(-seconds)
