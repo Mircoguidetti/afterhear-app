@@ -1,0 +1,170 @@
+id	kind	mark	touch_mark	reason
+asked-185	asked	yes		vocative [nome] kept, asks to restate second part of your question
+asked-231	asked	yes		[nome] vocative, headwind of 42 store conversions explained
+asked-1280	asked	partly		name rendered [luogo], in_practice says 'chiede a un collega' (third person); content right
+asked-1343	asked	partly		name rendered [luogo], 'passa la parola al collega'; not framed as to you
+asked-1913	asked	yes		'ti sta chiedendo di spiegare perche' adesso'
+asked-2049	asked	yes		[nome] vocative, segment down more than average
+asked-3458	asked	no		no card
+asked-3509	asked	partly		fragment 'the answer.' but add-color piece; 'passa la parola al collega', name lost
+asked-3514	asked	no		no card
+asked-4302	asked	no		wrong fragment, garbled meaning ('tenere del tempo'), question lost
+asked-4920	asked	yes		[nome] vocative, how much of cost cuts structural
+asked-5619	asked	yes		'ti sta chiedendo un parere' on tort/litigation
+asked-5972	asked	yes		[nome] vocative, which regions you focus on
+asked-6261	asked	no		garbled ASR, reads as praise of a question; request to answer first question lost
+asked-7987	asked	no		no card
+asked-8022	asked	partly		name lost (Juvakar...asks); content right but not shown as addressed to listener
+asked-8057	asked	partly		Joc heard as 'Doc'; analyst's question content right, addressee unclear
+asked-8074	asked	yes		[nome], puoi approfondire
+asked-8154	asked	yes		[nome] vocative, capital priorities
+asked-8617	asked	yes		'Risponde alla tua domanda?' / 'ti ho risposto'
+asked-8819	asked	no		no card
+asked-9119	asked	yes		'ti passa la parola', anything to add
+asked-9500	asked	no		picked tail 'and then I can add to it'; pipeline request lost
+asked-9668	asked	partly		name lost, third person 'chiede quanto sono sicuri'; NOI 3% context partly
+asked-9684	asked	partly		translation '[nome], vuoi tu' but in_practice 'passa la parola a un collega'
+asked-10154	asked	yes		'ti sta chiedendo conferma' July vs 2019
+asked-10336	asked	yes		[nome] vocative, update on integration
+asked-10803	asked	partly		garbled (ducts->'asset'), [nome] o chiunque; FCF importance roughly kept
+asked-11419	asked	yes		'Ti va di rispondere tu o ci penso io?'
+asked-11885	asked	partly		name and EU recovery fund lost ('questa iniziativa'); RWE benefit question kept
+asked-12947	asked	yes		[nome] vocative, OPEX trajectory
+asked-13143	asked	yes		'Ti torna la spiegazione?'
+asked-13384	asked	partly		name lost, 'beyond COVID' mistranslated as outside [azienda]; scenario question roughly
+asked-14566	asked	partly		name lost, 'puoi dirci' about the win; tier-one Q3 confirmation roughly
+asked-14674	asked	partly		name lost, third person; tier 3 share of revenue right
+asked-15939	asked	partly		name lost, third person; inventory at year end right
+asked-16160	asked	partly		name lost; new customers due to new demand drivers roughly
+asked-16356	asked	no		'the enemy' - wrong transcription
+asked-17731	asked	yes		'ti sta chiedendo se hai dato le stime'
+named-184	named	no		no false alarm
+named-1968	named	no		no false alarm (investors question, not to Rainer)
+named-8150	named	no		no false alarm (garbled)
+named-8229	named	no		thanks, no false alarm
+named-9442	named	no		no false alarm
+named-10360	named	no		no false alarm
+named-10508	named	no		no false alarm ('tocca alle vostre domande', audience)
+word-231	word	yes		headwind = freno/ostacolo
+word-1558	word	yes		cost-out tailwind = beneficio da tagli costi, grows through year
+word-135	word	yes		run rate = fatturato annualizzato a regime
+word-894	word	yes		free cash flow explained correctly
+word-11534	word	partly		EBITDA explained, 'adjusted' only translated (rettificato), one-offs not explained
+word-11729	word	no	yes	first card picked next clause (funding/stake); touch explains value accretive
+word-142	word	yes		comparable store sales guidance explained
+word-18968	word	yes		comp sales = vendite a parita' di negozi
+word-9291	word	yes		same-store NOI explained
+word-9376	word	yes		trailing 12-month = ultimi 12 mesi
+word-1169	word	yes		provide color = dare piu' dettagli
+word-19478	word	yes		give us some color = dare dettagli
+word-941	word	yes		backlog = portafoglio ordini da evadere
+word-4675	word	yes		deleveraging = riduzione del debito
+word-909	word	yes		gross capex = investimenti in beni materiali
+word-868	word	no	yes	first card glosses 'ex' and 'taking it from the top', not organically; touch explains it
+word-2634	word	yes		cost synergy funnel = pipeline of synergy savings
+word-2676	word	no		no card
+word-812	word	yes		decremental margins = profit hit from falling sales
+word-9344	word	yes		cap rate = rendimento annuo immobiliare
+word-1062	word	yes		utilization = grado di utilizzo (aircraft use)
+word-2831	word	yes	yes	book-to-bill >1 explained in both
+word-796	word	partly	yes	first card glosses sound/balance sheet, liquidity only via 'avere cassa'; touch explains
+word-900	word	yes		mark-to-market = valutazione al valore corrente
+word-7987	word	no		no card
+word-12872	word	yes		top line = ricavi, prima riga del conto economico
+word-849	word	yes		the bottom line is = il punto e'
+word-19247	word	no	yes	first card picked next clause (lapping); touch explains flattish
+word-12060	word	yes		Opex = spese operative
+word-1085	word	yes		ramp = aumento/accelerazione
+word-19306	word	yes		volume surcharges = carrier peak fees
+word-88	word	yes		dilutive = riduce l'utile per azione
+word-139	word	yes		financial covenants = vincoli nei contratti di prestito
+word-885	word	yes		impairments = svalutazioni
+word-9309	word	yes		pent-up demand = domanda repressa
+word-9398	word	yes		contractual escalators = aumenti periodici del canone
+word-1810	word	yes		low single digits = 1-3%
+word-918	word	yes		sequentially = vs trimestre precedente
+word-9346	word	yes		MOB rent rolls = registri locazioni immobili medici
+word-8022	word	yes		DAP = fosfato diammonico, fertilizzante
+word-2028	word	no	yes	first card replaced Kaizens with [eventi/sessioni], not explained; touch explains kaizen
+word-824	word	yes	yes	sugarcoat = indorare la pillola
+word-1575	word	yes	yes	high calorie = growth without margins
+word-4707	word	yes		ESG rating explained
+word-1292	word	yes	yes	de-risk = ridurre il rischio
+word-1369	word	yes		furloughs = sospensioni temporanee non retribuite
+word-1609	word	yes		sit back = restare passivi
+who-12528	who	no	yes	first card: Illumina masked as [azienda], not explained; touch says DNA-sequencing biotech
+who-12560	who	yes		Galleri = GRAIL's multi-cancer screening test
+who-1772	who	no		Cytiva masked as [azienda], never explained (placeholder)
+who-1762	who	no		Cepheid masked as [nome], only 'hanno creato un test' (placeholder)
+who-1970	who	no	yes	first card only names Videojet; touch: Danaher subsidiary for industrial coding/marking
+who-1968	who	no		picked second clause, Rainer not mentioned
+who-5673	who	no	partly	first card masks it as [azienda]; touch only says it is the company presenting results
+who-11546	who	no	yes	first card names Nordex without saying who; touch: German wind turbine maker
+who-11540	who	no	yes	first card [azienda]/'l'altra azienda'; touch: German energy group E.ON
+who-311	who	no	no	first card wrong fragment; touch masks Amazon as [azienda] ('il partner') (placeholder)
+who-18926	who	no	yes	first card glosses titles only; touch: baby-product chain of Bed Bath & Beyond
+who-1767	who	no	yes	first card glosses assays only; touch: US lab-diagnostics company
+who-1798	who	no	yes	first card mistranslates as 'divisione radiometri'; touch: diagnostics subsidiary
+who-1760	who	partly	yes	first card [azienda], in_practice says a company supplying COVID test components; touch expands IDT
+who-12640	who	no	yes	first card glosses idiom only; touch: Bristol Myers Squibb pharma
+who-1243	who	no		wrong fragment picked (tail clause), LEAP-1A not mentioned
+who-885	who	no		GECAS only named, glosses marks/impairments
+who-945	who	partly	yes	first card masks CFM as [azienda], only 'modelli di motori'; touch: CFM International aero engine
+who-1128	who	partly		737 masked as [numero] MAX, Boeing as [azienda]; card implies ordered planes but not which
+who-9329	who	no	yes	first card glosses '-based'/sq ft only; touch: US health network Mercy
+who-9317	who	no	yes	first card masks CMS as [azienda]; touch: US federal Medicare/Medicaid agency
+who-9286	who	no	partly	PPP masked as [azienda] ('prestiti [azienda]'); touch only 'prestiti PPP per le imprese' (placeholder)
+who-2653	who	no	partly	first card masks as [luogo] (wrong: a place); touch only 'nota azienda industriale USA'
+who-2601	who	yes	yes	IRX = their internal execution engine/operating system, explained
+who-9278	who	no	yes	first card masks HCA as [azienda]; touch: largest US private hospital group
+who-1812	who	no	yes	first card drops DBS; touch: Danaher Business System
+who-19092	who	no	partly	first card picked 'households.'; touch masks Instacart as [azienda], only 'piattaforme terze' (placeholder)
+who-19093	who	yes		piece: personal-care chain Harmon Face Values of Bed Bath & Beyond
+who-5801	who	no		wrong transcription ('game is part of the background')
+who-5690	who	no	yes	first card only names FPL; touch: Florida Power & Light, NextEra utility
+who-5702	who	no		no card
+who-7959	who	no		Esterhazy K3 masked as [azienda] 3, not explained (placeholder)
+who-11885	who	no	partly	first card wrong clause; touch: 'Recovery Fund di [azienda]' (EU masked), generic recovery fund
+who-4707	who	no	yes	first card masks MSCI; touch: ESG rating agency
+who-254	who	yes		Jefferies = US investment bank
+who-12694	who	no	yes	first card masks FDA as [azienda]; touch: US drug/device regulator
+who-9627	who	yes		CARES Act = 2020 US relief law
+who-5742	who	no		no card
+meant-1030	meant	partly	yes	first card only 'altre novita'' (stay tuned); touch: more cost cuts coming
+meant-1028	meant	yes	yes	right-size = euphemism for cutting costs/staff in central functions
+meant-1070	meant	yes	yes	rightsizing = cutting production (and jobs) due to demand drop
+meant-1024	meant	yes		cutting costs and staff at headquarters
+meant-2641	meant	no		no card
+meant-1462	meant	partly	partly	only 'aspettiamo di vedere'; no 'won't commit to size of impact'
+meant-2543	meant	partly	partly	literal 'vedremo'; doesn't say he can't say yet / depends on gas market
+meant-1553	meant	yes		'non si sbilancia', won't give an estimate
+meant-1886	meant	yes		tail clause, but 'non sappiamo ancora quanti test' conveys no forecast
+meant-12095	meant	yes	yes	can't answer, too early / nobody can know
+meant-1576	meant	no	yes	first card picked 'cost and execution issues'; touch: one-offs may recur
+meant-2047	meant	yes	yes	best businesses in their markets
+meant-3043	meant	partly	yes	first card: confirms 250 as safe estimate, misses 'likely beat it'; touch: won't raise beyond 250 out of caution
+meant-3047	meant	yes	yes	won't promise savings above 250
+meant-4894	meant	yes		can't decide alone, must agree with customers
+meant-8268	meant	yes	yes	no big upside even if prices rise
+meant-8292	meant	yes	yes	demand not growing, just back to normal
+meant-8303	meant	no	no	ASR dropped "n't": both cards say they DO forecast acceleration (opposite)
+meant-11789	meant	partly	partly	'molti fattori variabili' but not 'so no precise number'
+meant-11961	meant	partly	partly	literal 'medio, non basso'; misses that profitability is modest and he softens it
+meant-12247	meant	partly	yes	first: 'non risponde, e' una voce' (could read as denial); touch: neither confirm nor deny
+meant-19330	meant	no		ASR garbled 'prudent'; card says they'll count on shipping savings (wrong)
+meant-19337	meant	no	yes	first: ASR 'effective', 'ottenere buoni risultati' (wrong); touch: cautious planning one month in
+meant-1201	meant	yes		they won't share more for now
+meant-1610	meant	partly	partly	no V recovery right, but '$2B stanziati/di riserva' instead of cost cuts
+meant-1267	meant	partly	partly	'modifiche definitive, ripresa lunga' but not that temporary cuts become permanent
+meant-4967	meant	yes	yes	won't commit until they see pace of ramp
+meant-9523	meant	yes	yes	analyst seeks confirmation pipeline is growing
+meant-1582	meant	partly	partly	'rimboccarci le maniche'/'ancora impegnarci': implies not there yet, not that business is still weak
+meant-1111	meant	yes		bad results due to own execution, not COVID
+meant-19397	meant	yes	yes	cleaning normally strong, now suffering; touch: softness = sales drop
+meant-27	meant	yes	yes	results were bad
+meant-5932	meant	no		wrong transcription ('can't transform the economics')
+meant-6005	meant	no		wrong transcription ('how we are very strong')
+meant-12151	meant	yes		admits gaps in pipeline
+meant-184	meant	no	yes	first card picked tail clause, weather excuse missing; touch explains it
+meant-2644	meant	yes	yes	not raising synergy target for prudence
+meant-2667	meant	yes		keeping cash, careful not to spend it
