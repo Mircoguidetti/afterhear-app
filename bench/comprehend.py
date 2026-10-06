@@ -406,7 +406,7 @@ def report():
         score = sum(got) / (2 * n)
         summary[kind] = round(100 * score, 1)
         lines.append(f"| {NAMES[kind]} | {n} | **{100 * score:.0f}%** | {pct(got.count(2), n)} | {pct(got.count(1), n)} | "
-                     f"{pct(got.count(0), n)} | {pct(sum(x.get('first_right', False) for x in xs), n)} |")
+                     f"{pct(got.count(0), n)} | {pct(sum(x.get('first_right', False) for x in xs), len(xs))} |")
     alarms = [a for a in alarms if a is not None]
     if alarms:
         wrong = sum(a in ('yes', 'partly') for a in alarms)
@@ -420,6 +420,10 @@ def report():
         lines += ['', f'{len(errors)} cases had no card (counted as 0): `{e[:200]}`']
     tap.run.summary('\n'.join(lines))
     json.dump(summary, open(os.path.join(OUT, 'summary.json'), 'w'), indent=1)
+    # The cards in the log too, one per line: the artifact may not be reachable from where they are marked.
+    for r in rows:
+        if r['kind'] != 'heard':
+            print('CARD ' + json.dumps(r, ensure_ascii=False))
     return 0
 
 
