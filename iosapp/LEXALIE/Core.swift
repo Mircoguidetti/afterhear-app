@@ -109,17 +109,6 @@ enum Api {
         let pieces: [Found]
     }
 
-    struct Heard: Decodable { let text: String; let provider: String }
-
-    /// The best recogniser on the server (ElevenLabs, § 19.21) for a short clip; nil when offline.
-    @MainActor static func transcribe(_ url: URL) async -> String? {
-        guard let data = try? Data(contentsOf: url), data.count < 2_900_000 else { return nil }
-        let heard: Heard? = try? await post("api/transcribe", ["audio": data.base64EncodedString(), "mime": "audio/mp4",
-                                                              "language": K.string(K.heard)], timeout: 8)
-        let text = heard?.text.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        return text.isEmpty ? nil : text
-    }
-
     @MainActor static func explain(_ text: String) async throws -> Explanation {
         try await post("api/explain", ["text": Redactor.redact(text), "known": Memory.shared.knownWell, "watch": Memory.shared.watch,
                                        "source": "in person"], timeout: 20) // the server always answers with Gemini (§ 19.27)

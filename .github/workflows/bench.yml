@@ -11,9 +11,9 @@ on:
   workflow_dispatch:
     inputs:
       paid:
-        description: "Also measure the server's recognisers and explanations (a few cents)"
+        description: "Also measure the explanations through the real server (Gemini, costs credits: only with the owner's go)"
         type: boolean
-        default: true
+        default: false
       private:
         description: "Also measure the recognisers that run on your own Mac (Whisper large, Parakeet): free, slow"
         type: boolean
@@ -57,7 +57,7 @@ jobs:
           key: bench-ami-v1
       - name: Real meetings
         env:
-          # Paid calls (recognisers, explanations, judge) only when launched by hand, never on a push.
+          # Paid calls (explanations, judge) only when launched by hand with "paid", never on a push.
           ASAID_TESTER_CODE: ${{ github.event_name == 'workflow_dispatch' && inputs.paid && secrets.ASAID_TESTER_CODE || '' }}
           BENCH_PRIVATE: ${{ inputs.private && '1' || '' }}
         run: python3 bench/run.py audio

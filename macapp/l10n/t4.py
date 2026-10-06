@@ -91,8 +91,6 @@ R = [
 ("The audio for this moment has already been deleted (it's kept %lld days).", "L’audio di questo momento è già stato eliminato (si tiene %lld giorni).",
  "El audio de este momento ya se ha borrado (se guarda %lld días).", "Le son de ce moment a déjà été supprimé (il est gardé %lld jours).",
  "Der Ton dieses Moments ist schon gelöscht (er bleibt %lld Tage).", "Звук этого момента уже удалён (хранится дней: %lld).", "O áudio deste momento já foi apagado (fica guardado %lld dias)."),
-("On your device: %@", "Sul tuo dispositivo: %@", "En tu dispositivo: %@", "Sur votre appareil : %@", "Auf deinem Gerät: %@", "На вашем устройстве: %@", "No seu dispositivo: %@"),
-("ElevenLabs: %@", "ElevenLabs: %@", "ElevenLabs: %@", "ElevenLabs : %@", "ElevenLabs: %@", "ElevenLabs: %@", "ElevenLabs: %@"),
 ("Not this one? Pick the right piece", "Non è questo? Scegli il pezzo giusto", "¿No es este? Elige el trozo correcto", "Pas celui-là ? Choisissez le bon passage",
  "Nicht das? Wähle das richtige Stück", "Не то? Выберите нужный фрагмент", "Não é este? Escolha o trecho certo"),
 ("You paused here. Was it the language?", "Qui hai fatto una pausa. Era la lingua?", "Aquí hiciste una pausa. ¿Era el idioma?", "Vous avez marqué une pause ici. C’était la langue ?",

@@ -76,8 +76,6 @@ enum RemoteConfig {
               (response as? HTTPURLResponse)?.statusCode == 200,
               let rows = try? JSONDecoder().decode([Row].self, from: data) else { return }
         for row in rows { UserDefaults.standard.set(row.value, forKey: prefix + row.key) }
-        // "Best accuracy" from the server can be switched off for everyone at once.
-        if value("cloud_transcription") == "off" { UserDefaults.standard.set(false, forKey: Key.cloudTranscription) }
     }
 }
 

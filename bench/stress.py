@@ -15,8 +15,8 @@ is made up (Whisper's known flaw);
   the recognisers language by language (owner, 02/10: Chinese left out for now).
 
 Recognisers: on the device, free: Whisper large-v3-turbo, Parakeet TDT 0.6B v2 (English only) and
-v3 (25 European languages). On servers, only when launched with "paid": ElevenLabs (through our
-own server, the plan's hours) and Speechmatics Enhanced (its credits, ~0.40 $ an hour). Scoring as run.py (fillers not counted), and numbers as words on both sides
+v3 (25 European languages); no paid service (owner, 06/10: the voices stay on the device, nothing
+is spent). Scoring as run.py (fillers not counted), and numbers as words on both sides
 ("25" = "twenty five"), so nobody is blamed for writing digits.
 Times are the runner's CPU: Apple chips run these models several times faster.
 """
@@ -196,50 +196,11 @@ def recognisers():
             found.append((f'Parakeet TDT 0.6B {version}', langs, parakeet))
     except Exception as e:
         print('parakeet:', str(e)[:300])
-    if not os.environ.get('STRESS_PAID'):
-        return found
-    import base64
-    import urllib.request
-    # ElevenLabs through our own server, as the app sends it (AAC): the plan's hours.
-    # Only when asked too (STRESS_ELEVENLABS): we know it's strong, and it uses the plan's hours.
-    code = os.environ.get('ASAID_TESTER_CODE')
-    if code and os.environ.get('STRESS_ELEVENLABS'):
-        def elevenlabs(path, lang):
-            m4a = path[:-4] + '.m4a'
-            ffmpeg('-i', path, '-c:a', 'aac', '-b:a', '96k', m4a)
-            body = json.dumps({'audio': base64.b64encode(open(m4a, 'rb').read()).decode(), 'mime': 'audio/mp4',
-                               'language': lang, 'provider': 'elevenlabs'}).encode()
-            req = urllib.request.Request(run.SERVER + '/api/transcribe', method='POST', data=body,
-                                         headers={'content-type': 'application/json', 'x-lexalie-code': code})
-            return json.loads(urllib.request.urlopen(req, timeout=120).read()).get('text', '')
-        found.append(('ElevenLabs Scribe (server)', None, elevenlabs))
-    # Speechmatics straight from here (the key is a GitHub secret): its batch API, Enhanced.
-    key = os.environ.get('SPEECHMATICS_API_KEY')
-    if key:
-        import requests
-        base = 'https://asr.api.speechmatics.com/v2/jobs'
-        auth = {'Authorization': f'Bearer {key}'}
-
-        def speechmatics(path, lang):
-            config = {'type': 'transcription', 'transcription_config': {'language': lang, 'operating_point': 'enhanced'}}
-            with open(path, 'rb') as f:
-                r = requests.post(base + '/', headers=auth, files={'data_file': f}, data={'config': json.dumps(config)}, timeout=120)
-            r.raise_for_status()
-            job = r.json()['id']
-            for _ in range(240):
-                status = requests.get(f'{base}/{job}', headers=auth, timeout=60).json()['job']['status']
-                if status == 'done':
-                    return requests.get(f'{base}/{job}/transcript', headers=auth, params={'format': 'txt'}, timeout=60).text
-                if status not in ('running', 'queued'):
-                    raise RuntimeError('speechmatics ' + status)
-                time.sleep(3)
-            raise RuntimeError('speechmatics: too slow')
-        found.append(('Speechmatics Enhanced (server)', None, speechmatics))
     return found
 
 
 def wanted(engine):
-    """STRESS_ONLY=elevenlabs,parakeet…: only those (the others were measured already)."""
+    """STRESS_ONLY=whisper,parakeet…: only those (the others were measured already)."""
     only = [w.strip().lower() for w in os.environ.get('STRESS_ONLY', '').split(',') if w.strip()]
     return not only or any(w in engine.lower() for w in only)
 

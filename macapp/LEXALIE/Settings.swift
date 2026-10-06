@@ -131,10 +131,6 @@ enum Key {
     static let callHints = "callHintsByTitle"
     /// "Tell me before calls": all, hard, never (§ 19.15).
     static let callNotice = "callNotice"
-    /// The clip of a tap also goes to the best recogniser on the server (§ 19.21). On by default.
-    static let cloudTranscription = "cloudTranscription"
-    /// Test (§ 19.25): in videos ElevenLabs also hears the sentence, kept only to compare. Off by default.
-    static let compareCloud = "compareCloud"
     /// "Now" in a video pauses it (default); off: the video keeps playing under the explanation.
     static let pauseVideo = "pauseVideo"
     static let songs = "followSongs"
@@ -181,7 +177,6 @@ struct AppSettings {
             Key.onDeviceOnly: true,
             Key.transcription: Transcription.mac.rawValue,
             Key.mode: HelpMode.silent.rawValue,
-            Key.compareCloud: false,
             Key.pauseVideo: true,
             Key.pauseTap: true,
             Key.sorry: true,

@@ -181,8 +181,6 @@ struct Moment: Codable, Identifiable {
     /// "Maybe they meant…" for this sentence, and how it was said (measured here).
     var meant: Meant? = nil
     var tone: String? = nil
-    /// Test (§ 19.25): what ElevenLabs heard for the same sentence, to compare with Parakeet tonight.
-    var cloudTranscript: String? = nil
     /// Spaced repetition: when it comes back in the review, and how many times it was known.
     var due: Date? = nil
     var step: Int? = nil

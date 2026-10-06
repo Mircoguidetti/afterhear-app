@@ -12,7 +12,6 @@ Simulated taps come 0 s, 10 s, 2 min and 20 min after the missed sentence. Metri
 - timings: ranking, recognition (real-time factor), explanation.
 The numbers go to the job summary and bench/out/.
 """
-import base64
 import wave
 import json
 import math
@@ -188,11 +187,9 @@ def judge(sentence, body):
         return {'mark': None, 'why': str(e)[:120]}
 
 def recognisers(clips, folder):
-    """The same two-minute clips (what a tap sends) through every recogniser: Whisper here, the
-    server's (only when launched by hand, they cost a little), and Apple's on a Mac (bench/apple.swift,
-    job "apple"), all against AMI's human transcript: which one we should trust (§ 19.21)."""
-    code = os.environ.get('ASAID_TESTER_CODE')
-    providers = [p for p in os.environ.get('BENCH_PROVIDERS', 'elevenlabs,deepgram,openai,gemini').split(',') if p]
+    """The same two-minute clips (what a tap sends) through the recognisers on the device: Whisper
+    here, and Apple's on a Mac (bench/apple.swift, job "apple"), against AMI's human transcript.
+    No server recogniser (owner, 06/10: the voices stay on the device, nothing is spent)."""
     out = os.path.join(OUT, 'clips')
     os.makedirs(out, exist_ok=True)
     scores = {'whisper (open source)': []}
@@ -206,12 +203,9 @@ def recognisers(clips, folder):
             if not truth:
                 continue
             name = f'{meeting}-{start}'
-            # The same two minutes twice: WAV for Apple on the Mac, AAC as the app sends it to the server.
+            # WAV, for Apple's recognisers on the Mac.
             subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-ss', str(start), '-t', '120', '-i', short,
                             '-ac', '1', '-ar', '16000', os.path.join(out, name + '.wav')], check=True)
-            clip = os.path.join(folder, name + '.m4a')
-            subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-ss', str(start), '-t', '120', '-i', short,
-                            '-c:a', 'aac', '-b:a', '96k', clip], check=True)
             listed.append({'name': name, 'file': name + '.wav', 'truth': truth})
             whisper = ' '.join(w.word for s in segments for w in (s.words or []) if start <= w.start < start + 120)
             scores['whisper (open source)'].append(wer(truth, whisper))
@@ -220,26 +214,9 @@ def recognisers(clips, folder):
                 if text is not None:
                     scores[engine].append(wer(truth, text))
                     times.setdefault(engine, []).append(seconds)
-            if not code:
-                continue
-            audio = base64.b64encode(open(clip, 'rb').read()).decode()
-            for p in providers:
-                req = urllib.request.Request(SERVER + '/api/transcribe', method='POST',
-                                             data=json.dumps({'audio': audio, 'mime': 'audio/mp4', 'language': 'en-GB', 'provider': p}).encode(),
-                                             headers={'content-type': 'application/json', 'x-lexalie-code': code})
-                t0 = time.time()
-                try:
-                    body = json.loads(urllib.request.urlopen(req, timeout=90).read())
-                except Exception as e:
-                    print('recogniser', p, str(e)[:120])
-                    scores.setdefault(p, [])
-                    continue
-                times.setdefault(p, []).append(time.time() - t0)
-                scores.setdefault(p, []).append(wer(truth, body.get('text', '')))
     json.dump(listed, open(os.path.join(out, 'clips.json'), 'w'), indent=1)
     json.dump({'scores': scores, 'times': times}, open(os.path.join(out, 'scores.json'), 'w'), indent=1)
-    note = '' if code else '\n\nServer recognisers not measured on this run (they run only when launched by hand).'
-    return recogniser_table(scores, times) + note
+    return recogniser_table(scores, times)
 
 
 _PRIVATE = {}

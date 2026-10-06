@@ -100,14 +100,6 @@ struct ReviewView: View {
             VStack(alignment: .leading, spacing: 12) {
                 let current = store.moments.first(where: { $0.id == moment.id }) ?? moment
                 Text(current.transcript).font(.system(size: 20))
-                // Test (§ 19.25): the same sentence as ElevenLabs heard it, to see who got it right.
-                if let cloud = current.cloudTranscript, !cloud.isEmpty, cloud != current.transcript {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("On your device: \(current.transcript)").font(.callout)
-                        Text("ElevenLabs: \(cloud)").font(.callout)
-                    }
-                    .foregroundStyle(.secondary)
-                }
                 Text("«\(current.translation)»").foregroundStyle(.secondary)
                 if let intent = current.intent, !intent.isEmpty {
                     Label(intent, systemImage: "eye").font(.callout.weight(.medium)).foregroundStyle(Brand.accent)

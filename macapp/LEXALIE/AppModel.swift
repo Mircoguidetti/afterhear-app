@@ -243,9 +243,9 @@ final class AppModel: ObservableObject {
     /// A person's reaction time: you realise you didn't get it a little after the sentence ends.
     /// The sentence may have ended up to this long before the tap (owner, 02/10: 12 s was too strict).
     static let reactionSeconds: Double = 30
-    /// "Now": the server's recogniser hears only the last 45 s, so it answers in a couple of seconds.
-    /// With the whole two minutes it took ~4.5 s and lost the race against a 4 s wait (02/10).
-    static let quickCloudSeconds: Double = 45
+    /// "Now" on the processor (Intel Macs): at most the last 45 s are transcribed at the tap, the rest
+    /// comes from the continuous transcription, so the answer comes in a couple of seconds.
+    static let quickTailSeconds: Double = 45
 
     /// The sentence the last "now" showed, so a second tap right after moves on to another one.
     private var lastShown: (text: String, date: Date)?
@@ -408,9 +408,7 @@ final class AppModel: ObservableObject {
             }
 
             // "Now": Parakeet reads the clip on this Mac (~1 s for two minutes on the Neural Engine).
-            // Test switch on, in a video: ElevenLabs hears the last 45 s too, only to compare tonight.
             let transcribeStart = Date()
-            let compare = Self.compareCloud && context == .video ? cloudCompare(after: after, settings: settings) : nil
             let transcribedBy = live.engineName
             // On an Intel Mac the processor does the work: what the continuous transcription already
             // wrote is reused, and only the seconds after it are transcribed now (at most 45 s), so
@@ -418,7 +416,7 @@ final class AppModel: ObservableObject {
             let words: [TimedWord]?
             if Parakeet.onProcessor {
                 let clipEnd = clipStart.addingTimeInterval(clipLength)
-                let earliest = clipEnd.addingTimeInterval(-min(clipLength, Self.quickCloudSeconds + after))
+                let earliest = clipEnd.addingTimeInterval(-min(clipLength, Self.quickTailSeconds + after))
                 let tailStart = live.isActive ? max(earliest, live.heardUntil.addingTimeInterval(-0.5)) : earliest
                 let tailSeconds = max(1, clipEnd.timeIntervalSince(tailStart))
                 let tail = Array(samples.suffix(Int(tailSeconds * rate)))
@@ -582,15 +580,6 @@ final class AppModel: ObservableObject {
                                                 language: settings.heard, call: CalendarWatch.shared.current, at: started,
                                                 accent: store.accent(of: moment.with))
             store.add(moment)
-            if let compare {
-                let id = moment.id
-                Task { @MainActor in
-                    guard let heard = await compare.value,
-                          var saved = self.store.moments.first(where: { $0.id == id }) else { return }
-                    saved.cloudTranscript = heard
-                    self.store.update(saved)
-                }
-            }
             Memory.shared.tapped()
             if !badAudio { Memory.shared.record("tap", pieces: moment.pieces, moment: moment) }
             // Offline and nothing to explain it with: the panel already says it's saved; the video goes on.
@@ -783,32 +772,6 @@ final class AppModel: ObservableObject {
         if !low, waiting > 0 { Task { await transcribeWaiting() } }
     }
 
-    /// "Transcribe now?": the marks kept as sound, one by one, the last sentence before each tap.
-    /// Every minute too, quietly: marks kept without a connection get explained once it's back.
-    /// Marks also come here at once (§ 19.13): the whole clip, the server's recogniser, the ranking.
-    /// Test (Settings, off by default): in a video ElevenLabs hears the last 45 s too. Its
-    /// sentence is only kept, next to Parakeet's, to compare tonight (§ 19.25).
-    static var compareCloud: Bool { false } // voices never leave (§ 19.26): the ElevenLabs test is gone
-
-    private func cloudCompare(after: Double, settings: AppSettings) -> Task<String?, Never> {
-        let (sound, soundRate) = audio.hiRing.last(Self.quickCloudSeconds + after)
-        let length = soundRate > 0 ? Double(sound.count) / soundRate : 0
-        let start = Date().addingTimeInterval(-length)
-        let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".m4a")
-        try? Clip.writeVoice(sound, rate: soundRate, to: url)
-        let usual = store.usualDelay
-        return Task { @MainActor in
-            defer { try? FileManager.default.removeItem(at: url) }
-            guard length > 1, let result = await CloudTranscriber.transcribe(url, settings: settings) else { return nil }
-            let turns = Conversation.turns(others: CloudTranscriber.timedWords(result, clipStart: start, clipLength: length),
-                                           mine: [], clipStart: start)
-            let tapAt = max(0, length - after)
-            let ranked = Conversation.offer(turns, tapAt: tapAt, usualDelay: usual, freshWithin: Self.reactionSeconds,
-                                            hardness: Memory.shared.hardness)
-            return ranked.first.map { turns[$0.index].text }
-        }
-    }
-
     private var upgrading = false
 
     /// Moments explained by the model inside the Mac, offline: Gemini explains them again now.
@@ -840,6 +803,8 @@ final class AppModel: ObservableObject {
         }
     }
 
+    /// "Transcribe now?": the marks kept as sound, one by one, the last sentence before each tap.
+    /// Every minute too, quietly: marks kept without a connection get explained once it's back.
     func transcribeWaiting(quiet: Bool = false) async {
         guard !draining else { return }
         draining = true

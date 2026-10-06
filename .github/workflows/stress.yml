@@ -1,17 +1,13 @@
 name: Recogniser stress test
 
-# Recognisers on the device (free) and on servers (only with "paid"), on real English meetings in
+# Recognisers on the device (free, no paid service), on real English meetings in
 # three conditions and on Spanish, French and German sentences (docs/BRAIN.md § 19.22). By hand only.
 
 on:
   workflow_dispatch:
     inputs:
-      paid:
-        description: "Also Speechmatics (about 1 credit) on the same clips (ElevenLabs only with STRESS_ELEVENLABS)"
-        type: boolean
-        default: false
       only:
-        description: "Only these recognisers, comma separated (e.g. elevenlabs); empty = all"
+        description: "Only these recognisers, comma separated (e.g. parakeet); empty = all"
         type: string
         default: ""
 
@@ -39,11 +35,7 @@ jobs:
           key: stress-ami-v1
       - name: Transcribe and score
         env:
-          ASAID_TESTER_CODE: ${{ inputs.paid && secrets.ASAID_TESTER_CODE || '' }}
-          SPEECHMATICS_API_KEY: ${{ inputs.paid && secrets.SPEECHMATICS_API_KEY || '' }}
-          STRESS_PAID: ${{ inputs.paid && '1' || '' }}
           STRESS_ONLY: ${{ inputs.only }}
-          STRESS_ELEVENLABS: ${{ contains(inputs.only, 'elevenlabs') && '1' || '' }}
         run: python3 bench/stress.py clips ${{ matrix.condition }}
       - uses: actions/upload-artifact@v4
         if: always()

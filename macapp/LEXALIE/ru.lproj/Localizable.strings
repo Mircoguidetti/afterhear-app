@@ -116,7 +116,6 @@
 "Downloading %lld%% (about 0.5 GB, once)…" = "Загрузка %lld%% (около 0,5 ГБ, один раз)…";
 "Downloading %lld%%…" = "Загрузка %lld%%…";
 "Downloading…" = "Загрузка…";
-"ElevenLabs: %@" = "ElevenLabs: %@";
 "Email" = "Почта";
 "Email me a link" = "Прислать ссылку на почту";
 "English (UK)" = "Английский (Великобритания)";
@@ -250,7 +249,6 @@
 "Off" = "Выкл.";
 "On the Mac (private)" = "На Mac (приватно)";
 "On this Mac the translation comes with the explanation, a second later." = "На этом Mac перевод приходит вместе с объяснением, на секунду позже.";
-"On your device: %@" = "На вашем устройстве: %@";
 "One tap marks, two taps explain it now, hold for two seconds to start or stop listening. Tonight LEXALIE finds what you marked." = "Одно касание отмечает, два — объясняют сразу, удержание две секунды включает или выключает прослушивание. Вечером LEXALIE найдёт отмеченное.";
 "Only about understanding: what they asked you, what they asked you to do, what was decided. When the call ends, the questions of the others and your answers, as text without names or numbers, go to our model to write it. Nothing about how you speak." = "Только о понимании: что вас спросили, о чём попросили, что решили. В конце звонка вопросы участников и ваши ответы, текстом без имён и чисел, уходят нашей модели, чтобы его написать. Ничего о том, как вы говорите.";
 "Only the hard ones" = "Только трудные";

@@ -116,7 +116,6 @@
 "Downloading %lld%% (about 0.5 GB, once)…" = "Téléchargement %lld %% (environ 0,5 Go, une seule fois)…";
 "Downloading %lld%%…" = "Téléchargement %lld%%…";
 "Downloading…" = "Téléchargement…";
-"ElevenLabs: %@" = "ElevenLabs : %@";
 "Email" = "E-mail";
 "Email me a link" = "M’envoyer un lien";
 "English (UK)" = "Anglais (Royaume-Uni)";
@@ -250,7 +249,6 @@
 "Off" = "Désactivé";
 "On the Mac (private)" = "Sur le Mac (privé)";
 "On this Mac the translation comes with the explanation, a second later." = "Sur ce Mac, la traduction arrive avec l’explication, une seconde plus tard.";
-"On your device: %@" = "Sur votre appareil : %@";
 "One tap marks, two taps explain it now, hold for two seconds to start or stop listening. Tonight LEXALIE finds what you marked." = "Un toucher marque, deux touchers l’expliquent tout de suite, maintenez deux secondes pour commencer ou arrêter l’écoute. Ce soir, LEXALIE retrouve ce que vous avez marqué.";
 "Only about understanding: what they asked you, what they asked you to do, what was decided. When the call ends, the questions of the others and your answers, as text without names or numbers, go to our model to write it. Nothing about how you speak." = "Seulement sur la compréhension : ce qu’on vous a demandé, ce qu’on vous a demandé de faire, ce qui a été décidé. À la fin de l’appel, les questions des autres et vos réponses, en texte sans noms ni chiffres, vont à notre modèle pour l’écrire. Rien sur votre façon de parler.";
 "Only the hard ones" = "Seulement les difficiles";
