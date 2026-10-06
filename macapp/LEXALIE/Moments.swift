@@ -70,10 +70,13 @@ struct Explanation: Codable {
     var meant: Meant? = nil
     /// "In practice": what the speaker is saying or asking, in plain words (block P2). Missing from older servers.
     var inPractice: String? = nil
+    /// When the sentence was put to the listener: "[nome] asked you to …" (P3), names put back on the Mac.
+    var forYou: String? = nil
 
     enum CodingKeys: String, CodingKey {
         case transcript, translation, intent, pieces, provider, model, ms, meant
         case inPractice = "in_practice"
+        case forYou = "for_you"
     }
 }
 
@@ -189,6 +192,8 @@ struct Moment: Codable, Identifiable {
     var meant: Meant? = nil
     /// "In practice" (block P2): the one line under the hard word that says the point.
     var inPractice: String? = nil
+    /// "Sarah asked you to …" when the sentence was for you (P3), with the real name.
+    var forYou: String? = nil
     var tone: String? = nil
     /// Spaced repetition: when it comes back in the review, and how many times it was known.
     var due: Date? = nil
@@ -376,6 +381,13 @@ final class Store: ObservableObject {
         moments.remove(at: i)
         save()
         onChange?(.momentRemoved(id))
+    }
+
+    /// "I knew it" on a card: it joins what you know and stops coming back.
+    func markKnown(_ text: String) {
+        known.insert(text.lowercased())
+        save()
+        onChange?(.known)
     }
 
     func update(_ moment: Moment) {

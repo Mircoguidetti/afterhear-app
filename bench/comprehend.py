@@ -382,7 +382,9 @@ def cards():
     listed = sample(json.load(open(CASES)))
     heard = json.load(open(os.path.join(OUT, 'heard.json')))
     taps = [{'id': c['id'], 'words': [[str(w[0]), str(w[1]), w[2]] for w in heard[c['id']]['words']],
-             'tapAt': c['tap'] - heard[c['id']]['clip_start']} for c in listed if c['id'] in heard]
+             'tapAt': c['tap'] - heard[c['id']]['clip_start'],
+             # The listener's first name, as on the Mac (Settings): it becomes [tu] before leaving (P3).
+             'me': c.get('name', '')} for c in listed if c['id'] in heard]
     path = os.path.join(OUT, 'taps.json')
     json.dump(taps, open(path, 'w'))
     res = subprocess.run([BIN, path], capture_output=True, text=True, check=True)

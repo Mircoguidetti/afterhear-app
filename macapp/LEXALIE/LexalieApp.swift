@@ -56,7 +56,6 @@ enum Scenes {
     private static func styled<V: View>(_ view: V) -> some View {
         view
             .background(Brand.onyx)
-            .preferredColorScheme(.dark)
             .tint(Brand.accent)
             .environmentObject(model)
             .environmentObject(model.store)
@@ -92,13 +91,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 }
 
-/// Brand colours, same as the landing page.
+/// Brand colours, black and white. The app follows the Mac's look (owner, 06/10 night): white when the
+/// Mac is light, dark when it is dark. Every colour turns with it, so "paper" is always the ink that
+/// reads on "onyx", the ground.
 enum Brand {
-    /// A white that leans to grey: black and white, no apricot (owner, 05/10). The app is always dark.
-    static let accent = Color(red: 0xe6 / 255, green: 0xe7 / 255, blue: 0xeb / 255)
-    /// Ice blue, only for the line under the missed word (owner, 05/10); what's live is white with a light.
-    static let line = Color(red: 0x9f / 255, green: 0xd8 / 255, blue: 0xff / 255)
-    static let onyx = Color(red: 0x0b / 255, green: 0x0c / 255, blue: 0x11 / 255)
-    static let card = Color(red: 0x15 / 255, green: 0x16 / 255, blue: 0x1c / 255)
-    static let paper = Color(red: 0xf7 / 255, green: 0xf7 / 255, blue: 0xf8 / 255)
+    /// Buttons: black on white, light grey on dark (no apricot, owner 05/10).
+    static let accent = dynamic(light: 0x18181A, dark: 0xE6E7EB)
+    /// The one accent, only for the thing you missed: a clear blue on white, ice blue on dark.
+    static let line = dynamic(light: 0x3A4FE0, dark: 0x9FD8FF)
+    /// The ground of the card and the windows.
+    static let onyx = dynamic(light: 0xFBFAF8, dark: 0x0B0C11)
+    static let card = dynamic(light: 0xF4F2EE, dark: 0x15161C)
+    /// The ink.
+    static let paper = dynamic(light: 0x18181A, dark: 0xF7F7F8)
+    /// The window ground for AppKit.
+    static let windowGround = nsDynamic(light: 0xFBFAF8, dark: 0x0B0C11)
+
+    private static func dynamic(light: UInt32, dark: UInt32) -> Color { Color(nsColor: nsDynamic(light: light, dark: dark)) }
+
+    private static func nsDynamic(light: UInt32, dark: UInt32) -> NSColor {
+        NSColor(name: nil) { appearance in
+            let hex = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua ? dark : light
+            return NSColor(srgbRed: CGFloat((hex >> 16) & 0xFF) / 255, green: CGFloat((hex >> 8) & 0xFF) / 255,
+                           blue: CGFloat(hex & 0xFF) / 255, alpha: 1)
+        }
+    }
 }

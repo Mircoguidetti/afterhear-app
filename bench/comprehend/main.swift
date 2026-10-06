@@ -21,6 +21,8 @@ struct Tap: Decodable {
     /// [start, end, text], seconds from the clip's start.
     let words: [[String]]
     let tapAt: Double
+    /// The listener's first name, for "asked" and "named" cases: [tu] on the way out (P3).
+    let me: String?
 }
 
 struct Offered: Encodable {
@@ -43,6 +45,7 @@ let taps = try JSONDecoder().decode([Tap].self, from: Data(contentsOf: URL(fileU
 let clipStart = Date(timeIntervalSince1970: 1_000_000)
 let encoder = JSONEncoder()
 for tap in taps {
+    Redactor.me = tap.me ?? ""
     let words = tap.words.compactMap { w -> TimedWord? in
         guard w.count == 3, let s = Double(w[0]), let e = Double(w[1]) else { return nil }
         return TimedWord(start: clipStart.addingTimeInterval(s), end: clipStart.addingTimeInterval(e), text: w[2])

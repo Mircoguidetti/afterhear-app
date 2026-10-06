@@ -145,10 +145,10 @@ struct PanelView: View {
             content
         }
         .padding(16)
-        .background(RoundedRectangle(cornerRadius: 16).fill(Brand.onyx))
-        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.white.opacity(0.1)))
+        .background(RoundedRectangle(cornerRadius: 14).fill(Brand.onyx))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Brand.paper.opacity(0.08)))
+        .shadow(color: .black.opacity(0.25), radius: 20, y: 10)
         .foregroundStyle(Brand.paper)
-        .environment(\.colorScheme, .dark)
     }
 
     /// The sentence as heard, with the pieces to learn in the accent colour.
@@ -238,12 +238,16 @@ struct PanelView: View {
 
     /// One word or phrase of the card: the words, what they mean here, how to catch them next time.
     @ViewBuilder private func pieceView(_ piece: Piece) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack(alignment: .firstTextBaseline) {
-                Text(piece.text).font(.system(size: 18, weight: .semibold)).foregroundStyle(Brand.paper)
-                Spacer(minLength: 8)
+        VStack(alignment: .leading, spacing: 5) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text(piece.text).font(.system(size: 16, weight: .semibold)).foregroundStyle(Brand.line)
+                // What kind of thing it is: a reference, an idiom, a new word (the board, 06/10 night).
                 Text(piece.guess == true ? String(localized: "Maybe this one?") : piece.causeLabel)
-                    .font(.system(size: 11)).foregroundStyle(Brand.paper.opacity(0.5))
+                    .font(.system(size: 11, weight: .medium))
+                    .padding(.horizontal, 7).padding(.vertical, 2)
+                    .background(Capsule().fill(Brand.paper.opacity(0.07)))
+                    .foregroundStyle(Brand.paper.opacity(0.7))
+                Spacer(minLength: 0)
             }
             Text(piece.gloss.map { "\($0) · \(piece.meaning)" } ?? piece.meaning).font(.system(size: 14))
             if let subtext = piece.subtext, !subtext.isEmpty {
@@ -262,15 +266,59 @@ struct PanelView: View {
 
     /// One look, one order (owner, 02/10): the sentence as a subtitle, its translation under it, then
     /// the explanation below a line. Few buttons, no labels about who did what.
+    /// "You asked · ⌥⌥ · video, 21:40": where the card comes from, at a glance (the board, 06/10 night).
+    private func origin(_ moment: Moment) -> String {
+        let how: String = switch moment.trigger {
+        case "sorry": String(localized: "“sorry?”")
+        case "airpods": "AirPods"
+        case "pause": String(localized: "pause")
+        case "siri": "Siri"
+        default: "⌥⌥"
+        }
+        let place: String? = switch moment.context {
+        case "video": String(localized: "video")
+        case "call": String(localized: "call")
+        case "song": String(localized: "song")
+        default: nil
+        }
+        let time = moment.date.formatted(date: .omitted, time: .shortened)
+        return String(localized: "You asked") + " · \(how) · " + (place.map { "\($0), \(time)" } ?? time)
+    }
+
+    /// The board's card (Claude Chat, 06/10 night): where it comes from, the sentence with what you
+    /// missed underlined, its translation if you want it, Replay and Slow; then the thing explained with
+    /// its kind, "In practice", a second one a touch away; "I knew it" at the bottom.
     @ViewBuilder private func explanation(_ moment: Moment) -> some View {
         Group {
-            // A tap long after the words: say when they were said (owner, 03/10).
-            if let turns = moment.turns, let chosen = moment.chosen, turns.indices.contains(chosen),
-               let tapAt = moment.tapAt, tapAt - turns[chosen].end >= 30 {
-                let ago = Int(tapAt - turns[chosen].end)
-                Text(ago >= 90 ? String(localized: "Said \(Int((Double(ago) / 60).rounded())) min ago") : String(localized: "Said \(ago) s ago"))
-                    .font(.system(size: 11))
-                    .foregroundStyle(Brand.paper.opacity(0.45))
+            HStack(spacing: 6) {
+                Text(origin(moment)).font(.system(size: 12, weight: .medium)).foregroundStyle(Brand.paper.opacity(0.55))
+                // A tap long after the words: say when they were said (owner, 03/10).
+                if let turns = moment.turns, let chosen = moment.chosen, turns.indices.contains(chosen),
+                   let tapAt = moment.tapAt, tapAt - turns[chosen].end >= 30 {
+                    let ago = Int(tapAt - turns[chosen].end)
+                    Text("· " + (ago >= 90 ? String(localized: "Said \(Int((Double(ago) / 60).rounded())) min ago") : String(localized: "Said \(ago) s ago")))
+                        .font(.system(size: 12)).foregroundStyle(Brand.paper.opacity(0.55))
+                }
+                Spacer(minLength: 0)
+                if let turns = moment.turns, let chosen = moment.chosen {
+                    Button { Task { await AppModel.shared.step(moment.id, by: -1) } } label: { Image(systemName: "chevron.left") }
+                        .disabled(AppModel.neighbor(turns, from: chosen, by: -1) == nil)
+                        .help("The sentence before")
+                    Button { Task { await AppModel.shared.step(moment.id, by: 1) } } label: { Image(systemName: "chevron.right") }
+                        .disabled(AppModel.neighbor(turns, from: chosen, by: 1) == nil)
+                        .help("The sentence after")
+                }
+            }
+            .buttonStyle(.plain)
+            .font(.system(size: 12, weight: .semibold))
+            .foregroundStyle(Brand.paper.opacity(0.6))
+            // It was for you (P3): who asked you what, on top. Never the answer.
+            if let forYou = AppModel.named(moment.forYou, with: moment.with) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("It was for you").font(.system(size: 11, weight: .semibold)).textCase(.uppercase).tracking(0.6)
+                        .foregroundStyle(Brand.line)
+                    Text(forYou).font(.system(size: 16, weight: .semibold)).fixedSize(horizontal: false, vertical: true)
+                }
             }
             if let turns = moment.turns, let chosen = moment.chosen, chosen > 0, turns.indices.contains(chosen - 1),
                moment.alternative != chosen - 1 {
@@ -282,22 +330,37 @@ struct PanelView: View {
             }
             ClickableSentence(moment: moment)
             TranslationLine(text: moment.quickTranslation ?? moment.translation, open: Self.translationOpen)
-            Divider().overlay(Color.white.opacity(0.12))
-            // One card (block P2, owner 06/10): the hardest word, then "in practice", the point in plain
-            // words. A second word only one touch away; "maybe they meant" only where there's no such line.
+            HStack(spacing: 8) {
+                if moment.context == "song" && moment.clipFile == nil {
+                    // A song has no recording of ours: the song itself, from that line (owner, 03/10).
+                    Button("Play this line") { AppModel.shared.playSongLine(moment) }
+                        .help("The song again from this line, in Spotify or Music")
+                } else {
+                    Button { AppModel.shared.play(moment, slow: false) } label: { Label("Replay", systemImage: "play.fill") }
+                    Button("Slow 0.7×") { AppModel.shared.play(moment, slow: true) }
+                }
+                Spacer()
+            }
+            .controlSize(.small)
+            Divider().overlay(Brand.paper.opacity(0.12))
+            // One card (block P2, owner 06/10): the hardest thing, then "in practice", the point in plain
+            // words. A second one only one touch away; "maybe they meant" only where there's no such line.
             if let piece = moment.pieces.first { pieceView(piece) }
             if let practice = moment.inPractice?.trimmingCharacters(in: .whitespacesAndNewlines), !practice.isEmpty {
-                Text("In practice: \(practice)")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(Brand.paper)
-                    .fixedSize(horizontal: false, vertical: true)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("In practice").font(.system(size: 11, weight: .semibold)).textCase(.uppercase).tracking(0.6)
+                        .foregroundStyle(Brand.paper.opacity(0.55))
+                    Text(practice)
+                        .font(.system(size: 15, weight: .medium))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             } else if let meant = moment.meant, meant.shown {
                 VStack(alignment: .leading, spacing: 3) {
                     HStack(alignment: .firstTextBaseline, spacing: 6) {
                         Image(systemName: "sparkles").font(.system(size: 11))
                         Text("Maybe they meant: \(meant.text)").font(.system(size: 14, weight: .semibold))
                     }
-                    .foregroundStyle(Brand.accent)
+                    .foregroundStyle(Brand.line)
                     if !meant.alternative.isEmpty {
                         Text("Or: \(meant.alternative)").font(.system(size: 12)).foregroundStyle(Brand.paper.opacity(0.55))
                     }
@@ -309,8 +372,12 @@ struct PanelView: View {
                 if moreWords {
                     pieceView(moment.pieces[1])
                 } else {
-                    Button { moreWords = true } label: {
-                        Text("Also: \(moment.pieces[1].text)").font(.system(size: 12)).foregroundStyle(Brand.paper.opacity(0.6))
+                    Button {
+                        moreWords = true
+                        // Opening the second one says it was hard too (LevelEstimate).
+                        LevelEstimate.hard(moment.pieces[1])
+                    } label: {
+                        Text("Also: \(moment.pieces[1].text)").font(.system(size: 13, weight: .medium)).foregroundStyle(Brand.paper.opacity(0.75))
                     }
                     .buttonStyle(.plain)
                 }
@@ -326,10 +393,10 @@ struct PanelView: View {
                 .foregroundStyle(Brand.paper.opacity(0.55))
                 .fixedSize(horizontal: false, vertical: true)
             }
-            // Not this one? The others it could be, one touch away; ‹ › go further (owner, 05/10).
+            // Not this one? The likeliest other sentence, one touch away; ‹ › go further (owner, 05/10).
             if let turns = moment.turns {
                 let list = (moment.others ?? moment.alternative.map { [$0] } ?? [])
-                    .filter { $0 != moment.chosen && turns.indices.contains($0) }.prefix(3)
+                    .filter { $0 != moment.chosen && turns.indices.contains($0) }.prefix(2)
                 ForEach(Array(list), id: \.self) { i in
                     Button { Task { await AppModel.shared.jump(moment.id, to: i) } } label: {
                         Text(turns[i].text)
@@ -338,33 +405,38 @@ struct PanelView: View {
                             .lineLimit(1)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.vertical, 5).padding(.horizontal, 8)
-                            .background(RoundedRectangle(cornerRadius: 7).fill(Color.white.opacity(0.06)))
+                            .background(RoundedRectangle(cornerRadius: 7).fill(Brand.paper.opacity(0.05)))
                     }
                     .buttonStyle(.plain)
                     .help("Explain this sentence instead")
                 }
             }
-            HStack(spacing: 8) {
-                if let turns = moment.turns, let chosen = moment.chosen {
-                    Button { Task { await AppModel.shared.step(moment.id, by: -1) } } label: { Image(systemName: "chevron.left") }
-                        .disabled(AppModel.neighbor(turns, from: chosen, by: -1) == nil)
-                        .help("The sentence before")
-                    Button { Task { await AppModel.shared.step(moment.id, by: 1) } } label: { Image(systemName: "chevron.right") }
-                        .disabled(AppModel.neighbor(turns, from: chosen, by: 1) == nil)
-                        .help("The sentence after")
-                }
-                if moment.context == "song" && moment.clipFile == nil {
-                    // A song has no recording of ours: the song itself, from that line (owner, 03/10).
-                    Button("Play this line") { AppModel.shared.playSongLine(moment) }
-                        .help("The song again from this line, in Spotify or Music")
-                } else {
-                    Button("Replay") { AppModel.shared.play(moment, slow: false) }
-                    Button("Slow") { AppModel.shared.play(moment, slow: true) }
-                }
-                Spacer()
+            if let piece = moment.pieces.first {
+                Divider().overlay(Brand.paper.opacity(0.12))
+                KnewIt(moment: moment, piece: piece)
             }
-            .controlSize(.small)
         }
+    }
+}
+
+/// "I knew it": the piece goes into what you know and never comes back, and the level estimate
+/// learns from it, fast (owner, 06/10 night).
+private struct KnewIt: View {
+    let moment: Moment
+    let piece: Piece
+    @State private var done = false
+
+    var body: some View {
+        Button {
+            guard !done else { return }
+            done = true
+            AppModel.shared.knew(piece, in: moment)
+        } label: {
+            Text(done ? String(localized: "Noted: it won't come back") : String(localized: "I knew it"))
+                .font(.system(size: 13))
+                .foregroundStyle(Brand.paper.opacity(done ? 0.45 : 0.65))
+        }
+        .buttonStyle(.plain)
     }
 }
 

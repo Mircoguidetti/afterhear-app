@@ -45,7 +45,8 @@ enum ExplainClient {
     static func explain(_ text: String, settings: AppSettings, known: [String],
                         struggling: [String] = [], watch: [String] = [], profile: String = "",
                         source: String = "", overlap: Bool = false, focus: String = "", tone: String = "",
-                        before: [String] = [], after: [String] = [], literal: String? = nil) async throws -> Explanation {
+                        before: [String] = [], after: [String] = [], literal: String? = nil,
+                        publicMedia: Bool = false) async throws -> Explanation {
         guard let base = URL(string: settings.server.trimmingCharacters(in: .whitespaces)) else {
             throw LexalieError.server("url")
         }
@@ -62,7 +63,7 @@ enum ExplainClient {
             level: settings.level,
             level_reliability: LevelEstimate.reliability,
             translation_shown: UserDefaults.standard.bool(forKey: Key.showTranslation),
-            literal: literal.map { String(Redactor.redact($0).prefix(600)) },
+            literal: literal.map { String(Redactor.redact($0, publicMedia: publicMedia).prefix(600)) },
             known: Array(known.prefix(500)),
             struggling: Array(struggling.prefix(200)),
             watch: Array(watch.prefix(200)),
@@ -72,8 +73,8 @@ enum ExplainClient {
             provider: "gemini",
             focus: String(focus.prefix(120)),
             tone: String(tone.prefix(400)),
-            before: before.suffix(3).map { String(Redactor.redact($0).prefix(300)) },
-            after: after.prefix(2).map { String(Redactor.redact($0).prefix(300)) }
+            before: before.suffix(3).map { String(Redactor.redact($0, publicMedia: publicMedia).prefix(300)) },
+            after: after.prefix(2).map { String(Redactor.redact($0, publicMedia: publicMedia).prefix(300)) }
         ))
         let (data, response) = try await URLSession.shared.data(for: request)
         let status = (response as? HTTPURLResponse)?.statusCode ?? 0

@@ -50,8 +50,7 @@ enum Onboarding {
                 .frame(width: 500, height: 500)
                 .background(Brand.onyx)
                 .foregroundStyle(Brand.paper)
-                .environment(\.colorScheme, .dark)
-        }
+                }
     }
 
     /// Your language from the Mac's; the one to understand from where you live (a Spanish Mac in Italy:
@@ -94,7 +93,7 @@ struct OnboardingView: View {
                 Spacer()
                 HStack(spacing: 6) {
                     ForEach(0..<5, id: \.self) { i in
-                        Circle().fill(i == step ? Brand.paper : Color.white.opacity(0.2)).frame(width: 6, height: 6)
+                        Circle().fill(i == step ? Brand.paper : Brand.paper.opacity(0.2)).frame(width: 6, height: 6)
                     }
                 }
             }
@@ -122,7 +121,6 @@ struct OnboardingView: View {
         .frame(width: 500, height: 500)
         .background(Brand.onyx)
         .foregroundStyle(Brand.paper)
-        .environment(\.colorScheme, .dark)
         .onReceive(timer) { _ in trusted = AXIsProcessTrusted() }
         .task(id: "\(heard)-\(native)") { translation = await Translator.status(heardLanguage, nativeLanguage) }
         .modifier(TranslationDownload(heard: heardLanguage, native: nativeLanguage, run: $downloading) {

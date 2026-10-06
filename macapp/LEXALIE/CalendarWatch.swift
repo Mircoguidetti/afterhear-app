@@ -381,9 +381,8 @@ enum AppWindows {
             let w = NSWindow(contentRect: NSRect(x: 0, y: 0, width: width, height: height),
                              styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
             w.isReleasedWhenClosed = false
-            // Every window in the panel's look: dark, warm, quiet (owner, 02/10).
-            w.appearance = NSAppearance(named: .darkAqua)
-            w.backgroundColor = NSColor(Brand.onyx)
+            // Every window in the panel's look, light or dark like the Mac (owner, 06/10 night).
+            w.backgroundColor = Brand.windowGround
             w.titlebarAppearsTransparent = true
             w.center()
             windows[id] = w

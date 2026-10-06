@@ -86,7 +86,7 @@ private struct MomentRow: View {
                 }
                 if store.clipURL(moment) != nil {
                     Button("▶︎") { AppModel.shared.play(moment, slow: false) }
-                    Button("0.6×") { AppModel.shared.play(moment, slow: true) }
+                    Button("0.7×") { AppModel.shared.play(moment, slow: true) }
                 }
             }
             .controlSize(.small)

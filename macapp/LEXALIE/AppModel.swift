@@ -59,8 +59,7 @@ final class AppModel: ObservableObject {
     func boot() {
         AppSettings.registerDefaults()
         Reachability.shared.start()
-        // One look everywhere: the panel's dark, warm style in every window (owner, 02/10).
-        NSApp.appearance = NSAppearance(named: .darkAqua)
+        // The Mac's own look, light or dark (owner, 06/10 night): no forced appearance.
         // Voices never leave the devices (§ 19.26): the old "sync the real voice" is off for good.
         UserDefaults.standard.set(false, forKey: Key.syncAudio)
         hotKey = HotKey { Task { @MainActor in await AppModel.shared.captureMoment() } }
@@ -267,6 +266,7 @@ final class AppModel: ObservableObject {
         let started = Date()
         let settings = AppSettings.current
         let context = ContextDetector.current()
+        Self.syncRedactor()
         // Signals LEXALIE noticed by itself (a long pause after a question) never show anything.
         let automatic = trigger == "hesitation"
         var mode: HelpMode = automatic || !now ? .silent : AppSettings.nowMode(for: context)
@@ -466,7 +466,9 @@ final class AppModel: ObservableObject {
                 try? FileManager.default.removeItem(at: clip)
                 throw LexalieError.noWords
             }
-            let sent = Redactor.redact(transcript)
+            // In a video or a song everything said is public; in a call only companies and places go (P4).
+            let publicMedia = context == .video || song != nil
+            let sent = Redactor.redact(transcript, publicMedia: publicMedia)
             // The sentence at once, its translation from this Mac a moment later (Apple's translator,
             // no network), then the explanation: one thing for the eyes at a time (owner, 02/10).
             if let chosen, chosen > 0 { step.before = conversation[chosen - 1].text }
@@ -511,7 +513,7 @@ final class AppModel: ObservableObject {
                                                                   struggling: store.struggling, watch: Memory.shared.watch,
                                                                   profile: store.listeningProfile, source: source, overlap: overlap,
                                                                   tone: tone, before: linesBefore, after: linesAfter,
-                                                                  literal: quickTranslation)
+                                                                  literal: quickTranslation, publicMedia: publicMedia)
                 } catch {
                     // The server didn't answer: saved, and shown whole as soon as it does.
                     explanation = Explanation(transcript: nil, translation: quickTranslation ?? "", intent: nil, pieces: [],
@@ -541,6 +543,7 @@ final class AppModel: ObservableObject {
             moment.quickTranslation = quickTranslation
             moment.meant = explanation.meant
             moment.inPractice = explanation.inPractice
+            moment.forYou = explanation.forYou
             if !tone.isEmpty { moment.tone = tone }
             moment.with = talkingWith
             if let intent = explanation.intent?.trimmingCharacters(in: .whitespaces), !intent.isEmpty { moment.intent = intent }
@@ -666,7 +669,7 @@ final class AppModel: ObservableObject {
             step.translation = quickTranslation
             progress()
         }
-        let sent = Redactor.redact(transcript)
+        let sent = Redactor.redact(transcript, publicMedia: true)
         let known = Array(store.known) + Memory.shared.knownWell + Memory.shared.dictionary
         let serverStart = Date()
         var explanation: Explanation? = nil
@@ -679,7 +682,7 @@ final class AppModel: ObservableObject {
                                                               overlap: false, tone: "",
                                                               before: lines[max(0, index - 2)..<index].map(\.text),
                                                               after: lines[(index + 1)..<min(lines.count, index + 3)].map(\.text),
-                                                              literal: quickTranslation)
+                                                              literal: quickTranslation, publicMedia: true)
             } catch {
                 problem = error
             }
@@ -696,6 +699,7 @@ final class AppModel: ObservableObject {
         moment.quickTranslation = quickTranslation
         moment.meant = result.meant
         moment.inPractice = result.inPractice
+        moment.forYou = result.forYou
         if let intent = result.intent?.trimmingCharacters(in: .whitespaces), !intent.isEmpty { moment.intent = intent }
         moment.trigger = trigger
         moment.turns = turns
@@ -798,6 +802,7 @@ final class AppModel: ObservableObject {
             saved.pieces = explanation.pieces
             saved.intent = explanation.intent
             saved.inPractice = explanation.inPractice
+            saved.forYou = explanation.forYou
             saved.provider = explanation.model ?? settings.provider.rawValue
             saved.offline = nil
             store.update(saved)
@@ -849,7 +854,8 @@ final class AppModel: ObservableObject {
             let line = turns[best.index].text
             let transcribeMs = Int(Date().timeIntervalSince(started) * 1000)
             let serverStart = Date()
-            let sent = Redactor.redact(line)
+            Self.syncRedactor()
+            let sent = Redactor.redact(line, publicMedia: mark.context == "video" || mark.context == "song")
             let source = mark.show.map { mark.context == "song" ? "song: \($0)" : "video: \($0)" } ?? ""
             guard let explanation = try? await ExplainClient.explain(sent, settings: settings, known: known,
                                                                     struggling: store.struggling, watch: Memory.shared.watch,
@@ -870,6 +876,7 @@ final class AppModel: ObservableObject {
             moment.alternative = ranked.dropFirst().first?.index
             moment.tapAt = mark.tapAt
             moment.inPractice = explanation.inPractice
+            moment.forYou = explanation.forYou
             if let intent = explanation.intent?.trimmingCharacters(in: .whitespaces), !intent.isEmpty { moment.intent = intent }
             if moment.context == "call" && (UserDefaults.standard.bool(forKey: Key.callsTextOnly) || Memory.shared.callsTextOnly) {
                 try? FileManager.default.removeItem(at: url)
@@ -949,6 +956,7 @@ final class AppModel: ObservableObject {
             // Already explained: bring it to the top.
             let piece = moment.pieces.remove(at: i)
             moment.pieces.insert(piece, at: 0)
+            LevelEstimate.hard(piece)
         } else {
             let settings = AppSettings.current
             guard let explanation = try? await ExplainClient.explain(moment.sent, settings: settings, known: [],
@@ -960,6 +968,8 @@ final class AppModel: ObservableObject {
             moment.pieces.removeAll { Memory.key($0.text) == Memory.key(piece.text) }
             moment.pieces.insert(piece, at: 0)
             Memory.shared.record("tap", pieces: [piece], moment: moment)
+            // The word you clicked was the hard one: it says something about your level (LevelEstimate).
+            LevelEstimate.hard(piece)
         }
         store.update(moment)
         if videoPaused {
@@ -975,7 +985,8 @@ final class AppModel: ObservableObject {
               let turns = moment.turns, turns.indices.contains(index) else { return }
         let settings = AppSettings.current
         let text = turns[index].text
-        let sent = Redactor.redact(text)
+        Self.syncRedactor()
+        let sent = Redactor.redact(text, publicMedia: moment.context == "video" || moment.context == "song")
         do {
             let explanation = try await ExplainClient.explain(sent, settings: settings, known: Array(store.known),
                                                               struggling: store.struggling, profile: store.listeningProfile)
@@ -984,6 +995,7 @@ final class AppModel: ObservableObject {
             moment.translation = explanation.translation
             moment.pieces = explanation.pieces
             moment.inPractice = explanation.inPractice
+            moment.forYou = explanation.forYou
             if moment.chosen != index { moment.alternative = moment.chosen }
             moment.chosen = index
             if let tapAt = moment.tapAt { moment.delay = max(0, tapAt - turns[index].end) }
@@ -1132,6 +1144,35 @@ final class AppModel: ObservableObject {
         window.makeKeyAndOrderFront(nil)
     }
 
+    /// Who you are and the names that are only yours, for what leaves the Mac (P3, P4): your first
+    /// name becomes [tu]; people, your words and your calendar's guests and projects never go out.
+    static func syncRedactor() {
+        Redactor.me = UserDefaults.standard.string(forKey: Key.myName) ?? ""
+        var names = Set(shared.store.people.map { $0.name.lowercased() })
+        names.formUnion(Memory.shared.dictionary.map { $0.lowercased() })
+        for call in CalendarWatch.shared.calls {
+            names.formUnion((call.guestNames + call.people).map { $0.lowercased() })
+            // The capitalised words of a meeting's title: "Project Phoenix", "Acme review".
+            names.formUnion(call.title.split(separator: " ").filter { $0.count >= 3 && $0.first?.isUppercase == true }.map { $0.lowercased() })
+        }
+        Redactor.privateNames = names
+    }
+
+    /// "[nome] asked you…" back with the real name, on the Mac only, when the card is shown: who you were
+    /// talking with in a call with one person, else no name (P3: no colleague's name leaves the Mac).
+    static func named(_ text: String?, with person: String?) -> String? {
+        guard let text = text?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty else { return nil }
+        return text.replacingOccurrences(of: "[nome]", with: person ?? String(localized: "Someone"))
+    }
+
+    /// "I knew it" on a card: the piece joins what you know, your model hears it, the level estimate
+    /// moves up (fast after three in a row).
+    func knew(_ piece: Piece, in moment: Moment) {
+        store.markKnown(piece.text)
+        Memory.shared.record("review_known", pieces: [piece], moment: moment)
+        LevelEstimate.knew(piece)
+    }
+
     func closePanel() {
         if videoPaused { resumeVideo() } else { panel.hide() }
     }
@@ -1200,7 +1241,7 @@ final class AppModel: ObservableObject {
         guard let player = readyPlayer(moment) else { return }
         stopTask?.cancel()
         player.stop()
-        player.rate = slow ? 0.6 : 1
+        player.rate = slow ? 0.7 : 1
         player.currentTime = min(from, max(0, player.duration - 0.1))
         player.prepareToPlay()
         player.play()
