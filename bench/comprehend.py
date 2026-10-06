@@ -279,11 +279,10 @@ def mark_case(c, offered, clip_start, listener):
     if not offered:
         row['mark'] = 0
         return row
-    label = picks.LISTENERS[listener]['label']
     if c['kind'] in ('asked', 'named'):
         name = c['name']
         shown = card(explain(offered[0], 'it-B2', name), offered[0])
-        verdict = judge('asked', c, f'{label}, named {name}', shown)
+        verdict = judge('asked', c, f"{picks.LISTENERS['it-B2']['label']}, named {name}", shown)
         row.update(listener=listener, name=name, card=shown, judge=verdict)
         said = verdict.get('answered')
         if listener == 'control' or c['kind'] == 'named':
@@ -292,6 +291,7 @@ def mark_case(c, offered, clip_start, listener):
         else:
             row['mark'] = 2 if said == 'yes' else 1 if said == 'partly' else 0
         return row
+    label = picks.LISTENERS[listener]['label']
     shown = card(explain(offered[0], listener, ''), offered[0])
     verdict = judge(c['kind'], c, label, shown)
     row.update(card=shown, judge=verdict)
@@ -348,7 +348,8 @@ def cards():
         try:
             return mark_case(c, offers[c['id']], heard[c['id']]['clip_start'], listener)
         except Exception as e:
-            return {'id': c['id'], 'kind': c['kind'], 'listener': listener, 'mark': 0, 'error': str(e)[:300]}
+            return {'id': c['id'], 'kind': c['kind'], 'listener': listener, 'sentence': c['sentence'], 'offered': '',
+                    'mark': 0, 'error': str(e)[:300]}
 
     with concurrent.futures.ThreadPoolExecutor(6) as pool:
         rows = list(pool.map(one, jobs))
