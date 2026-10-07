@@ -1,0 +1,47 @@
+name: Laughter
+
+# "Why they laughed" (07/10): the app's laughter check on AMI meetings, where every laugh is marked
+# by hand. The same code as the app, on Apple Silicon and Intel. Free: runners only.
+
+on:
+  push:
+    paths: ["bench/laugh.py", "bench/laugh/**", "macapp/LEXALIE/ToneMeter.swift", ".github/workflows/laugh.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cases:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - uses: actions/cache@v4
+        with:
+          path: bench/out/audio
+          key: laugh-ami-v1
+      - run: python3 bench/laugh.py cases
+      - uses: actions/upload-artifact@v4
+        with:
+          name: laughcases
+          path: bench/out/laugh
+
+  mac:
+    needs: cases
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-14, macos-15-intel]
+    runs-on: ${{ matrix.os }}
+    env:
+      RUNNER_LABEL: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: laughcases
+          path: bench/out/laugh
+      - run: swiftc -O macapp/LEXALIE/ToneMeter.swift bench/laugh/main.swift -o laughtool
+      - run: ./laughtool bench/out/laugh/wav > laugh.jsonl
+      - run: python3 bench/laugh.py score laugh.jsonl
