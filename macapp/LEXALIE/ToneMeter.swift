@@ -109,8 +109,10 @@ enum ToneMeter {
 
     // MARK: - Laughter: Apple's built-in sound classifier, on the device.
 
-    /// How sure a laugh must be (bench/laugh.py on AMI's hand-marked laughs picks it).
-    static var laughThreshold = 0.5
+    /// How sure a laugh must be (bench/laugh.py on AMI's hand-marked laughs, 07/10): at 0.3 it hears a
+    /// third of the laughs and is right about 3 times in 4; at 0.5 only a sixth; lower, too many false
+    /// alarms ("why they laughed" when nobody did is worse than missing one).
+    static var laughThreshold = 0.3
 
     /// Laughter anywhere in these seconds (the end card's "why they laughed", in calls).
     static func laughter(in voice: [Float], rate: Double) -> Bool {
