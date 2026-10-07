@@ -59,31 +59,36 @@ def cases():
 
 def score(path):
     truth = json.load(open(os.path.join(OUT, 'truth.json')))
-    tp = fp = fn = tn = 0
+    rows = []
     for line in open(path):
         try:
-            row = json.loads(line)
+            rows.append(json.loads(line))
         except Exception:
-            continue
-        a, b = row['start'], row['start'] + 10
-        # A laugh of at least half a second inside the window.
-        real = any(min(b, e) - max(a, s) >= 0.5 for s, e in truth.get(row['file'], []))
-        if row['laugh'] and real:
-            tp += 1
-        elif row['laugh']:
-            fp += 1
-        elif real:
-            fn += 1
-        else:
-            tn += 1
-    precision = round(100 * tp / (tp + fp), 1) if tp + fp else None
-    recall = round(100 * tp / (tp + fn), 1) if tp + fn else None
-    text = (f"| {os.environ.get('RUNNER_LABEL', 'local')} | {tp + fn} windows with laughter of {tp + fp + fn + tn} | "
-            f"heard {tp} | missed {fn} | false alarms {fp} | precision {precision}% | recall {recall}% |")
+            pass
+    lines = []
+    for threshold in (0.5, 0.4, 0.3, 0.2, 0.15, 0.1, 0.05):
+        tp = fp = fn = tn = 0
+        for row in rows:
+            a, b = row['start'], row['start'] + 10
+            # A laugh of at least half a second inside the window.
+            real = any(min(b, e) - max(a, s) >= 0.5 for s, e in truth.get(row['file'], []))
+            heard = row['confidence'] >= threshold
+            if heard and real:
+                tp += 1
+            elif heard:
+                fp += 1
+            elif real:
+                fn += 1
+            else:
+                tn += 1
+        precision = round(100 * tp / (tp + fp), 1) if tp + fp else None
+        recall = round(100 * tp / (tp + fn), 1) if tp + fn else None
+        lines.append(f"| {os.environ.get('RUNNER_LABEL', 'local')} | {threshold} | {tp + fn} of {len(rows)} | {tp} | {fn} | {fp} | {precision}% | {recall}% |")
+    text = '\n'.join(lines)
     print(text)
     summary = os.environ.get('GITHUB_STEP_SUMMARY')
     if summary:
-        open(summary, 'a').write('## Laughter in calls (ToneMeter.laughter on AMI)\n\n| Machine | Laughter | Heard | Missed | False alarms | Precision | Recall |\n|---|---|---|---|---|---|---|\n' + text + '\n')
+        open(summary, 'a').write('## Laughter in calls (ToneMeter on AMI)\n\n| Machine | Threshold | Windows with laughter | Heard | Missed | False alarms | Precision | Recall |\n|---|---|---|---|---|---|---|---|\n' + text + '\n')
 
 
 if __name__ == '__main__':

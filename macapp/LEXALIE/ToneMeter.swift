@@ -109,39 +109,47 @@ enum ToneMeter {
 
     // MARK: - Laughter: Apple's built-in sound classifier, on the device.
 
+    /// How sure a laugh must be (bench/laugh.py on AMI's hand-marked laughs picks it).
+    static var laughThreshold = 0.5
+
     /// Laughter anywhere in these seconds (the end card's "why they laughed", in calls).
     static func laughter(in voice: [Float], rate: Double) -> Bool {
-        guard rate > 0 else { return false }
+        laughterConfidence(in: voice, rate: rate) >= laughThreshold
+    }
+
+    /// The surest laugh in these seconds, 0 to 1.
+    static func laughterConfidence(in voice: [Float], rate: Double) -> Double {
+        guard rate > 0 else { return 0 }
         return laughs(voice, rate: rate, from: 0, seconds: Double(voice.count) / rate)
     }
 
-    private static func laughs(_ voice: [Float], rate: Double, from: Double, seconds: Double) -> Bool {
-        guard rate > 0, from >= 0 else { return false }
+    private static func laughs(_ voice: [Float], rate: Double, from: Double, seconds: Double) -> Double {
+        guard rate > 0, from >= 0 else { return 0 }
         let a = Int(from * rate), b = min(voice.count, a + Int(seconds * rate))
         guard b - a > Int(rate * 0.5),
               let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: rate, channels: 1, interleaved: false),
               let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(b - a)),
               let channel = buffer.floatChannelData?[0],
-              let request = try? SNClassifySoundRequest(classifierIdentifier: .version1) else { return false }
+              let request = try? SNClassifySoundRequest(classifierIdentifier: .version1) else { return 0 }
         buffer.frameLength = AVAudioFrameCount(b - a)
         voice.withUnsafeBufferPointer { channel.update(from: $0.baseAddress! + a, count: b - a) }
         let analyzer = SNAudioStreamAnalyzer(format: format)
         let observer = LaughObserver()
-        guard (try? analyzer.add(request, withObserver: observer)) != nil else { return false }
+        guard (try? analyzer.add(request, withObserver: observer)) != nil else { return 0 }
         analyzer.analyze(buffer, atAudioFramePosition: 0)
         analyzer.completeAnalysis()
-        return observer.heard
+        return observer.best
     }
 }
 
 private final class LaughObserver: NSObject, SNResultsObserving {
-    private(set) var heard = false
+    private(set) var best = 0.0
 
     func request(_ request: SNRequest, didProduce result: SNResult) {
         guard let result = result as? SNClassificationResult else { return }
-        for c in result.classifications where c.confidence >= 0.5 {
+        for c in result.classifications {
             let id = c.identifier.lowercased()
-            if id.contains("laugh") || id.contains("giggl") || id.contains("chuckl") || id.contains("snicker") { heard = true }
+            if id.contains("laugh") || id.contains("giggl") || id.contains("chuckl") || id.contains("snicker") { best = max(best, c.confidence) }
         }
     }
 }

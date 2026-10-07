@@ -1,5 +1,5 @@
 // The laughter bench (bench/laugh.py): the app's own ToneMeter.laughter on every 10 seconds of a
-// meeting, as CallCoach checks a call. Prints one JSON line per window: {"file", "start", "laugh"}.
+// meeting, as CallCoach checks a call. Prints one JSON line per window: {"file", "start", "confidence"}.
 import AVFoundation
 import Foundation
 
@@ -18,8 +18,8 @@ for name in files {
     let step = Int(rate * 10)
     var start = 0
     while start + step <= samples.count {
-        let laugh = ToneMeter.laughter(in: Array(samples[start..<(start + step)]), rate: rate)
-        let out: [String: Any] = ["file": name, "start": Double(start) / rate, "laugh": laugh]
+        let confidence = ToneMeter.laughterConfidence(in: Array(samples[start..<(start + step)]), rate: rate)
+        let out: [String: Any] = ["file": name, "start": Double(start) / rate, "confidence": confidence]
         print(String(data: try JSONSerialization.data(withJSONObject: out), encoding: .utf8)!)
         start += step
     }
