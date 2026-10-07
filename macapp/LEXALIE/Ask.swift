@@ -172,7 +172,7 @@ struct AskView: View {
                     Button { run { await Ask.shared.answer(ready, context: context) } } label: {
                         Text(ready.label).font(.system(size: 12, weight: .medium))
                             .padding(.horizontal, 10).padding(.vertical, 5)
-                            .background(Capsule().stroke(Brand.line.opacity(0.7)))
+                            .overlay(Capsule().strokeBorder(Brand.line.opacity(0.7)))
                     }
                     .buttonStyle(.plain)
                 }

@@ -10,7 +10,7 @@ as Intel Macs, FluidAudio on the Neural Engine as Apple chips). Free: runners on
     python3 bench/wordtimes.py tool NAME BIN [ARGS]   # a Swift tool printing timed words per clip
     python3 bench/wordtimes.py report                 # one table, and whether the cut is good enough
 
-A cut is good when the app's window (start - 0.06 s, end + 0.12 s, as EarFlow.cutRange) holds at least
+A cut is good when the app's window (start - 0.10 s, end + 0.18 s, as EarFlow.cutRange) holds at least
 90% of the word as a person timed it and adds at most 0.30 s of other sound.
 """
 import difflib
@@ -36,7 +36,7 @@ PER_MEETING = int(os.environ.get('WT_SENTENCES', '30'))
 RATE = 16000
 BEFORE, AFTER = 0.5, 0.5
 # As EarFlow.cutRange.
-PAD_START, PAD_END = 0.06, 0.12
+PAD_START, PAD_END = 0.10, 0.18
 
 
 def human_words(meeting, folder):

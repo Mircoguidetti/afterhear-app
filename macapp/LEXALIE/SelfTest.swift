@@ -128,7 +128,7 @@ enum SelfTest {
         idiom.wordTimes = [("He's", 0.0, 0.3), ("basically", 0.3, 0.8), ("moving", 0.8, 1.1), ("the", 1.1, 1.2), ("goalposts.", 1.2, 1.8)]
             .map { WordTime(text: $0.0, start: $0.1, end: $0.2) }
         let plan = EarFlow.plan(for: idiom)
-        check("ear: a word is cut from the real voice, then its sense", plan.line == idiom.say && plan.cut.map { abs($0.lowerBound - 0.74) < 0.01 && abs($0.upperBound - 1.92) < 0.01 } == true,
+        check("ear: a word is cut from the real voice, then its sense", plan.line == idiom.say && plan.cut.map { abs($0.lowerBound - 0.70) < 0.01 && abs($0.upperBound - 1.98) < 0.01 } == true,
               "\(String(describing: plan))")
         var numbers = cards[5].1
         numbers.pieces = [Piece(text: "4,500", heardAs: nil, gloss: nil, meaning: "4500", note: "", cause: "numbers", level: "B1")]

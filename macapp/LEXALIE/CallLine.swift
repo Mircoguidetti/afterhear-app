@@ -72,7 +72,7 @@ struct CallLineView: View {
                         } label: {
                             Text(ready.label).font(.system(size: 12, weight: .medium))
                                 .padding(.horizontal, 10).padding(.vertical, 5)
-                                .background(Capsule().stroke(Brand.paper.opacity(0.25)))
+                                .overlay(Capsule().strokeBorder(Brand.paper.opacity(0.25)))
                         }
                         .buttonStyle(.plain)
                     }

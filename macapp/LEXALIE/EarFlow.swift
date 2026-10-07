@@ -101,7 +101,9 @@ final class EarFlow {
     }
 
     /// Where the words of "cut" (or the first piece) are in the sentence, from the recogniser's word
-    /// times. Nil when they can't be found word for word: better no cut than the wrong one.
+    /// times. Nil when they can't be found word for word: better no cut than the wrong one. The margins
+    /// come from bench/wordtimes.py on AMI meetings (07/10): 0.10 s before and 0.18 s after give the whole
+    /// word in about 8 cases of 10 on both recognisers (0.06/0.12 gave 2 in 3).
     static func cutRange(_ m: Moment) -> ClosedRange<Double>? {
         guard let times = m.wordTimes, !times.isEmpty,
               let target = clean(m.cut) ?? clean(m.pieces.first?.heardAs) ?? clean(m.pieces.first?.text) else { return nil }
@@ -111,7 +113,7 @@ final class EarFlow {
         for i in 0...(have.count - wanted.count) where Array(have[i..<(i + wanted.count)]) == wanted {
             let a = times[i].start, b = times[i + wanted.count - 1].end
             guard b > a else { return nil }
-            return max(0, a - 0.06)...(b + 0.12)
+            return max(0, a - 0.10)...(b + 0.18)
         }
         return nil
     }
