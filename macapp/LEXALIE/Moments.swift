@@ -72,11 +72,17 @@ struct Explanation: Codable {
     var inPractice: String? = nil
     /// When the sentence was put to the listener: "[nome] asked you to …" (P3), names put back on the Mac.
     var forYou: String? = nil
+    /// The card's shape (06/10): how it sounds when fused or fast, the expression people use in your
+    /// language, the tone in a word. Empty when not sure.
+    var soundsLike: String? = nil
+    var equivalent: String? = nil
+    var tone: String? = nil
 
     enum CodingKeys: String, CodingKey {
-        case transcript, translation, intent, pieces, provider, model, ms, meant
+        case transcript, translation, intent, pieces, provider, model, ms, meant, equivalent, tone
         case inPractice = "in_practice"
         case forYou = "for_you"
+        case soundsLike = "sounds_like"
     }
 }
 
@@ -194,6 +200,10 @@ struct Moment: Codable, Identifiable {
     var inPractice: String? = nil
     /// "Sarah asked you to …" when the sentence was for you (P3), with the real name.
     var forYou: String? = nil
+    var soundsLike: String? = nil
+    var equivalent: String? = nil
+    /// The tone in a word ("ironico"), only when the explanation is very sure.
+    var toneLabel: String? = nil
     var tone: String? = nil
     /// Spaced repetition: when it comes back in the review, and how many times it was known.
     var due: Date? = nil

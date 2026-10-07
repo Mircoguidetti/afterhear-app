@@ -566,6 +566,9 @@ final class AppModel: ObservableObject {
             moment.meant = explanation.meant
             moment.inPractice = explanation.inPractice
             moment.forYou = explanation.forYou
+            moment.soundsLike = explanation.soundsLike
+            moment.equivalent = explanation.equivalent
+            moment.toneLabel = explanation.tone
             if !tone.isEmpty { moment.tone = tone }
             moment.with = talkingWith
             if let intent = explanation.intent?.trimmingCharacters(in: .whitespaces), !intent.isEmpty { moment.intent = intent }
@@ -722,6 +725,9 @@ final class AppModel: ObservableObject {
         moment.meant = result.meant
         moment.inPractice = result.inPractice
         moment.forYou = result.forYou
+        moment.soundsLike = result.soundsLike
+        moment.equivalent = result.equivalent
+        moment.toneLabel = result.tone
         if let intent = result.intent?.trimmingCharacters(in: .whitespaces), !intent.isEmpty { moment.intent = intent }
         moment.trigger = trigger
         moment.turns = turns
@@ -825,6 +831,9 @@ final class AppModel: ObservableObject {
             saved.intent = explanation.intent
             saved.inPractice = explanation.inPractice
             saved.forYou = explanation.forYou
+            saved.soundsLike = explanation.soundsLike
+            saved.equivalent = explanation.equivalent
+            saved.toneLabel = explanation.tone
             saved.provider = explanation.model ?? settings.provider.rawValue
             saved.offline = nil
             store.update(saved)
@@ -899,6 +908,9 @@ final class AppModel: ObservableObject {
             moment.tapAt = mark.tapAt
             moment.inPractice = explanation.inPractice
             moment.forYou = explanation.forYou
+            moment.soundsLike = explanation.soundsLike
+            moment.equivalent = explanation.equivalent
+            moment.toneLabel = explanation.tone
             if let intent = explanation.intent?.trimmingCharacters(in: .whitespaces), !intent.isEmpty { moment.intent = intent }
             if moment.context == "call" && (UserDefaults.standard.bool(forKey: Key.callsTextOnly) || Memory.shared.callsTextOnly) {
                 try? FileManager.default.removeItem(at: url)
@@ -1018,6 +1030,9 @@ final class AppModel: ObservableObject {
             moment.pieces = explanation.pieces
             moment.inPractice = explanation.inPractice
             moment.forYou = explanation.forYou
+            moment.soundsLike = explanation.soundsLike
+            moment.equivalent = explanation.equivalent
+            moment.toneLabel = explanation.tone
             if moment.chosen != index { moment.alternative = moment.chosen }
             moment.chosen = index
             if let tapAt = moment.tapAt { moment.delay = max(0, tapAt - turns[index].end) }
@@ -1173,6 +1188,9 @@ final class AppModel: ObservableObject {
         moment.meant = e.meant
         moment.inPractice = e.inPractice
         moment.forYou = e.forYou
+        moment.soundsLike = e.soundsLike
+        moment.equivalent = e.equivalent
+        moment.toneLabel = e.tone
         moment.offline = nil
         store.update(moment)
         Memory.shared.record("tap", pieces: e.pieces, moment: moment)

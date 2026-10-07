@@ -62,6 +62,8 @@ jobs:
         run: |
           APP=macapp/build/Build/Products/Release/LEXALIE.app
           export SELFTEST_OUT="$RUNNER_TEMP/selftest.jsonl"
+          # Pictures of the real cards, light and dark, with example content (no server call).
+          export SELFTEST_SHOTS="$RUNNER_TEMP/shots"
           set +e
           perl -e 'alarm 240; exec @ARGV' "$APP/Contents/MacOS/LEXALIE" --selftest
           code=$?
@@ -122,7 +124,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release delete mac-test --yes --cleanup-tag || true
-          gh release create mac-test LEXALIE-mac.zip --prerelease --target "$GITHUB_SHA" \
+          shots=$(ls "$RUNNER_TEMP"/shots/*.png 2>/dev/null || true)
+          gh release create mac-test LEXALIE-mac.zip $shots --prerelease --target "$GITHUB_SHA" \
             --title "LEXALIE per Mac (prova, dev)" \
             --notes "Build di prova ${GITHUB_SHA::7} dal branch dev. Scarica LEXALIE-mac.zip, aprilo e trascina LEXALIE in Applicazioni."
       # The landing's "Download for Mac": every build of main becomes the latest release of

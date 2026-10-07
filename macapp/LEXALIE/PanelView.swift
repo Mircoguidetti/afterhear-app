@@ -237,23 +237,18 @@ struct PanelView: View {
 
     /// One word or phrase of the card: the words, what they mean here, how to catch them next time.
     @ViewBuilder private func pieceView(_ piece: Piece) -> some View {
-        VStack(alignment: .leading, spacing: 5) {
-            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text(piece.text).font(.system(size: 16, weight: .semibold)).foregroundStyle(Brand.line)
-                // What kind of thing it is: a reference, an idiom, a new word (the board, 06/10 night).
-                Text(piece.guess == true ? String(localized: "Maybe this one?") : piece.causeLabel)
-                    .font(.system(size: 11, weight: .medium))
-                    .padding(.horizontal, 7).padding(.vertical, 2)
-                    .background(Capsule().fill(Brand.paper.opacity(0.07)))
-                    .foregroundStyle(Brand.paper.opacity(0.7))
-                Spacer(minLength: 0)
+        VStack(alignment: .leading, spacing: 4) {
+            // "runway · how many months a company can go on…": the label on top already says its kind.
+            (Text(piece.text).fontWeight(.semibold) + Text(" · " + (piece.gloss.map { "\($0) · \(piece.meaning)" } ?? piece.meaning)))
+                .font(.system(size: 14))
+            if piece.guess == true {
+                Text("Maybe this one?").font(.system(size: 11)).foregroundStyle(Brand.paper.opacity(0.5))
             }
-            Text(piece.gloss.map { "\($0) · \(piece.meaning)" } ?? piece.meaning).font(.system(size: 14))
             if let subtext = piece.subtext, !subtext.isEmpty {
                 Text("Really means: \(subtext)").font(.system(size: 13, weight: .medium)).foregroundStyle(Brand.paper.opacity(0.9))
             }
             if !piece.note.isEmpty {
-                Text(piece.note).font(.system(size: 12)).foregroundStyle(Brand.paper.opacity(0.6))
+                Text(piece.note).font(.system(size: 12)).foregroundStyle(Brand.paper.opacity(0.55))
             }
         }
         .fixedSize(horizontal: false, vertical: true)
@@ -311,13 +306,16 @@ struct PanelView: View {
             .buttonStyle(.plain)
             .font(.system(size: 12, weight: .semibold))
             .foregroundStyle(Brand.paper.opacity(0.6))
-            // It was for you (P3): who asked you what, on top. Never the answer.
-            if let forYou = AppModel.named(moment.forYou, with: moment.with) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("It was for you").font(.system(size: 11, weight: .semibold)).textCase(.uppercase).tracking(0.6)
-                        .foregroundStyle(Brand.line)
-                    Text(forYou).font(.system(size: 16, weight: .semibold)).fixedSize(horizontal: false, vertical: true)
-                }
+            // What goes on top depends on what you missed (07/10): one label, in the fixed order of
+            // CardShape; none on the plain card.
+            let shape = CardShape.of(moment)
+            if let label = shape.label(moment) {
+                Text(label).font(.system(size: 11, weight: .semibold)).textCase(.uppercase).tracking(0.6)
+                    .foregroundStyle(Brand.line)
+            }
+            // It was for you (P3): who asked you what, big. Never the answer.
+            if shape == .forYou, let forYou = AppModel.named(moment.forYou, with: moment.with) {
+                Text(forYou).font(.system(size: 16, weight: .semibold)).fixedSize(horizontal: false, vertical: true)
             }
             if let turns = moment.turns, let chosen = moment.chosen, chosen > 0, turns.indices.contains(chosen - 1),
                moment.alternative != chosen - 1 {
@@ -328,38 +326,40 @@ struct PanelView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             ClickableSentence(moment: moment)
-            TranslationLine(text: moment.quickTranslation ?? moment.translation, open: Self.translationOpen)
-            HStack(spacing: 8) {
+            // Replay and Slow, small, right under the sentence they belong to.
+            HStack(spacing: 14) {
                 if moment.context == "song" && moment.clipFile == nil {
                     // A song has no recording of ours: the song itself, from that line (owner, 03/10).
                     Button("Play this line") { AppModel.shared.playSongLine(moment) }
                         .help("The song again from this line, in Spotify or Music")
                 } else {
                     Button { AppModel.shared.play(moment, slow: false) } label: { Label("Replay", systemImage: "play.fill") }
-                    Button("Slow 0.7×") { AppModel.shared.play(moment, slow: true) }
+                    Button("0.7×") { AppModel.shared.play(moment, slow: true) }.help("Slow")
                 }
                 Spacer()
             }
-            .controlSize(.small)
+            .buttonStyle(.plain)
+            .font(.system(size: 12, weight: .medium))
+            .foregroundStyle(Brand.paper.opacity(0.6))
+            TranslationLine(text: moment.quickTranslation ?? moment.translation, open: Self.translationOpen)
             Divider().overlay(Brand.paper.opacity(0.12))
-            // One card (block P2, owner 06/10): the hardest thing, then "in practice", the point in plain
-            // words. A second one only one touch away; "maybe they meant" only where there's no such line.
-            if let piece = moment.pieces.first { pieceView(piece) }
-            if let practice = moment.inPractice?.trimmingCharacters(in: .whitespacesAndNewlines), !practice.isEmpty {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("In practice").font(.system(size: 11, weight: .semibold)).textCase(.uppercase).tracking(0.6)
-                        .foregroundStyle(Brand.paper.opacity(0.55))
-                    Text(practice)
-                        .font(.system(size: 15, weight: .medium))
-                        .fixedSize(horizontal: false, vertical: true)
+            let short = ShortCards.isShort(moment.pieces.first?.cause) && shape != .forYou
+            if !short {
+                if shape == .heard, let sounds = moment.soundsLike?.trimmingCharacters(in: .whitespaces), !sounds.isEmpty {
+                    (Text("Sounds like ") + Text(sounds).fontWeight(.semibold)).font(.system(size: 14))
                 }
+                if shape == .word, let ours = moment.equivalent?.trimmingCharacters(in: .whitespaces), !ours.isEmpty {
+                    (Text("In your language: ") + Text(ours).fontWeight(.semibold)).font(.system(size: 14))
+                }
+                if let piece = moment.pieces.first { pieceView(piece) }
+            }
+            if let practice = moment.inPractice?.trimmingCharacters(in: .whitespacesAndNewlines), !practice.isEmpty {
+                Text("In practice: \(practice)")
+                    .font(.system(size: 14.5, weight: .medium))
+                    .fixedSize(horizontal: false, vertical: true)
             } else if let meant = moment.meant, meant.shown {
                 VStack(alignment: .leading, spacing: 3) {
-                    HStack(alignment: .firstTextBaseline, spacing: 6) {
-                        Image(systemName: "sparkles").font(.system(size: 11))
-                        Text("Maybe they meant: \(meant.text)").font(.system(size: 14, weight: .semibold))
-                    }
-                    .foregroundStyle(Brand.line)
+                    Text("Maybe they meant: \(meant.text)").font(.system(size: 14, weight: .semibold))
                     if !meant.alternative.isEmpty {
                         Text("Or: \(meant.alternative)").font(.system(size: 12)).foregroundStyle(Brand.paper.opacity(0.55))
                     }
@@ -367,16 +367,20 @@ struct PanelView: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .help(meant.evidence)
             }
+            if short, let cause = moment.pieces.first?.cause, ShortCards.announce(cause) {
+                Text("Now this is enough.").font(.system(size: 12)).foregroundStyle(Brand.paper.opacity(0.55))
+            }
             if moment.pieces.count > 1 {
                 if moreWords {
                     pieceView(moment.pieces[1])
                 } else {
                     Button {
                         moreWords = true
-                        // Opening the second one says it was hard too (LevelEstimate).
+                        // Opening the second one says it was hard too (LevelEstimate, ShortCards).
                         LevelEstimate.hard(moment.pieces[1])
+                        ShortCards.opened(moment.pieces[1].cause)
                     } label: {
-                        Text("Also: \(moment.pieces[1].text)").font(.system(size: 13, weight: .medium)).foregroundStyle(Brand.paper.opacity(0.75))
+                        Text("Also: \(moment.pieces[1].text)").font(.system(size: 12.5)).foregroundStyle(Brand.paper.opacity(0.6))
                     }
                     .buttonStyle(.plain)
                 }
@@ -411,8 +415,11 @@ struct PanelView: View {
                 }
             }
             if let piece = moment.pieces.first {
-                Divider().overlay(Brand.paper.opacity(0.12))
-                KnewIt(moment: moment, piece: piece)
+                HStack(spacing: 14) {
+                    KnewIt(moment: moment, piece: piece)
+                    if moment.offline != true { WhyRow(moment: moment, shape: CardShape.of(moment)) }
+                    Spacer(minLength: 0)
+                }
             }
         }
     }
@@ -430,6 +437,7 @@ private struct KnewIt: View {
             guard !done else { return }
             done = true
             AppModel.shared.knew(piece, in: moment)
+            ShortCards.knew(piece.cause)
         } label: {
             Text(done ? String(localized: "Noted: it won't come back") : String(localized: "I knew it"))
                 .font(.system(size: 13))
@@ -444,13 +452,26 @@ private struct KnewIt: View {
 private struct ClickableSentence: View {
     let moment: Moment
     @State private var asking: String?
+    @Environment(\.colorScheme) private var scheme
+
+    /// The words of the one thing you missed (the first piece): one line under all of them, like the
+    /// landing's; the second thing is not underlined, it stays in "Also" (owner, 07/10).
+    private var marked: Set<Int> {
+        guard let piece = moment.pieces.first else { return [] }
+        let words = moment.transcript.split(separator: " ").map { Memory.key(String($0)) }
+        let wanted = Memory.key(piece.heardAs ?? piece.text).split(separator: " ").map(String.init)
+        guard !wanted.isEmpty, wanted.count <= words.count else { return [] }
+        for start in 0...(words.count - wanted.count) where Array(words[start..<(start + wanted.count)]) == wanted {
+            return Set(start..<(start + wanted.count))
+        }
+        return []
+    }
 
     var body: some View {
-        let hard = Set(moment.pieces.flatMap { ($0.heardAs ?? $0.text).lowercased().split(separator: " ").map(String.init) })
+        let marked = self.marked
         FlowLayout(spacing: 4, lineSpacing: 2) {
-            ForEach(Array(moment.transcript.split(separator: " ").enumerated()), id: \.offset) { _, word in
+            ForEach(Array(moment.transcript.split(separator: " ").enumerated()), id: \.offset) { index, word in
                 let w = String(word)
-                let key = w.lowercased().trimmingCharacters(in: .punctuationCharacters)
                 Button {
                     asking = w
                     Task {
@@ -459,9 +480,18 @@ private struct ClickableSentence: View {
                     }
                 } label: {
                     Text(w)
-                        .font(.system(size: 18, weight: hard.contains(key) ? .semibold : .regular))
-                        .foregroundStyle(hard.contains(key) ? Brand.paper : Brand.paper.opacity(0.55))
+                        .font(.system(size: 19, design: .serif))
+                        .foregroundStyle(Brand.paper)
                         .opacity(asking == w ? 0.5 : 1)
+                        .overlay(alignment: .bottom) {
+                            if marked.contains(index) {
+                                // Continuous across the spaces: the bar reaches into the next word's gap.
+                                Rectangle().fill(Brand.line).frame(height: 2)
+                                    .padding(.trailing, marked.contains(index + 1) ? -4 : 0)
+                                    .offset(y: 2)
+                                    .shadow(color: scheme == .dark ? Brand.line.opacity(0.7) : .clear, radius: 4)
+                            }
+                        }
                 }
                 .buttonStyle(.plain)
                 .help("Didn't get this word? Click it.")

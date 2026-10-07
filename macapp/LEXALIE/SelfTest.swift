@@ -32,6 +32,7 @@ enum SelfTest {
         pieces()
         let samples = addExamples()
         await windows(samples)
+        await SelfTestShots.run()
         for id in samples { AppModel.shared.store.delete(id) }
         check("done", true, failed == 0 ? "all passed" : "\(failed) failed")
         exit(failed == 0 ? 0 : 1)
@@ -53,6 +54,21 @@ enum SelfTest {
         check("never in these calls: other apps still listened", NeverCalls.match(call: nil, app: "com.microsoft.teams2") == nil)
         NeverCalls.remove(rule)
         check("never in these calls: removed", NeverCalls.match(call: nil, app: "us.zoom.xos") == nil)
+
+        // The card's shape (07/10): what goes on top, in the fixed order, and the plain card when unsure.
+        let shapes = SelfTestShots.cards().map { CardShape.of($0.1) }
+        check("card shape: didn't hear, word, for you, who, tone, plain", shapes == [.heard, .word, .forYou, .who, .tone, .plain], "\(shapes)")
+        var unsure = SelfTestShots.cards()[0].1
+        unsure.soundsLike = nil
+        unsure.signals = Signals(syllablesPerSecond: 3.5, overlap: false, snrDb: 20, reduced: [], minutesIntoCall: nil, hour: 10, accent: nil)
+        check("card shape: hearing not confirmed by the Mac gives the plain card", CardShape.of(unsure) == .plain)
+
+        // Your name becomes [tu] before leaving the Mac (P3).
+        let before = Redactor.me
+        Redactor.me = "Marco"
+        let toYou = Redactor.redact("Marco, could you send the deck by Friday?")
+        check("your name leaves as [tu]", toYou.contains("[tu]") && !toYou.contains("Marco"), toYou)
+        Redactor.me = before
 
         let syllables = EarSignals.syllables("we should probably reschedule the meeting")
         check("speed: syllables counted", (10...14).contains(syllables), "\(syllables)")

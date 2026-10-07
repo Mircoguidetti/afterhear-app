@@ -97,8 +97,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 enum Brand {
     /// Buttons: black on white, light grey on dark (no apricot, owner 05/10).
     static let accent = dynamic(light: 0x18181A, dark: 0xE6E7EB)
-    /// The one accent, only for the thing you missed: a clear blue on white, ice blue on dark.
-    static let line = dynamic(light: 0x3A4FE0, dark: 0x9FD8FF)
+    /// The one accent, only for the thing you missed: the landing's own (ice blue with its light on dark,
+    /// the deeper blue of its white sections on light).
+    static let line = dynamic(light: 0x2F86D0, dark: 0x9FD8FF)
     /// The ground of the card and the windows.
     static let onyx = dynamic(light: 0xFBFAF8, dark: 0x0B0C11)
     static let card = dynamic(light: 0xF4F2EE, dark: 0x15161C)
