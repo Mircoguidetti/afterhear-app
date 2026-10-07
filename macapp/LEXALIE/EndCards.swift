@@ -5,7 +5,7 @@ import SwiftUI
 /// the notifications ("Five minutes now?", the quiz after a video): nothing arrives as a notification.
 struct EndCard {
     struct Item: Identifiable {
-        enum Kind { case rewound, spotted, open, laughed, refrain }
+        enum Kind { case rewound, spotted, open, told, marked, laughed, refrain }
         let id = UUID()
         let kind: Kind
         /// "You went back here", "Still open for you", "Why they laughed".
@@ -18,6 +18,10 @@ struct EndCard {
         let moment: UUID?
         /// A refrain's term, explained only if you ask ("What is it?").
         var term: String? = nil
+        /// The real voice of what they asked you (block COSA 7), for Replay.
+        var voice: URL? = nil
+        /// The model wasn't sure it was meant for you, or the words were heard badly.
+        var unsure = false
     }
 
     let title: String
@@ -46,7 +50,7 @@ enum EndCards {
     /// The sentences you went back to (explained now), then what a local got and you probably didn't
     /// (your model's catches, when "Watch with me" was on). Music: never, only the tap (CTX 4).
     static func afterWatching(title: String?, since: Date) async {
-        var items: [EndCard.Item] = []
+        var items: [EndCard.Item] = await markedItems(since: since)
         for rewind in RewindWatch.shared.take(since: since).prefix(2) {
             guard let moment = await AppModel.shared.explainSaved(rewind.moment), let piece = moment.pieces.first else { continue }
             let label = rewind.times > 1 ? String(localized: "You went back \(rewind.times) times here") : String(localized: "You went back here")
@@ -70,10 +74,12 @@ enum EndCards {
 
     /// What's still open for you (a request with your name, a question you didn't really answer), why
     /// they laughed (only if the words before were heard well), and your next call if it's close.
-    static func afterCall(open: [String], laughed: String?, with people: [String], reportID: String?) async {
-        var items: [EndCard.Item] = open.prefix(2).map { line in
+    static func afterCall(open: [String], told lines: [String], since: Date, laughed: String?, with people: [String], reportID: String?) async {
+        // What they told you to do, from the server (block COSA 7); without it, the lines found on this Mac.
+        var items = await toldItems(lines, source: "call") ?? open.prefix(2).map { line in
             EndCard.Item(kind: .open, label: String(localized: "Still open for you"), quote: line, detail: nil, moment: nil)
         }
+        items += await markedItems(since: since)
         if let laughed {
             let id = AppModel.shared.addLaughMoment(line: laughed)
             if let moment = await AppModel.shared.explainSaved(id, tone: "laughter right after"),
@@ -86,6 +92,47 @@ enum EndCards {
         if let refrain = refrainItem(context: "call") { items.append(refrain) }
         let who = people.isEmpty ? String(localized: "your call") : ListFormatter.localizedString(byJoining: people)
         show(EndCard(title: String(localized: "After the call with \(who)"), items: items, next: nextCall(), reportID: reportID))
+    }
+
+    // MARK: After a conversation in person
+
+    /// At the doctor, with a landlord, at a counter (owner, 07/10): what they told you to do, and your taps.
+    static func afterInPerson(lines: [String], since: Date) async {
+        var items = await toldItems(lines, source: "in_person") ?? []
+        items += await markedItems(since: since)
+        show(EndCard(title: String(localized: "After the conversation"), items: items, next: nextCall()))
+    }
+
+    // MARK: Shared
+
+    /// "What they told you to do": only what was asked of you, their words, their voice, what they meant.
+    /// nil when the server can't be reached (the call then falls back to what this Mac found).
+    static func toldItems(_ lines: [String], source: String) async -> [EndCard.Item]? {
+        guard !lines.isEmpty, let told = await Told.ask(lines: lines, source: source) else { return nil }
+        return told.map { item in
+            let line = Told.origin(of: item.quote, in: lines)
+            return EndCard.Item(kind: .told, label: String(localized: "They asked you"), quote: line ?? item.quote,
+                                detail: Told.restore(item.meaning, from: line), moment: nil,
+                                voice: ToldVoice.shared.voice(for: line), unsure: item.unsure)
+        }
+    }
+
+    /// "Tell me later" (block COSA 6): with "At the end" chosen, the taps of this video, call or
+    /// conversation are explained here, together, each with the real voice. Up to four; the rest tonight.
+    static func markedItems(since: Date) async -> [EndCard.Item] {
+        guard UserDefaults.standard.bool(forKey: Key.tapLater) else { return [] }
+        let marks = AppModel.shared.store.moments
+            .filter { !$0.isModel && $0.date >= since && ["tap", "airpods", "siri", "sorry", "menu"].contains($0.trigger ?? "tap") }
+            .sorted { $0.date < $1.date }
+        var items: [EndCard.Item] = []
+        for mark in marks.prefix(4) {
+            guard let moment = await AppModel.shared.explainSaved(mark.id) else { continue }
+            let what = moment.pieces.first.map { detail($0, practice: moment.inPractice) } ?? moment.inPractice ?? moment.translation
+            let time = moment.date.formatted(date: .omitted, time: .shortened)
+            items.append(.init(kind: .marked, label: String(localized: "You tapped here · \(time)"), quote: moment.transcript,
+                               detail: what, moment: moment.id))
+        }
+        return items
     }
 
     /// One refrain at most, and only when it really comes back (Nodes.refrain).
@@ -158,7 +205,10 @@ struct EndCardView: View {
 
     @ViewBuilder private func row(_ item: EndCard.Item) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(item.label).font(.system(size: 12, weight: .semibold)).foregroundStyle(Brand.line)
+            HStack(spacing: 6) {
+                Text(item.label).font(.system(size: 12, weight: .semibold)).foregroundStyle(Brand.line)
+                if item.unsure { Text("Not sure it was for you").font(.system(size: 11)).foregroundStyle(Brand.paper.opacity(0.55)) }
+            }
             if let quote = item.quote, !quote.isEmpty {
                 Text("“\(quote)”").font(.system(size: 15, design: .serif)).fixedSize(horizontal: false, vertical: true)
             }
@@ -173,6 +223,9 @@ struct EndCardView: View {
                     Button("What is it?") {
                         Task { explained[item.id] = await AppModel.shared.explainTerm(term) ?? String(localized: "Couldn't explain it now.") }
                     }
+                } else if item.kind == .told {
+                    // Their words again, with their voice: no box to tick, no reminder (comprehension, not notes).
+                    if let voice = item.voice { Button("Replay") { ToldVoice.shared.play(voice) } }
                 } else if item.kind == .open {
                     // "I handled it": gone, and LEXALIE learns what matters to you.
                     Button(done.contains(item.id) ? String(localized: "Noted") : String(localized: "I handled it")) { done.insert(item.id) }

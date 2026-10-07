@@ -157,6 +157,7 @@ final class AppModel: ObservableObject {
 
     func togglePause() async {
         guardPaused = false
+        if state == .listening, InPerson.isOn { await InPerson.shared.stop() }
         if state == .listening {
             await audio.stop()
             live.stop()
@@ -223,7 +224,7 @@ final class AppModel: ObservableObject {
     /// do we, and an open AirPods microphone also lowers the sound of the film (owner, 02/10).
     func applyMicrophone() {
         let settings = AppSettings.current
-        let wanted = state == .listening && settings.sorry && ContextDetector.current() == .call
+        let wanted = state == .listening && settings.sorry && ContextDetector.current() == .call && !InPerson.isOn
         if wanted {
             guard sorry?.isRunning == false else { return }
             Task {
@@ -426,7 +427,7 @@ final class AppModel: ObservableObject {
                 let call = CalendarWatch.shared.current
                 var marks = PendingMark.all
                 marks.append(PendingMark(date: started, clipFile: clip.lastPathComponent, tapAt: tapAt, trigger: trigger,
-                                         context: song != nil ? "song" : context == .other ? nil : context.rawValue,
+                                         context: InPerson.isOn ? "in_person" : song != nil ? "song" : context == .other ? nil : context.rawValue,
                                          show: song.map { String($0.label.prefix(200)) } ?? (context == .video ? ContextDetector.show() : nil),
                                          call: call?.id, callTitle: call.map { String($0.title.prefix(200)) },
                                          with: talkingWith ?? call?.people.first))
@@ -622,7 +623,7 @@ final class AppModel: ObservableObject {
                 if !times.isEmpty { moment.wordTimes = times }
             }
             moment.tapAt = tapAt
-            moment.context = context == .other ? nil : context.rawValue
+            moment.context = InPerson.isOn ? "in_person" : context == .other ? nil : context.rawValue
             if context == .video { moment.show = ContextDetector.show() }
             if let song {
                 moment.context = "song"
@@ -1265,7 +1266,7 @@ final class AppModel: ObservableObject {
         let source = moment.show.map { "video: \($0)" } ?? ""
         guard let e = try? await ExplainClient.explain(moment.sent, settings: settings, known: known, struggling: store.struggling,
                                                        watch: Memory.shared.watch, profile: store.listeningProfile, source: source,
-                                                       tone: tone, publicMedia: moment.context != "call") else { return nil }
+                                                       tone: tone, publicMedia: moment.context == "video" || moment.context == "song") else { return nil }
         moment.translation = e.translation
         moment.pieces = e.pieces
         moment.intent = e.intent
@@ -1289,6 +1290,27 @@ final class AppModel: ObservableObject {
         guard let e = try? await ExplainClient.explain(text, settings: settings, known: [], focus: text, publicMedia: true),
               let piece = e.pieces.first else { return nil }
         return piece.gloss.map { "\($0) · \(piece.meaning)" } ?? piece.meaning
+    }
+
+    // MARK: In person (07/10 evening)
+
+    /// The audio the room goes into while InPerson listens; nil otherwise (read on the audio thread).
+    nonisolated(unsafe) private static var roomAudio: SystemAudio?
+
+    nonisolated static func feedRoom(_ pointer: UnsafePointer<Float>, frames: Int, channels: Int, rate: Double) {
+        roomAudio?.feed(pointer, frames: frames, channels: channels, rate: rate)
+    }
+
+    /// The Mac's sound steps aside: one source at a time for the tap.
+    func pauseSystemAudio() async {
+        await audio.stop()
+        Self.roomAudio = audio
+    }
+
+    func resumeSystemAudio() async {
+        Self.roomAudio = nil
+        guard state == .listening else { return }
+        do { try await audio.start() } catch { ErrorLog.record("audio.restart", error) }
     }
 
     /// The last seconds of sound at full quality, for laughter (SoundAnalysis, on the Mac).

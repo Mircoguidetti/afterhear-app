@@ -219,6 +219,38 @@ enum SelfTest {
         check("ask: in a call, meant / for me / who", Ask.ready(for: .call, song: false) == [.meant, .forMe, .who])
         check("ask: with a song, who's singing first", Ask.ready(for: .video, song: true).first == .singer)
         check("call line: one line for the card", CallLineView.line(cards[2].1) != nil)
+
+        // What matters (block COSA): what comes back, with people first; what you get goes away.
+        func tap(_ text: String, cause: String, days: Double, context: String?, with: String? = nil) -> Moment {
+            var m = Moment(date: Date().addingTimeInterval(-days * 86_400), transcript: "… \(text) …", sent: text, translation: "",
+                           pieces: [Piece(text: text, heardAs: nil, gloss: nil, meaning: "m", note: "", cause: cause, level: "B2")],
+                           clipFile: nil, provider: "selftest", latencyMs: 1)
+            m.trigger = "tap"; m.context = context; m.with = with
+            return m
+        }
+        let taps = [tap("ballpark", cause: "idiom", days: 1, context: "call", with: "Tom"), tap("ballpark", cause: "idiom", days: 3, context: "call", with: "Tom"),
+                    tap("Ballpark!", cause: "idiom", days: 9, context: "video"), tap("circle back", cause: "idiom", days: 2, context: "video"),
+                    tap("circle back", cause: "idiom", days: 5, context: "video"), tap("runway", cause: "unknown_word", days: 30, context: "call"),
+                    tap("quite brave", cause: "subtext", days: 1, context: "call", with: "Tom"), tap("touch base", cause: "idiom", days: 2, context: "video")]
+        let matters = WhatMatters.summary(taps, known: [])
+        check("what matters: the one that comes back most, first", matters.items.first?.title.lowercased().hasPrefix("ballpark") == true,
+              matters.items.map(\.title).joined(separator: ", "))
+        check("what matters: same expression counted once", matters.items.filter { $0.title.lowercased().hasPrefix("ballpark") }.count == 1)
+        check("what matters: older than two weeks left out", !matters.items.contains { $0.title == "runway" })
+        check("what matters: the person you lose most", matters.items.contains { $0.kind == .person && $0.title.contains("Tom") })
+        check("what matters: a sentence on the two weeks", matters.headline?.isEmpty == false, matters.headline ?? "none")
+        let gotIt = WhatMatters.summary(taps, known: [Memory.key("ballpark")])
+        check("what matters: what you get goes away", !gotIt.items.contains { $0.title.lowercased().hasPrefix("ballpark") })
+        check("what matters: nothing yet, nothing shown", WhatMatters.summary([], known: []).items.isEmpty)
+
+        // What they told you to do (block COSA 7): their line, numbers back, requests noticed.
+        let said = ["Right, it's a chest infection.", "Take one of these 2 times a day, for 7 days.", "Come back next week."]
+        check("told: the line it came from", Told.origin(of: "Take one of these [numero] times a day", in: said) == said[1])
+        check("told: numbers put back", Told.restore("Una [numero] volte al giorno per [numero] giorni", from: said[1]) == "Una 2 volte al giorno per 7 giorni",
+              Told.restore("Una [numero] volte al giorno per [numero] giorni", from: said[1]))
+        check("told: a request is noticed", Told.looksLikeRequest("Could you send me the deck by Thursday?") && Told.looksLikeRequest("Tómese una pastilla cada ocho horas"))
+        check("told: chit-chat is not", !Told.looksLikeRequest("The weather was amazing, honestly."))
+        check("in person: off by default", !InPerson.isOn)
     }
 
     // MARK: Example moments, so the windows show rows and not empty pages
@@ -252,6 +284,7 @@ enum SelfTest {
         let store = AppModel.shared.store
         let list: [(String, AnyView)] = [
             ("settings", AnyView(Scenes.settings())),
+            ("what matters", AnyView(Scenes.matters())),
             ("diary", AnyView(Scenes.diary())),
             ("review", AnyView(Scenes.review())),
             ("menu", AnyView(Scenes.menu())),

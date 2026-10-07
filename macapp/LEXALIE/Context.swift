@@ -39,6 +39,8 @@ enum ContextDetector {
     static var soundPlaying: () -> Bool = { false }
 
     static func current() -> AppContext {
+        // In person the room is what's heard: never a video (the ear) nor a call (CallCoach).
+        if InPerson.isOn { return .other }
         let front = NSWorkspace.shared.frontmostApplication
         let frontID = front?.bundleIdentifier ?? ""
         let windows = visibleWindows()

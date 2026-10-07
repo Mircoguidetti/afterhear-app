@@ -7,9 +7,10 @@ from t5 import R as R5, PLIST  # noqa: F401
 from t6 import R as R6
 from t7 import R as R7
 from t8 import R as R8
+from t9 import R as R9
 
 T = {}
-for row in R1 + R2 + R3 + R4 + R5 + R6 + R7 + R8:
+for row in R1 + R2 + R3 + R4 + R5 + R6 + R7 + R8 + R9:
     if row[0] in T:
         raise SystemExit(f'twice: {row[0]!r}')
     T[row[0]] = row[1:]

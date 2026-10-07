@@ -22,6 +22,11 @@ struct LexalieApp: App {
         }
         .menuBarExtraStyle(.window)
 
+        Window("What matters", id: "matters") {
+            Scenes.matters()
+        }
+        .defaultSize(width: 480, height: 600)
+
         Window("Diary", id: "diary") {
             Scenes.diary()
         }
@@ -49,6 +54,7 @@ enum Scenes {
         MenuView().environmentObject(model).environmentObject(model.store)
     }
 
+    static func matters() -> some View { styled(WhatMattersView()) }
     static func diary() -> some View { styled(DiaryView()) }
     static func review() -> some View { styled(ReviewView()) }
     static func settings() -> some View { styled(SettingsView()) }

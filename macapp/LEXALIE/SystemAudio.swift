@@ -148,6 +148,11 @@ final class SystemAudio: NSObject, SCStreamOutput, SCStreamDelegate {
         }
     }
 
+    /// The room, heard by the Mac's microphone (InPerson), in place of the Mac's sound.
+    func feed(_ pointer: UnsafePointer<Float>, frames: Int, channels: Int, rate: Double) {
+        consume(pointer, frames: frames, channels: channels, rate: rate)
+    }
+
     /// One chunk of sound, from either source: mono, full quality kept, 16 kHz for the recognisers.
     private func consume(_ pointer: UnsafePointer<Float>, frames: Int, channels: Int, rate: Double) {
         guard frames > 0, rate > 0 else { return }

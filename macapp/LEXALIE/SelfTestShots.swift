@@ -74,11 +74,22 @@ enum SelfTestShots {
         let all = cards()
         var call = all[2].1
         call.inPractice = "vuole una stima dei numeri di marzo, entro venerdì."
+        let time = "10:42"
         let extra: [(String, AnyView, CGFloat)] = [
             ("8-call-riga", AnyView(CallLineView(moment: call)), 520),
             ("9-chiedi", AnyView(AskView(context: .video, song: false)), 460),
             ("10-orecchio", AnyView(PanelView(phase: .video(all[1].1, paused: true))), 420),
             ("11-ormai-la-capisci", AnyView(GotItLine(got: Memory.SmoothEncounter(at: Date(), text: "moving the goalposts"))), 420),
+            // 07/10 evening: what matters, and the end of a conversation at the doctor's.
+            ("12-cosa-conta", AnyView(WhatMattersView().environmentObject(AppModel.shared.store).background(Brand.onyx)), 480),
+            ("13-fine-dal-vivo", AnyView(EndCardView(card: EndCard(title: String(localized: "After the conversation"), items: [
+                .init(kind: .told, label: String(localized: "They asked you"), quote: "Take one of these twice a day after meals, for seven days.",
+                      detail: "Una compressa due volte al giorno dopo i pasti, per sette giorni.", moment: nil),
+                .init(kind: .told, label: String(localized: "They asked you"), quote: "If the cough isn't better by next week, come back and see me.",
+                      detail: "Se la tosse non migliora entro la prossima settimana, torna da lui.", moment: nil),
+                .init(kind: .marked, label: String(localized: "You tapped here · \(time)"), quote: "It's nothing to write home about.",
+                      detail: "nothing to write home about: niente di speciale\nIn pratica: non è grave.", moment: nil),
+            ]))), 420),
         ]
         for (name, view, width) in extra {
             for (look, appearance) in [("giorno", NSAppearance.Name.aqua), ("notte", .darkAqua)] {

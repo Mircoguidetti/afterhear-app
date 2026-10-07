@@ -76,6 +76,8 @@ final class CallCoach: ObservableObject {
         var lastInCall: Date
         var pairs: [Pair] = []
         var requests: [String] = []
+        /// What the others said, for "What they told you to do" at the end (block COSA 7).
+        var lines: [String] = []
         var seen: Set<String> = []
         var theirTurns = 0
         var hesitations = 0
@@ -142,9 +144,10 @@ final class CallCoach: ObservableObject {
                 let call = CalendarWatch.shared.current
                 session = Session(id: call?.id ?? "ctx-\(Int(now.timeIntervalSince1970))", title: call?.title ?? String(localized: "Call"),
                                   people: call?.people ?? [], start: now, lastInCall: now)
+                ToldVoice.shared.reset()
             }
             session?.lastInCall = now
-            observe(AppModel.shared.recentTurns(seconds: 60))
+            observe(AppModel.shared.recentTurns(seconds: 60), clipStart: now.addingTimeInterval(-60))
             listenForLaughter(now: now)
             // Nothing shows up by itself during a call (owner, 06/10 night): a question put to you is on
             // the card when you tap, and at the end of the call among what is still open for you.
@@ -155,7 +158,7 @@ final class CallCoach: ObservableObject {
     }
 
     /// Picks the snippets worth keeping from the last minute of turns.
-    private func observe(_ turns: [Turn]) {
+    private func observe(_ turns: [Turn], clipStart: Date) {
         guard var s = session else { return }
         let name = myName.lowercased()
         for (i, turn) in turns.enumerated() {
@@ -168,7 +171,10 @@ final class CallCoach: ObservableObject {
             // Your own sentences are not kept nor judged: LEXALIE is about what you hear (owner, 06/10).
             if turn.isMine { continue }
             s.theirTurns += 1
+            if s.lines.count < 400 { s.lines.append(String(text.prefix(1200))) }
             let lower = text.lowercased()
+            // A sentence that may ask you something keeps its real voice for the end card's Replay.
+            if Told.looksLikeRequest(text) || (!name.isEmpty && lower.contains(name)) { ToldVoice.shared.keep(turn, clipStart: clipStart) }
             if !name.isEmpty, lower.range(of: "\\b\(NSRegularExpression.escapedPattern(for: name))\\b", options: .regularExpression) != nil,
                lower.range(of: Self.requestCue, options: .regularExpression) != nil, s.requests.count < 20 {
                 s.requests.append(String(text.prefix(600)))
@@ -222,7 +228,7 @@ final class CallCoach: ObservableObject {
         // from the words themselves: a request with your name, a question to you.
         let name = myName.lowercased()
         let open = s.requests + s.pairs.filter { !name.isEmpty && $0.question.lowercased().contains(name) }.map(\.question)
-        await EndCards.afterCall(open: open, laughed: s.laughed, with: s.people, reportID: nil)
+        await EndCards.afterCall(open: open, told: s.lines, since: s.start, laughed: s.laughed, with: s.people, reportID: nil)
     }
 
     func openReport(_ id: String) {

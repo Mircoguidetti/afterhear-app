@@ -65,11 +65,16 @@ struct MenuView: View {
                     Text("When I tap").font(.caption).foregroundStyle(.secondary)
                     Picker("When I tap", selection: $tapLater) {
                         Text("Explain now").tag(false)
-                        Text("Keep for tonight").tag(true)
+                        Text("At the end").tag(true)
                     }
                     .pickerStyle(.segmented)
                     .labelsHidden()
                     .onChange(of: tapLater) { _ in model.objectWillChange.send() }
+                    // "Tell me later" (block COSA 6): nothing interrupts you, the end card explains them all.
+                    if tapLater {
+                        Text("Nothing interrupts you: explained together when the video, the call or the conversation ends.")
+                            .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                    }
                 }
                 // Not now, without quitting: back by itself in an hour or at the end of the call (block M).
                 Button("Pause for an hour") { Task { await model.togglePause() } }
@@ -98,20 +103,32 @@ struct MenuView: View {
                     Button("Copy the message for the others in the call") { ParticipantNotice.copy() }.controlSize(.small)
                 }
                 CallGuardRow()
+                InPersonRow()
                 nextCall
             }
 
-            if !todayMoments.isEmpty {
+            // What matters first (block COSA): the few things worth knowing, not the list of taps.
+            let matters = WhatMatters.summary(store.moments, known: store.known).items
+            if !matters.isEmpty {
                 Divider()
-                Text("Today").font(.caption).foregroundStyle(.secondary)
-                ForEach(todayMoments.prefix(3)) { moment in
-                    HStack(alignment: .firstTextBaseline) {
-                        Text(moment.pieces.map(\.text).joined(separator: " · ").ifEmpty(moment.transcript))
-                            .font(.system(size: 13, weight: .medium)).lineLimit(1)
-                        Spacer()
-                        Text(moment.date, style: .time).font(.caption2).foregroundStyle(.secondary)
+                Button { open("matters") } label: {
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack {
+                            Text("What matters").font(.caption).foregroundStyle(.secondary)
+                            Spacer()
+                            Image(systemName: "chevron.right").font(.caption2).foregroundStyle(.secondary)
+                        }
+                        ForEach(matters.prefix(3)) { item in
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text(item.title).font(.system(size: 13, weight: .medium)).lineLimit(1)
+                                Text(item.why).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
+                            }
+                        }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
                 }
+                .buttonStyle(.plain)
             }
 
             if model.waiting > 0 {
@@ -129,7 +146,8 @@ struct MenuView: View {
                 }
                 Button("Settings") { open("settings") }
                 Menu("More") {
-                    Button("Diary") { open("diary") }
+                    Button("What matters") { open("matters") }
+                    Button("All moments") { open("diary") }
                     Button("Your week") { Podcast.shared.open() }
                     Button("Is everything ready?") { HealthCheck.shared.open() }
                     Divider()
@@ -257,10 +275,6 @@ struct MenuView: View {
                 }
             }
         }
-    }
-
-    private var todayMoments: [Moment] {
-        store.moments.filter { Calendar.current.isDateInToday($0.date) }
     }
 
     @ViewBuilder private var status: some View {
