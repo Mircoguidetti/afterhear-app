@@ -145,6 +145,28 @@ def score(engine, heard):
                 if fast:
                     fast_total += 1
                     fast_good += ok
+    # The margins tried around the recogniser's times: the best one goes into EarFlow.cutRange.
+    sweep = {}
+    for ps in (0.06, 0.1, 0.15, 0.2, 0.25):
+        for pe in (0.12, 0.18, 0.25, 0.32):
+            ok_n = n = 0
+            for name, case in truth.items():
+                got = heard.get(name)
+                if not got:
+                    continue
+                human, rec = case['words'], got['words']
+                a = [norm(w[2]) for w in human]
+                b = [norm(w[2]) for w in rec]
+                for block in difflib.SequenceMatcher(a=a, b=b, autojunk=False).get_matching_blocks():
+                    for i in range(block.size):
+                        if not a[block.a + i]:
+                            continue
+                        h, r = human[block.a + i], rec[block.b + i]
+                        lo, hi = r[0] - ps, r[1] + pe
+                        inside = max(0.0, min(hi, h[1]) - max(lo, h[0]))
+                        n += 1
+                        ok_n += inside >= 0.9 * (h[1] - h[0]) and (hi - lo) - inside <= 0.45
+            sweep[f'{ps}/{pe}'] = round(100 * ok_n / n, 1) if n else None
     def med(xs):
         xs = sorted(abs(x) for x in xs)
         return round(xs[len(xs) // 2], 3) if xs else None
@@ -155,7 +177,8 @@ def score(engine, heard):
            'start_error_median': med(starts), 'start_error_p90': p90(starts),
            'end_error_median': med(ends), 'end_error_p90': p90(ends),
            'cut_good': round(100 * good / matched, 1) if matched else None,
-           'cut_good_fast': round(100 * fast_good / fast_total, 1) if fast_total else None, 'fast_words': fast_total}
+           'cut_good_fast': round(100 * fast_good / fast_total, 1) if fast_total else None, 'fast_words': fast_total,
+           'sweep': sweep, 'best_margins': max(sweep, key=lambda k: sweep[k] or 0) if sweep else None}
     os.makedirs(RESULTS, exist_ok=True)
     json.dump(row, open(os.path.join(RESULTS, re.sub(r'[^a-z0-9]+', '-', f"{os.environ.get('RUNNER_LABEL', 'local')}-{engine}".lower()) + '.json'), 'w'))
     print(json.dumps(row, indent=1))
@@ -203,6 +226,9 @@ def report():
     for r in rows:
         lines.append(f"| {r['engine']} | {r['machine']} | {r['matched']} of {r['words']} | {r['start_error_median']} s / {r['start_error_p90']} s | "
                      f"{r['end_error_median']} s / {r['end_error_p90']} s | {r['cut_good']}% | {r['cut_good_fast']}% ({r['fast_words']}) |")
+    for r in rows:
+        lines.append(f"\n{r['engine']}: best margins (before/after, s, whole word heard and at most 0.45 s more) {r.get('best_margins')}: "
+                     + ', '.join(f"{k} {v}%" for k, v in (r.get('sweep') or {}).items()))
     text = '\n'.join(lines)
     print(text)
     summary = os.environ.get('GITHUB_STEP_SUMMARY')
