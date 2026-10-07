@@ -316,7 +316,7 @@ def card(body, offered):
     """What the panel shows: the sentence, then what came back."""
     if not isinstance(body, dict) or 'error' in body:
         return {'error': (body or {}).get('error', 'no answer') if isinstance(body, dict) else 'no answer'}
-    keep = {k: body.get(k) for k in ('translation', 'intent', 'pieces', 'meant', 'for_you', 'asked', 'who', 'in_practice') if k in body}
+    keep = {k: body.get(k) for k in ('translation', 'intent', 'pieces', 'meant', 'for_you', 'asked', 'who', 'in_practice', 'say', 'cut') if k in body}
     return {'sentence': offered['text'], **keep}
 
 
@@ -471,6 +471,16 @@ def report():
     if errors:
         e = errors[0].get('error') or errors[0]['card']['error']
         lines += ['', f'{len(errors)} cases had no card (counted as 0): `{e[:200]}`']
+    # The ear (07/10): the line said in your ear (at most 12 words) and the words cut from the real voice.
+    said = [r['card'] for r in rows if isinstance(r.get('card'), dict) and 'error' not in r['card']]
+    if said:
+        spoken = [c for c in said if (c.get('say') or '').strip()]
+        short = sum(len(c['say'].split()) <= 12 for c in spoken)
+        cuts = [c for c in said if (c.get('cut') or '').strip()]
+        inside = sum(contains(c.get('sentence', ''), c['cut']) for c in cuts)
+        summary['ear'] = {'cards': len(said), 'said': len(spoken), 'said_short': short, 'cut': len(cuts), 'cut_inside': inside}
+        lines += ['', f'The ear: {len(spoken)} of {len(said)} cards have a line to say ({short} within 12 words); '
+                      f'{len(cuts)} have words to cut from the real voice ({inside} found in the sentence).']
     tap.run.summary('\n'.join(lines))
     json.dump(summary, open(os.path.join(OUT, 'summary.json'), 'w'), indent=1)
     # The cards in the log too, one per line: the artifact may not be reachable from where they are marked.

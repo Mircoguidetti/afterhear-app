@@ -1,0 +1,32 @@
+name: What they told you to do
+
+# Block COSA 7 (docs/PIANO.md, 07/10): /api/told on written cases (doctor, landlord, calls).
+# The server calls cost credits: launched by hand only, with the owner's go. Secret: ASAID_TESTER_CODE.
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_calls:
+        description: "Hard cap on calls to the server (Gemini)."
+        type: string
+        default: "12"
+
+permissions:
+  contents: read
+
+jobs:
+  told:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: The cases, through the real server
+        env:
+          ASAID_TESTER_CODE: ${{ secrets.ASAID_TESTER_CODE }}
+          TOLD_MAX_CALLS: ${{ inputs.max_calls }}
+        run: python3 bench/told.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: told
+          path: bench/out/told.json
