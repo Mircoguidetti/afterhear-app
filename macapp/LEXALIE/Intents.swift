@@ -15,12 +15,33 @@ struct MarkMomentIntent: AppIntent {
     }
 }
 
+/// "Hey Siri, ask LEXALIE": one question about what you just heard (07/10). Siri listens and answers
+/// out loud, so nothing of ours opens the microphone.
+struct AskIntent: AppIntent {
+    static var title: LocalizedStringResource = "Ask about what I just heard"
+    static var description = IntentDescription("One question about the last minutes: what they meant, who or what it was, who's singing.")
+    static var openAppWhenRun = false
+
+    @Parameter(title: "Question", requestValueDialog: IntentDialog("What do you want to know?"))
+    var question: String
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let answer = await Ask.shared.ask(question, context: ContextDetector.current(), speak: false)
+        return .result(dialog: IntentDialog(stringLiteral: answer))
+    }
+}
+
 struct UhsideShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(intent: MarkMomentIntent(), phrases: [
             "I didn't get that in \(.applicationName)",
             "\(.applicationName), what did they say",
             "Mark it in \(.applicationName)",
+        ])
+        AppShortcut(intent: AskIntent(), phrases: [
+            "Ask \(.applicationName)",
+            "\(.applicationName), a question",
         ])
     }
 }
@@ -41,7 +62,11 @@ final class RemoteTap {
         if wanted, target == nil {
             let handler: (MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus = { _ in
                 // A squeeze is "help me now" (owner, 03/10): it reaches LEXALIE when nothing else plays.
-                Task { @MainActor in await AppModel.shared.captureMoment(trigger: "airpods", now: true) }
+                // While the ear speaks, it's "more" (07/10).
+                Task { @MainActor in
+                    if EarFlow.shared.running { EarFlow.shared.press(.more); return }
+                    await AppModel.shared.captureMoment(trigger: "airpods", now: true)
+                }
                 return .success
             }
             target = center.togglePlayPauseCommand.addTarget(handler: handler)

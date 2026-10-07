@@ -17,9 +17,11 @@ struct Piece: Codable, Hashable {
     var subtext: String? = nil
     /// Nothing was hard for your level, but you pressed: the likeliest one ("Maybe this one?").
     var guess: Bool? = nil
+    /// Who or what (07/10): the model isn't sure who or what this name is; the card says so.
+    var unsure: Bool? = nil
 
     enum CodingKeys: String, CodingKey {
-        case text, gloss, meaning, note, cause, level, subtext, guess
+        case text, gloss, meaning, note, cause, level, subtext, guess, unsure
         case heardAs = "heard_as"
     }
 
@@ -77,9 +79,13 @@ struct Explanation: Codable {
     var soundsLike: String? = nil
     var equivalent: String? = nil
     var tone: String? = nil
+    /// The tap with the ear (07/10): the one line said in your headphones, and the words of the
+    /// sentence it's about (replayed with the real voice just before it).
+    var say: String? = nil
+    var cut: String? = nil
 
     enum CodingKeys: String, CodingKey {
-        case transcript, translation, intent, pieces, provider, model, ms, meant, equivalent, tone
+        case transcript, translation, intent, pieces, provider, model, ms, meant, equivalent, tone, say, cut
         case inPractice = "in_practice"
         case forYou = "for_you"
         case soundsLike = "sounds_like"
@@ -215,6 +221,13 @@ struct Moment: Codable, Identifiable {
     var callGuests: [String]? = nil
     /// The other sentences a tap offers, one touch away, best first (Conversation.offer, owner 05/10).
     var others: [Int]? = nil
+    /// The tap with the ear (07/10): the line said, the words it's about, and where each word of the
+    /// missed sentence is on the clip (to replay a word with the real voice, and for karaoke).
+    var say: String? = nil
+    var cut: String? = nil
+    var wordTimes: [WordTime]? = nil
+    /// From the tap to the video playing again: the time to come back in (07/10).
+    var reentryMs: Int? = nil
 
     /// Picked by your model, not by you (§ 18): not a tap, and a quiz before it's a lesson.
     var isModel: Bool { trigger == "model" }
@@ -222,6 +235,29 @@ struct Moment: Codable, Identifiable {
 
     /// Known enough times in a row: it no longer comes back.
     var graduated: Bool { (step ?? 0) >= Store.intervals.count }
+}
+
+/// One word of a sentence and where it is on the moment's clip, in seconds.
+struct WordTime: Codable, Hashable {
+    let text: String
+    let start: Double
+    let end: Double
+}
+
+extension Moment {
+    /// Everything an explanation brings, in one place (the tap, a sentence chosen again, later).
+    mutating func take(_ e: Explanation) {
+        translation = e.translation
+        pieces = e.pieces
+        meant = e.meant
+        inPractice = e.inPractice
+        forYou = e.forYou
+        soundsLike = e.soundsLike
+        equivalent = e.equivalent
+        toneLabel = e.tone
+        say = e.say
+        cut = e.cut
+    }
 }
 
 /// Someone you talk with. Only a name you choose and the accent you pick:

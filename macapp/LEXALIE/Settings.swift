@@ -130,8 +130,11 @@ enum Key {
     static let participantNotice = "participantNotice"
     /// Calls LEXALIE never listens to: "meeting:<title>", "person:<name>", "app:<bundle id>" (F4).
     static let neverCalls = "neverCalls"
-    /// The report after a call, only about understanding (F5). Off until you turn it on.
+    /// Gone (07/10): the end card is the only report after a call.
     static let callReport = "callReport"
+    /// The tap with the ear (07/10): in a video or a podcast, the sentence again and one line said in
+    /// your headphones, then the video goes on. On by default; never in calls.
+    static let earAnswers = "earAnswers"
 }
 
 struct AppSettings {
@@ -173,7 +176,7 @@ struct AppSettings {
             Key.calendar: false,
             Key.prepLead: 120,
             Key.participantNotice: ParticipantNotice.remind.rawValue,
-            Key.callReport: false,
+            Key.earAnswers: true,
         ])
     }
 

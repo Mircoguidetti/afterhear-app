@@ -244,6 +244,10 @@ struct PanelView: View {
             if piece.guess == true {
                 Text("Maybe this one?").font(.system(size: 11)).foregroundStyle(Brand.paper.opacity(0.5))
             }
+            // Who or what, not sure (07/10): said plainly, never a guess dressed as a fact.
+            if piece.unsure == true {
+                Text("Not sure").font(.system(size: 11)).foregroundStyle(Brand.paper.opacity(0.5))
+            }
             if let subtext = piece.subtext, !subtext.isEmpty {
                 Text("Really means: \(subtext)").font(.system(size: 13, weight: .medium)).foregroundStyle(Brand.paper.opacity(0.9))
             }

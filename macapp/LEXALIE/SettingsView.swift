@@ -12,13 +12,13 @@ struct SettingsView: View {
     @AppStorage(Key.doubleTap) private var doubleTap = true
     @AppStorage(Key.keyword) private var keyword = ""
     @AppStorage(Key.callsTextOnly) private var callsTextOnly = false
-    @AppStorage(Key.callReport) private var callReport = false
     @AppStorage(Key.myName) private var myName = ""
     @AppStorage(Key.dictionary) private var dictionary = ""
     @AppStorage(Key.useModel) private var useModel = false
     @AppStorage(Key.songs) private var songs = true
     @AppStorage(Key.airpods) private var airpods = false
     @AppStorage(Key.pauseTap) private var pauseTap = true
+    @AppStorage(Key.earAnswers) private var earAnswers = true
     @AppStorage("googleClientID") private var googleClientID = ""
 
     @State private var advanced = false
@@ -56,6 +56,18 @@ struct SettingsView: View {
             }
             Section("When you ask for help (\(DoubleTapOption.nowLabel))") {
                 Toggle("Pause the video while I read", isOn: $pauseVideo)
+                // The ear is the interface, the screen is the reminder (07/10).
+                VStack(alignment: .leading, spacing: 2) {
+                    Toggle("Answer in my headphones", isOn: $earAnswers)
+                    Text("In a video or a podcast: the sentence again, a little slower, one line said in your language, and the video goes on. With the speakers on, the line stays written. Never in calls.")
+                        .font(.caption).foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    if earAnswers, Voice.onlyBasic(for: native) {
+                        Text("For a more natural voice: System Settings → Accessibility → Spoken Content → System voice → Manage voices.")
+                            .font(.caption).foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
             }
             // One evening moment (block SERA): at this hour, only on a day with moments; Sunday, the week.
             Section("Tonight") {
@@ -74,6 +86,7 @@ struct SettingsView: View {
                 // In view, not under Advanced (owner, 03/10). It reaches LEXALIE only when nothing else plays.
                 Toggle("Squeeze the AirPods: help me now (in calls, and when nothing else is playing)", isOn: $airpods)
                     .onChange(of: airpods) { _ in RemoteTap.shared.apply() }
+                Text("\(Ask.label): ask about what you just heard.").font(.callout).foregroundStyle(.secondary)
                 Button("Show me the gestures again") { MacGuide.show() }
             }
             // Before every call (owner, 03/10): in view, with Google Calendar.
@@ -82,10 +95,6 @@ struct SettingsView: View {
                 PrivateModelRow(heard: HeardLanguage(rawValue: heard) ?? .enGB)
                 Toggle("In calls, keep text only (no audio clip)", isOn: $callsTextOnly)
                 Text("Voices never leave your devices: everything is transcribed here. Only the text of the sentence you ask about goes to our model to explain it. In calls without people's names, numbers or your own names (the people you talk with, your words, your calendar); companies, products and places stay, so it can tell you who or what they are. A moment's audio stays on this Mac for \(Store.clipDays) days, then it's deleted.")
-                    .font(.caption).foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                Toggle("A report after each call", isOn: $callReport)
-                Text("Only about understanding: what they asked you and what they asked you to do. When the call ends, the questions of the others and your answers, as text without names or numbers, go to our model to write it. Nothing about how you speak.")
                     .font(.caption).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
                 // Block MEM: the names and terms LEXALIE noticed, only on this Mac, gone in 60 days or now.

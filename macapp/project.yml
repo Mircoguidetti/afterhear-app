@@ -64,6 +64,7 @@ targets:
         NSCalendarsUsageDescription: LEXALIE reads your calendar to prep you before calls and give you the lesson right after. Only the call's title, time and the people you track leave this Mac.
         NSCalendarsFullAccessUsageDescription: LEXALIE reads your calendar to prep you before calls and give you the lesson right after. Only the call's title, time and the people you track leave this Mac.
         NSAppleEventsUsageDescription: LEXALIE asks Spotify and Music which song is playing (title and artist only), to explain the lines of that song.
+        NSSpeechRecognitionUsageDescription: When you say a question out loud, LEXALIE recognises it on this Mac. Your voice never leaves the Mac.
         CFBundleURLTypes:
           - CFBundleURLName: app.lexalie.mac.auth
             CFBundleURLSchemes: [lexalie, afterhear]

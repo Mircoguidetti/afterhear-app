@@ -30,6 +30,9 @@ final class AppModel: ObservableObject {
     private let audio = SystemAudio()
     fileprivate let live = LiveTranscriber()
     private let panel = FloatingPanel()
+    /// In a call: one line near the camera (07/10).
+    private let callLine = FloatingPanel(position: .topCenter)
+    private var askKey: HotKey?
     private var hotKey: HotKey?
     private var doubleTap: DoubleTapOption?
     fileprivate var sorry: SorryDetector?
@@ -67,6 +70,8 @@ final class AppModel: ObservableObject {
         hotKeyReady = hotKey != nil
         catchUpKey = HotKey(key: kVK_ANSI_S, id: 2) { Task { @MainActor in await CallCoach.shared.catchUp() } }
         nowKey = HotKey(key: kVK_ANSI_D, id: 3) { Task { @MainActor in await AppModel.shared.captureMoment(now: true) } }
+        // Your own question about what you just heard (07/10).
+        askKey = HotKey(key: kVK_ANSI_Q, id: 4) { Task { @MainActor in Ask.shared.open() } }
         coachTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: true) { _ in
             Task { @MainActor in await CallCoach.shared.tick() }
         }
@@ -273,10 +278,14 @@ final class AppModel: ObservableObject {
     /// for tonight. "Now" (right ⌥⌥, ⌃⌥D) pauses the video and explains, or shows one line in a call.
     /// `pausedAt`: you paused the video yourself and asked for the explanation (§ pause = tap): the
     /// moment is when you paused, nothing gets paused again, and Continue plays it.
-    func captureMoment(trigger: String = "tap", now: Bool = false, pausedAt: Date? = nil) async {
+    /// `replayed`: the ear already played the sentence again after your pause (07/10).
+    func captureMoment(trigger: String = "tap", now: Bool = false, pausedAt: Date? = nil, replayed: Bool = false) async {
         // Every tap follows the menu's switch (block M): explain now, or keep it for tonight.
         var now = now
         if ["tap", "sorry", "airpods", "siri"].contains(trigger) { now = !UserDefaults.standard.bool(forKey: Key.tapLater) }
+        // A pause LEXALIE just offered to explain: a tap now explains that line, it doesn't play the video.
+        var pausedAt = pausedAt
+        if pausedAt == nil, let offered = Self.takeOffer() { pausedAt = offered }
         if pausedAt != nil { Self.offered = false } // the offer was taken: nothing to hide later
         if videoPaused, pausedAt == nil {
             resumeVideo()
@@ -311,6 +320,11 @@ final class AppModel: ObservableObject {
         // A song playing (Spotify, Music, or recognised by Shazam): the moment is from a song (§ 17).
         let song = context == .call ? nil : NowPlaying.current()
         let source = song.map { "song: \($0.title) by \($0.artist)" } ?? (context == .video ? ContextDetector.show().map { "video: \($0)" } ?? "" : "")
+        // The tap with the ear (07/10): a video or a podcast, "now", the setting on. The sound at once.
+        var ear = mode == .pause && song == nil && EarFlow.wanted(context)
+        if ear { EarFlow.shared.begin() }
+        // In a call the answer is one line near the camera, at once from what this Mac heard (07/10).
+        let inCall = context == .call && mode != .silent
         // A song with timed lyrics: the line comes from the lyrics at the song's position, not from the
         // singer's voice (owner, 03/10). No timed lyrics: the usual way, from the sound.
         if song != nil, !automatic, state == .listening,
@@ -327,9 +341,15 @@ final class AppModel: ObservableObject {
             let people = context == .call || sorry?.isRunning == true
             let narrow = mode == .glance
             func progress(_ step: PanelView.Progress) {
+                if inCall {
+                    callLine.show(CallLineView(sentence: step.sentence ?? step.heardSoFar, note: step.savedOffline ? step.savedReason : nil),
+                                  autoHide: nil, width: 520)
+                    return
+                }
                 panel.show(PanelView(phase: .progress(step)), autoHide: nil, width: narrow ? 300 : 380)
             }
             var step = PanelView.Progress(onDevice: true) // voices never leave the devices (§ 19.26)
+            if inCall { step.heardSoFar = live.text(last: 10) }
             switch mode {
             case .silent:
                 if let notReady { panel.show(PanelView(phase: .saved(notReady)), autoHide: 6, width: 400) }
@@ -367,6 +387,10 @@ final class AppModel: ObservableObject {
             // In a video, then stop it: nobody is waiting for you, so take the time to understand.
             // With the AirPods squeeze on, the play/pause key comes to LEXALIE: the video isn't paused.
             paused = pausedAt != nil || (mode == .pause && !RemoteTap.shared.isOn && state == .listening && MediaKey.playPause())
+            if ear {
+                // The ear needs the video still; then the next tap, Continue or a press goes on (07/10).
+                if paused { videoPaused = true } else { EarFlow.shared.stop(); ear = false }
+            }
             if mode == .pause {
                 step.paused = paused
                 step.pauseFailed = !paused && !RemoteTap.shared.isOn && pausedAt == nil
@@ -411,6 +435,7 @@ final class AppModel: ObservableObject {
                 Memory.shared.tapped()
                 if quietly { return }
                 if let message {
+                    if ear { EarFlow.shared.stop(); videoPaused = false }
                     if paused { MediaKey.playPause(); paused = false }
                     panel.show(PanelView(phase: .saved(message)), autoHide: 6, width: 400)
                 } else {
@@ -496,6 +521,8 @@ final class AppModel: ObservableObject {
             if let chosen, chosen > 0 { step.before = conversation[chosen - 1].text }
             step.sentence = transcript
             progress(step)
+            // The ear: the sentence again, a little slower, while its text goes to our server.
+            if ear, let chosen { EarFlow.shared.replaySlowly(replayed ? nil : clip, turn: conversation[chosen]) }
             let heardLanguage = settings.heard, nativeLanguage = settings.native
             let quickTranslation = await withDeadline(2, { await Translator.translate(transcript, from: heardLanguage, to: nativeLanguage) })
             if let quickTranslation {
@@ -569,6 +596,8 @@ final class AppModel: ObservableObject {
             moment.soundsLike = explanation.soundsLike
             moment.equivalent = explanation.equivalent
             moment.toneLabel = explanation.tone
+            moment.say = explanation.say
+            moment.cut = explanation.cut
             if !tone.isEmpty { moment.tone = tone }
             moment.with = talkingWith
             if let intent = explanation.intent?.trimmingCharacters(in: .whitespaces), !intent.isEmpty { moment.intent = intent }
@@ -585,6 +614,13 @@ final class AppModel: ObservableObject {
             moment.chosen = chosen
             moment.alternative = alternative
             moment.others = others.isEmpty ? nil : others
+            // Where each word of the sentence is on the clip: to replay a word with the real voice (07/10).
+            if let chosen, let words {
+                let t = conversation[chosen]
+                let times = words.map { WordTime(text: $0.text, start: $0.start.timeIntervalSince(clipStart), end: $0.end.timeIntervalSince(clipStart)) }
+                    .filter { $0.start >= t.start - 0.05 && $0.end <= t.end + 0.05 }
+                if !times.isEmpty { moment.wordTimes = times }
+            }
             moment.tapAt = tapAt
             moment.context = context == .other ? nil : context.rawValue
             if context == .video { moment.show = ContextDetector.show() }
@@ -626,23 +662,62 @@ final class AppModel: ObservableObject {
                         }
                     }
                 }
-                if paused { MediaKey.playPause() }
-                panel.show(PanelView(phase: .progress(step)), autoHide: 6, width: narrow ? 300 : 380)
+                if ear {
+                    // A second sound, the sentence ends, and the video goes on; the card stays.
+                    Task { @MainActor in
+                        await EarFlow.shared.failed()
+                        if self.videoPaused { self.resumeVideo(keepCard: true) }
+                    }
+                } else if paused { MediaKey.playPause() }
+                if inCall {
+                    callLine.show(CallLineView(sentence: step.sentence, note: step.savedReason), autoHide: 8, width: 520)
+                } else {
+                    panel.show(PanelView(phase: .progress(step)), autoHide: 6, width: narrow ? 300 : 380)
+                }
                 return
             }
             switch mode {
             case .silent: break
             case .glance, .full:
                 prepare(moment)
-                // In a call you read it when you can: it stays until you close it (owner, 05/10).
-                panel.show(PanelView(phase: .result(moment)), autoHide: context == .call ? nil : 30)
+                if inCall {
+                    // In a call one line, near the camera; it stays until you close it (owner, 05/10), the
+                    // rest is in the card at the end of the call (07/10).
+                    callLine.show(CallLineView(moment: moment), autoHide: nil, width: 520)
+                } else {
+                    panel.show(PanelView(phase: .result(moment)), autoHide: 30)
+                }
             case .pause:
                 prepare(moment)
-                videoPaused = paused
-                panel.show(PanelView(phase: .video(moment, paused: paused)), autoHide: nil)
+                if ear {
+                    if EarFlow.shared.running {
+                        // The card on the screen, silent, while the ear plays (07/10).
+                        panel.show(PanelView(phase: .video(moment, paused: true)), autoHide: nil)
+                        let turn = chosen.map { conversation[$0] }
+                        let ms = await EarFlow.shared.finish(moment, clip: moment.clipFile == nil ? nil : clip, turn: turn)
+                        if let ms, var saved = store.moments.first(where: { $0.id == moment.id }) {
+                            saved.reentryMs = ms
+                            store.update(saved)
+                            if !EarFlow.shared.held, EarFlow.shared.lastGesture != .later {
+                                panel.show(PanelView(phase: .result(saved)), autoHide: 12)
+                            }
+                        }
+                    } else {
+                        // The line took too long (or you went on): the video plays, the card comes alone.
+                        videoPaused = false
+                        panel.show(PanelView(phase: .result(moment)), autoHide: 30)
+                    }
+                } else {
+                    videoPaused = paused
+                    panel.show(PanelView(phase: .video(moment, paused: paused)), autoHide: nil)
+                }
             }
         } catch {
-            if paused { MediaKey.playPause() }
+            if ear {
+                EarFlow.shared.stop()
+                if videoPaused { videoPaused = false; MediaKey.playPause() }
+            } else if paused { MediaKey.playPause() }
+            if inCall { callLine.hide() }
             if !automatic { panel.show(PanelView(phase: .failed(error.localizedDescription)), autoHide: 5, width: 300) }
         }
     }
@@ -728,6 +803,8 @@ final class AppModel: ObservableObject {
         moment.soundsLike = result.soundsLike
         moment.equivalent = result.equivalent
         moment.toneLabel = result.tone
+        moment.say = result.say
+        moment.cut = result.cut
         if let intent = result.intent?.trimmingCharacters(in: .whitespaces), !intent.isEmpty { moment.intent = intent }
         moment.trigger = trigger
         moment.turns = turns
@@ -834,6 +911,8 @@ final class AppModel: ObservableObject {
             saved.soundsLike = explanation.soundsLike
             saved.equivalent = explanation.equivalent
             saved.toneLabel = explanation.tone
+            saved.say = explanation.say
+            saved.cut = explanation.cut
             saved.provider = explanation.model ?? settings.provider.rawValue
             saved.offline = nil
             store.update(saved)
@@ -911,6 +990,8 @@ final class AppModel: ObservableObject {
             moment.soundsLike = explanation.soundsLike
             moment.equivalent = explanation.equivalent
             moment.toneLabel = explanation.tone
+            moment.say = explanation.say
+            moment.cut = explanation.cut
             if let intent = explanation.intent?.trimmingCharacters(in: .whitespaces), !intent.isEmpty { moment.intent = intent }
             if moment.context == "call" && (UserDefaults.standard.bool(forKey: Key.callsTextOnly) || Memory.shared.callsTextOnly) {
                 try? FileManager.default.removeItem(at: url)
@@ -940,8 +1021,9 @@ final class AppModel: ObservableObject {
     /// True while a video is paused and its card is open: the next tap, or Continue, resumes it.
     @Published private(set) var videoPaused = false
 
-    func resumeVideo() {
-        panel.hide()
+    func resumeVideo(keepCard: Bool = false) {
+        EarFlow.shared.stop()
+        if !keepCard { panel.hide() }
         lineStop?.cancel()
         if let app = songPaused {
             NowPlaying.resume(app)
@@ -1033,6 +1115,8 @@ final class AppModel: ObservableObject {
             moment.soundsLike = explanation.soundsLike
             moment.equivalent = explanation.equivalent
             moment.toneLabel = explanation.tone
+            moment.say = explanation.say
+            moment.cut = explanation.cut
             if moment.chosen != index { moment.alternative = moment.chosen }
             moment.chosen = index
             if let tapAt = moment.tapAt { moment.delay = max(0, tapAt - turns[index].end) }
@@ -1191,6 +1275,8 @@ final class AppModel: ObservableObject {
         moment.soundsLike = e.soundsLike
         moment.equivalent = e.equivalent
         moment.toneLabel = e.tone
+        moment.say = e.say
+        moment.cut = e.cut
         moment.offline = nil
         store.update(moment)
         Memory.shared.record("tap", pieces: e.pieces, moment: moment)
@@ -1295,6 +1381,16 @@ final class AppModel: ObservableObject {
         LevelEstimate.knew(piece)
     }
 
+    /// "For tonight" (three presses while the ear speaks): it's kept, the video goes on.
+    func keepForTonight() {
+        panel.show(PanelView(phase: .saved(String(localized: "For tonight"))), autoHide: 2, width: 220)
+    }
+
+    func closeCallLine() { callLine.hide() }
+
+    /// Something is playing right now (a video, a podcast): for "ask", which pauses it while you ask.
+    var soundPlaying: Bool { Clip.loudness(audio.ring.last(1).samples) > 0.01 }
+
     func closePanel() {
         if videoPaused { resumeVideo() } else { panel.hide() }
     }
@@ -1391,7 +1487,22 @@ extension AppModel {
         UserDefaults.standard.object(forKey: Key.pauseTap) == nil || UserDefaults.standard.bool(forKey: Key.pauseTap)
     }
 
+    /// A pause offered as a tap, taken by the next tap (07/10): then ⌥⌥ explains that line.
+    private static var offeredAt: Date?
+
+    static func takeOffer() -> Date? {
+        guard offered, let at = offeredAt, Date().timeIntervalSince(at) < 60 else { return nil }
+        offered = false
+        return at
+    }
+
     func watchPauses() {
+        if videoPaused, songPaused == nil, !busy, !EarFlow.shared.running, !MediaKey.recentlyPressed,
+           Clip.loudness(audio.ring.last(1).samples) > 0.02 {
+            // You played it again yourself (the AirPods, the space bar): the card goes too.
+            videoPaused = false
+            panel.hide()
+        }
         guard state == .listening, pauseIsTap, !busy, !videoPaused else {
             Self.songWasPlaying = nil
             Self.silentSince = nil
@@ -1434,7 +1545,12 @@ extension AppModel {
         if !stopped, peak > 0.02 {
             Self.lastLoud = now
             Self.silentSince = nil
-            if Self.offered { Self.offered = false; panel.hide() } // it plays again: the offer goes
+            if Self.offered {
+                // It plays again: the offer goes; after the ear's replay, hearing it again was enough.
+                Self.offered = false
+                panel.hide()
+                EarFlow.shared.playedAgainAfterReplay()
+            }
             return
         }
         guard stopped else { Self.silentSince = nil; return }
@@ -1446,8 +1562,34 @@ extension AppModel {
         // Voices just before the stop: the last seconds were someone talking, not a song or silence.
         guard Clip.loudness(audio.ring.last(4).samples) > 0.01 else { return }
         Self.offered = true
+        Self.offeredAt = since
         Self.lastLoud = nil
+        // The ear (07/10): the sentence again, slower, from the sound on this Mac; nothing goes to the
+        // server unless you ask (a press while it's still paused, or Explain).
+        if EarFlow.wanted(.video), let found = replayClip(before: since) {
+            EarFlow.shared.pausedByYou(clip: found.0, turn: found.1, pausedAt: since,
+                                       explain: { Task { @MainActor in await AppModel.shared.captureMoment(trigger: "pause", now: true, pausedAt: since, replayed: true) } },
+                                       playAgain: { MediaKey.playPause() })
+        }
         offerExplain(pausedAt: since)
+    }
+
+    /// The last sentence before your pause, from the sound kept on this Mac (07/10). The recogniser may
+    /// not have written the last words yet: then the last four seconds before the pause.
+    private func replayClip(before at: Date) -> (URL, Turn)? {
+        let seconds = min(LiveTranscriber.memorySeconds, Date().timeIntervalSince(at) + 25)
+        let (voice, rate) = audio.hiRing.last(seconds)
+        guard rate > 0, voice.count > Int(rate) else { return nil }
+        let length = Double(voice.count) / rate
+        let clipStart = Date().addingTimeInterval(-length)
+        let pause = at.timeIntervalSince(clipStart)
+        let turns = Conversation.turns(others: live.timedWords(since: clipStart), mine: [], clipStart: clipStart)
+        let turn = turns.last(where: { !$0.isMine && $0.end <= pause + 0.6 && pause - $0.end < 6 })
+            ?? Turn(who: "loro", start: max(0, pause - 4.5), end: max(0.5, pause - 0.1), text: "")
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("lexalie-replay.m4a")
+        try? FileManager.default.removeItem(at: url)
+        guard (try? Clip.writeVoice(voice, rate: rate, to: url)) != nil else { return nil }
+        return (url, turn)
     }
 }
 

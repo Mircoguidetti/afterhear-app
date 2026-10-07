@@ -4,6 +4,7 @@
 "%@ and %@, and pausing the video for you." = "%@ и %@, а ещё пауза видео за вас.";
 "%@ at %@" = "%@ в %@";
 "%@ hours of listening in all." = "Всего часов прослушивания: %@.";
+"%@: ask about what you just heard." = "%@: спроси о том, что только что услышал.";
 "%@: mark it for tonight. %@: help me now." = "%@: отметить на вечер. %@: помочь сейчас.";
 "%@: mark it. %@: help me now." = "%@: отметить. %@: помочь сейчас.";
 "%lld expressions you now know." = "Выражений, которые вы теперь знаете: %lld.";
@@ -32,7 +33,6 @@
 "A meeting from your calendar" = "Встреча из календаря";
 "A one-time download from Apple, then it works offline too." = "Однократная загрузка от Apple, потом работает и без сети.";
 "A person" = "Человек";
-"A report after each call" = "Отчёт после каждого звонка";
 "A word I didn't know" = "Слово, которого я не знал";
 "Above about %@ syllables a second it gets hard." = "Выше примерно %@ слогов в секунду становится трудно.";
 "Account" = "Аккаунт";
@@ -49,8 +49,11 @@
 "Also: " = "Также: ";
 "Also: %@" = "Ещё: %@";
 "American" = "Американский";
+"Answer in my headphones" = "Отвечать в наушниках";
 "Anything else" = "Всё остальное";
 "App: %@" = "Приложение: %@";
+"Ask about what I just heard" = "Спросить о том, что я только что услышал";
+"Ask about what you just heard" = "Спроси о том, что только что услышал";
 "Attention" = "Внимание";
 "Audio unclear" = "Неразборчивый звук";
 "Australian" = "Австралийский";
@@ -129,6 +132,8 @@
 "Fewer than last week (%lld): you need it less." = "Меньше, чем на прошлой неделе (%lld): он нужен вам всё реже.";
 "Finish signing in in your browser." = "Завершите вход в браузере.";
 "Five minutes now, while it's fresh?" = "Пять минут сейчас, пока свежо в памяти?";
+"For a more natural voice: System Settings → Accessibility → Spoken Content → System voice → Manage voices." = "Для более естественного голоса: Системные настройки → Универсальный доступ → Устная речь → Системный голос → Управлять голосами.";
+"For tonight" = "На вечер";
 "French" = "Французский";
 "German" = "Немецкий";
 "Gestures" = "Жесты";
@@ -140,6 +145,7 @@
 "Google didn't connect. Try again." = "Google не подключился. Попробуйте снова.";
 "Google didn't give lasting access. Try again." = "Google не дал постоянный доступ. Попробуйте снова.";
 "Got it" = "Понятно";
+"Hear it explained" = "Послушать объяснение";
 "Heard" = "Услышано";
 "Heard in: %@" = "Слышал в: %@";
 "Hearing the sound of this Mac" = "Слышать звук этого Mac";
@@ -147,6 +153,7 @@
 "Highlighted: LEXALIE's guess. Them on the left, you on the right." = "Выделено: догадка LEXALIE. Собеседники слева, вы справа.";
 "How the tap works" = "Как работает касание";
 "I didn't get that" = "Я не понял";
+"I don't recognise this song." = "Не узнаю эту песню.";
 "I got it" = "Понял(а)";
 "I handled it" = "Я с этим разобрался";
 "I knew it" = "Я это знал";
@@ -158,6 +165,7 @@
 "In %lld min: %@." = "Через %lld мин: %@.";
 "In a call" = "На звонке";
 "In a call with %@: moments go to its lesson" = "Звонок с %@: моменты попадут в его урок";
+"In a video or a podcast: the sentence again, a little slower, one line said in your language, and the video goes on. With the speakers on, the line stays written. Never in calls." = "В видео или подкасте: фраза ещё раз, чуть медленнее, одна строка на твоём языке вслух, и видео продолжается. С динамиками строка остаётся текстом. Никогда в звонках.";
 "In calls, also listen to my voice (and mark when I say \"sorry?\")" = "На звонках слушать и мой голос (и отмечать, когда я говорю «sorry?»)";
 "In calls, keep text only (no audio clip)" = "На звонках хранить только текст (без аудио)";
 "In practice: %@" = "На деле: %@";
@@ -242,6 +250,7 @@
 "Not recognised" = "Не распознано";
 "Not set" = "Не указано";
 "Not signed in" = "Вход не выполнен";
+"Not sure" = "Не уверен";
 "Not this one? Pick the right piece" = "Не то? Выберите нужный фрагмент";
 "Not yet" = "Пока нет";
 "Noted" = "Отмечено";
@@ -251,11 +260,12 @@
 "Nothing to review right now." = "Сейчас нечего повторять.";
 "Now I get it" = "Теперь понятно";
 "Now this is enough." = "Теперь тебе хватит этого.";
+"Now you get it" = "Теперь ты это понимаешь";
 "Numbers" = "Числа";
 "Numbers, dates, prices" = "Числа, даты, цены";
 "Off" = "Выкл.";
+"One question about the last minutes: what they meant, who or what it was, who's singing." = "Один вопрос о последних минутах: что имели в виду, кто или что это было, кто поёт.";
 "One tap marks, two taps explain it now, hold for two seconds to start or stop listening. Tonight LEXALIE finds what you marked." = "Одно касание отмечает, два — объясняют сразу, удержание две секунды включает или выключает прослушивание. Вечером LEXALIE найдёт отмеченное.";
-"Only about understanding: what they asked you and what they asked you to do. When the call ends, the questions of the others and your answers, as text without names or numbers, go to our model to write it. Nothing about how you speak." = "Только о понимании: что тебя спросили и о чём попросили. Когда звонок заканчивается, вопросы других и твои ответы, текстом без имён и чисел, уходят нашей модели, чтобы она его написала. Ничего о том, как ты говоришь.";
 "Only on this Mac, never the sentences around them: for what comes back often. They fade after 60 days." = "Только на этом Mac, без фраз вокруг: для того, что часто повторяется. Исчезают через 60 дней.";
 "Only the hard ones" = "Только трудные";
 "Only the last few minutes stay in memory. Nothing is saved until you tap." = "В памяти только последние минуты. Ничего не сохраняется, пока вы не коснётесь.";
@@ -319,6 +329,7 @@
 "Saved. The explanation will be waiting for you tonight." = "Сохранено. Объяснение будет ждать вас вечером.";
 "Saved. To get explanations, sign in: Settings → Account." = "Сохранено. Чтобы получать объяснения, войдите: Настройки → Аккаунт.";
 "Saved. Your account isn't on the testers' list yet: explained once it is." = "Сохранено. Вашего аккаунта ещё нет в списке тестировщиков: объясним, когда он там появится.";
+"Say it" = "Сказать";
 "Scottish" = "Шотландский";
 "Server" = "Сервер";
 "Settings" = "Настройки";
@@ -356,6 +367,7 @@
 "Starting…" = "Запуск…";
 "Stays on your device" = "Остаётся на вашем устройстве";
 "Still open for you" = "Осталось за тобой";
+"Stop" = "Стоп";
 "Subtitles only when you need them." = "Субтитры — только когда нужны.";
 "Sync" = "Синхронизация";
 "Sync now" = "Синхронизировать";
@@ -399,7 +411,6 @@
 "The song again from this line, in Spotify or Music" = "Песня снова с этой строки, в Spotify или Музыке";
 "The tester code is missing: add it in Settings." = "Нет кода тестировщика: добавьте его в настройках.";
 "The things of the week, and what ties them together." = "Главное за неделю и то, что это связывает.";
-"The whole report" = "Весь отчёт";
 "The written story of your week couldn't load right now. It comes back with the connection." = "Рассказ о вашей неделе сейчас не загрузился. Он вернётся, когда появится связь.";
 "There's no conversation for this moment: it was saved before this version, or without transcription on the Mac." = "Для этого момента нет разговора: он сохранён до этой версии или без расшифровки на Mac.";
 "There's no screen to capture the sound from." = "Нет экрана, с которого можно захватить звук.";
@@ -440,6 +451,7 @@
 "Waiting" = "Ожидание";
 "Warm up your ear · 2 min" = "Размять слух · 2 мин";
 "Warm up your ear · 2 min · %@" = "Размять слух · 2 мин · %@";
+"Was it for me?" = "Это было мне?";
 "Watch with me" = "Смотри со мной";
 "Watching a video" = "Смотрите видео";
 "We couldn't send the link. Try again in a minute." = "Не удалось отправить ссылку. Попробуйте через минуту.";
@@ -449,6 +461,7 @@
 "What a local got" = "Что понял бы местный";
 "What comes back most" = "Что возвращается чаще всего";
 "What did I miss?" = "Что я упустил?";
+"What did they mean?" = "Что имелось в виду?";
 "What did you miss?" = "Что вы упустили?";
 "What is it?" = "Что это?";
 "What slipped past you in recent calls" = "Что вы упустили на последних звонках";
@@ -461,8 +474,10 @@
 "When a sentence slips past you, do you also want to see it in your language?" = "Когда ты упускаешь фразу, показывать её и по-русски?";
 "When you ask for help (%@)" = "Когда просите помощи (%@)";
 "Who are you talking with?" = "С кем вы говорите?";
+"Who or what is it?" = "Кто или что это?";
 "Who or what it is" = "Кто или что это";
 "Who said it?" = "Кто это сказал?";
+"Who's singing?" = "Кто поёт?";
 "Why do they say it?" = "Почему так говорят?";
 "Why is it funny?" = "Почему это смешно?";
 "Why they laughed" = "Почему смеялись";
@@ -473,8 +488,10 @@
 "Words run together" = "Слитная речь";
 "Words you'll probably hear" = "Слова, которые вы, вероятно, услышите";
 "Write what you hear" = "Напишите, что слышите";
+"Write…" = "Написать…";
 "Writing your episode…" = "Пишу ваш выпуск…";
 "Written down. Do you get it?" = "Написанное. Понятно?";
+"Written only: in a call your voice could reach the others." = "Только письменно: в звонке твой голос могут услышать другие.";
 "Wrong email or password." = "Неверная почта или пароль.";
 "Wrong sentence? The arrows move to the one before or after. Replay plays the real voice, Slow plays it slower." = "Не та фраза? Стрелки переходят к предыдущей или следующей. Replay — настоящий голос, Slow — медленнее.";
 "Yes" = "Да";
@@ -486,6 +503,7 @@
 "You asked" = "Ты спросил";
 "You can change it from any card." = "Это можно поменять в любой карточке.";
 "You didn't catch it" = "Ты не расслышал";
+"You heard it again at %@, without a tap." = "Ты снова услышал это в %@ и не нажал.";
 "You knew this before: it slipped away again, so it's back in your lessons." = "Вы это знали: снова ускользнуло, поэтому возвращается в ваши уроки.";
 "You paused here. Was it the language?" = "Здесь вы замялись. Дело было в языке?";
 "You speak" = "Вы говорите на";
@@ -515,6 +533,7 @@
 "Your model: it follows calls, films and songs and picks what you probably missed, without a tap" = "Ваша модель: следит за звонками, фильмами и песнями и находит, что вы, вероятно, упустили, без касаний";
 "Your moments follow you on the web and on your iPhone." = "Ваши моменты доступны в вебе и на iPhone.";
 "Your progress" = "Ваш прогресс";
+"Your question" = "Твой вопрос";
 "Your sign-in expired: sign in again (Settings → Account)." = "Сеанс истёк: войдите снова (Настройки → Аккаунт).";
 "Your week" = "Ваша неделя";
 "Your week, in four minutes" = "Твоя неделя за четыре минуты";

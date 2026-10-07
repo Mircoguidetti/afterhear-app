@@ -5,3 +5,4 @@
 "NSCalendarsUsageDescription" = "LEXALIE liest deinen Kalender, um dich vor Calls vorzubereiten und dir gleich danach die Lektion zu geben. Nur Titel, Uhrzeit und die Personen, denen du folgst, verlassen diesen Mac.";
 "NSAppleEventsUsageDescription" = "LEXALIE fragt Spotify und Musik, welcher Song läuft (nur Titel und Interpret), um die Zeilen dieses Songs zu erklären.";
 "NSCalendarsFullAccessUsageDescription" = "LEXALIE liest deinen Kalender, um dich vor Calls vorzubereiten und dir gleich danach die Lektion zu geben. Nur Titel, Uhrzeit und die Personen, denen du folgst, verlassen diesen Mac.";
+"NSSpeechRecognitionUsageDescription" = "Wenn du eine Frage laut stellst, erkennt LEXALIE sie auf diesem Mac. Deine Stimme verlässt den Mac nie.";

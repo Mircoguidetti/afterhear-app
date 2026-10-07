@@ -282,3 +282,12 @@ PLIST = {
   "LEXALIE asks Spotify and Music which song is playing (title and artist only), to explain the lines of that song."),
 }
 PLIST['NSCalendarsFullAccessUsageDescription'] = PLIST['NSCalendarsUsageDescription']
+# 07/10: a question said out loud, recognised on the Mac.
+PLIST['NSSpeechRecognitionUsageDescription'] = (
+  "Quando fai una domanda a voce, LEXALIE la riconosce su questo Mac. La tua voce non lascia mai il Mac.",
+  "Cuando haces una pregunta en voz alta, LEXALIE la reconoce en este Mac. Tu voz nunca sale del Mac.",
+  "Quand vous posez une question à voix haute, LEXALIE la reconnaît sur ce Mac. Votre voix ne quitte jamais le Mac.",
+  "Wenn du eine Frage laut stellst, erkennt LEXALIE sie auf diesem Mac. Deine Stimme verlässt den Mac nie.",
+  "Когда вы задаёте вопрос вслух, LEXALIE распознаёт его на этом Mac. Ваш голос никогда не покидает Mac.",
+  "Quando faz uma pergunta em voz alta, o LEXALIE reconhece-a neste Mac. A sua voz nunca sai do Mac.",
+  "When you say a question out loud, LEXALIE recognises it on this Mac. Your voice never leaves the Mac.")

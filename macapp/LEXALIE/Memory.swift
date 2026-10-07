@@ -194,6 +194,9 @@ final class Memory: ObservableObject {
 
     func smoothCount(from: Date, to: Date) -> Int { smooth(from: from, to: to).count }
 
+    /// The last one since a moment, with when: "now you get it" in the evening (07/10).
+    func lastSmooth(since: Date) -> SmoothEncounter? { smoothLog.last { $0.at >= since } }
+
     /// Called every few seconds with what the others said recently.
     func scan(_ recent: String) {
         let now = Date()

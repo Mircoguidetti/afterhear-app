@@ -149,10 +149,6 @@ struct EndCardView: View {
                 .font(.system(size: 12))
                 .foregroundStyle(Brand.paper.opacity(0.75))
             }
-            if let report = card.reportID {
-                Button("The whole report") { CallCoach.shared.openReport(report); EndCards.hide() }
-                    .buttonStyle(.link).font(.system(size: 12)).padding(.top, 10)
-            }
         }
         .padding(16)
         .background(RoundedRectangle(cornerRadius: 14).fill(Brand.onyx))

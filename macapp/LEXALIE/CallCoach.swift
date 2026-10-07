@@ -218,42 +218,11 @@ final class CallCoach: ObservableObject {
     // MARK: After the call
 
     private func finish(_ s: Session, ended: Date) async {
-        // The report is yours to turn on, and only about understanding (F5, decision 3): what they
-        // asked, what they asked you to do. Not what was decided (no minutes), nothing about how you speak.
-        // It no longer arrives as a notification: the end card says what matters and opens it.
-        var reportID: String?
-        var open: [String] = []
-        if UserDefaults.standard.bool(forKey: Key.callReport), !s.pairs.isEmpty || !s.requests.isEmpty {
-            let store = AppModel.shared.store
-            let tapped = store.moments.filter { $0.date >= s.start && $0.date <= ended.addingTimeInterval(60) && $0.trigger != "hesitation" }.count
-            var report: CoachClient.Report?
-            do {
-                AppModel.syncRedactor()
-                report = try await CoachClient.post("api/report", [
-                    "pairs": s.pairs.map { ["question": Redactor.redact($0.question), "answer": Redactor.redact($0.answer),
-                                            "pause_s": min($0.pause, 120), "fillers": min($0.fillers, 50)] as [String: Any] },
-                    "requests": s.requests.map { Redactor.redact($0) },
-                ])
-            } catch {}
-            let missed = tapped + s.hesitations + (report?.off_topic.count ?? 0)
-            let score = max(0, min(100, 100 - Int((100 * Double(missed) / Double(max(s.theirTurns, 1))).rounded())))
-            var saved = SavedReport(id: s.id, title: s.title, people: s.people, start: s.start, end: ended,
-                                    score: score, turns: s.theirTurns, report: report)
-            saved.taps = tapped
-            let call = Call(id: s.id, title: s.title, start: s.start, end: ended, people: s.people, guests: 0)
-            saved.improved = CallHistory.improvements(now: saved, taps: tapped, previous: CallHistory.last(like: call, before: s.start))
-            Reports.shared.add(saved)
-            Sync.shared.saveCallReport(saved)
-            reportID = saved.id
-            // In plain words and in your language, with the deadline.
-            open = report?.requests.map { $0.when.isEmpty ? $0.request : "\($0.request) · \($0.when)" } ?? []
-        }
-        // Without the report, the words themselves: a request with your name, a question to you.
-        if open.isEmpty {
-            let name = myName.lowercased()
-            open = s.requests + s.pairs.filter { !name.isEmpty && $0.question.lowercased().contains(name) }.map(\.question)
-        }
-        await EndCards.afterCall(open: open, laughed: s.laughed, with: s.people, reportID: reportID)
+        // No report after the call any more (07/10): the end card is the only one, made on this Mac
+        // from the words themselves: a request with your name, a question to you.
+        let name = myName.lowercased()
+        let open = s.requests + s.pairs.filter { !name.isEmpty && $0.question.lowercased().contains(name) }.map(\.question)
+        await EndCards.afterCall(open: open, laughed: s.laughed, with: s.people, reportID: nil)
     }
 
     func openReport(_ id: String) {

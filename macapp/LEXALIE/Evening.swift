@@ -45,6 +45,27 @@ enum Evening {
     }
 }
 
+/// A moment that says you understood (07/10): something you once missed, heard again today with no
+/// tap and no going back. The product doesn't only speak about what goes wrong.
+struct GotItLine: View {
+    /// Given for the pictures of the self-test; otherwise today's.
+    var got: Memory.SmoothEncounter? = nil
+
+    var body: some View {
+        if let got = got ?? Memory.shared.lastSmooth(since: Calendar.current.startOfDay(for: Date())) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Now you get it").font(.system(size: 12, weight: .semibold)).foregroundStyle(Brand.line)
+                Text(got.text).font(.system(size: 16, weight: .semibold))
+                Text("You heard it again at \(got.at.formatted(date: .omitted, time: .shortened)), without a tap.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(RoundedRectangle(cornerRadius: 10).stroke(Brand.paper.opacity(0.12)))
+        }
+    }
+}
+
 /// The refrain of the week, in tonight's window: what keeps coming back, explained if you ask.
 struct RefrainLine: View {
     @State private var refrain: Nodes.Refrain?

@@ -69,6 +69,23 @@ enum SelfTestShots {
             let ok = await snapshot(AnyView(EndCardView(card: end)), width: 420, appearance: appearance, to: "\(dir)/7-fine-call-\(look).png")
             print((ok ? "SHOT " : "NO SHOT ") + "7-fine-call-\(look)")
         }
+        // 07/10: the line near the camera in a call, the question window, the card while the ear plays,
+        // and the evening's "now you get it".
+        let all = cards()
+        var call = all[2].1
+        call.inPractice = "vuole una stima dei numeri di marzo, entro venerdì."
+        let extra: [(String, AnyView, CGFloat)] = [
+            ("8-call-riga", AnyView(CallLineView(moment: call)), 520),
+            ("9-chiedi", AnyView(AskView(context: .video, song: false)), 460),
+            ("10-orecchio", AnyView(PanelView(phase: .video(all[1].1, paused: true))), 420),
+            ("11-ormai-la-capisci", AnyView(GotItLine(got: Memory.SmoothEncounter(at: Date(), text: "moving the goalposts"))), 420),
+        ]
+        for (name, view, width) in extra {
+            for (look, appearance) in [("giorno", NSAppearance.Name.aqua), ("notte", .darkAqua)] {
+                let ok = await snapshot(view, width: width, appearance: appearance, to: "\(dir)/\(name)-\(look).png")
+                print((ok ? "SHOT " : "NO SHOT ") + "\(name)-\(look)")
+            }
+        }
     }
 
     /// The view in an off-screen window with the Mac's light or dark look, drawn to a PNG.

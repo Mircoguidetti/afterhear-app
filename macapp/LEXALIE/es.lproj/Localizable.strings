@@ -4,6 +4,7 @@
 "%@ and %@, and pausing the video for you." = "%@ y %@, y pausar el vídeo por ti.";
 "%@ at %@" = "%@ a las %@";
 "%@ hours of listening in all." = "%@ horas de escucha en total.";
+"%@: ask about what you just heard." = "%@: pregunta por lo que acabas de oír.";
 "%@: mark it for tonight. %@: help me now." = "%@: márcalo para esta noche. %@: ayúdame ya.";
 "%@: mark it. %@: help me now." = "%@: márcalo. %@: ayúdame ya.";
 "%lld expressions you now know." = "%lld expresiones que ya conoces.";
@@ -32,7 +33,6 @@
 "A meeting from your calendar" = "Una reunión de tu calendario";
 "A one-time download from Apple, then it works offline too." = "Una descarga única de Apple; luego funciona también sin conexión.";
 "A person" = "Una persona";
-"A report after each call" = "Un resumen después de cada llamada";
 "A word I didn't know" = "Una palabra que no conocía";
 "Above about %@ syllables a second it gets hard." = "Por encima de unas %@ sílabas por segundo se vuelve difícil.";
 "Account" = "Cuenta";
@@ -49,8 +49,11 @@
 "Also: " = "También: ";
 "Also: %@" = "También: %@";
 "American" = "Estadounidense";
+"Answer in my headphones" = "Responder en mis auriculares";
 "Anything else" = "Todo lo demás";
 "App: %@" = "App: %@";
+"Ask about what I just heard" = "Preguntar por lo que acabo de oír";
+"Ask about what you just heard" = "Pregunta por lo que acabas de oír";
 "Attention" = "Atención";
 "Audio unclear" = "Audio poco claro";
 "Australian" = "Australiano";
@@ -129,6 +132,8 @@
 "Fewer than last week (%lld): you need it less." = "Menos que la semana pasada (%lld): lo necesitas menos.";
 "Finish signing in in your browser." = "Termina de iniciar sesión en el navegador.";
 "Five minutes now, while it's fresh?" = "¿Cinco minutos ahora, mientras está fresco?";
+"For a more natural voice: System Settings → Accessibility → Spoken Content → System voice → Manage voices." = "Para una voz más natural: Ajustes del Sistema → Accesibilidad → Contenido leído → Voz del sistema → Gestionar voces.";
+"For tonight" = "Para esta noche";
 "French" = "Francés";
 "German" = "Alemán";
 "Gestures" = "Gestos";
@@ -140,6 +145,7 @@
 "Google didn't connect. Try again." = "Google no se ha conectado. Inténtalo de nuevo.";
 "Google didn't give lasting access. Try again." = "Google no ha dado acceso permanente. Inténtalo de nuevo.";
 "Got it" = "Entendido";
+"Hear it explained" = "Escucha la explicación";
 "Heard" = "Oído";
 "Heard in: %@" = "Oído en: %@";
 "Hearing the sound of this Mac" = "Oír el sonido de este Mac";
@@ -147,6 +153,7 @@
 "Highlighted: LEXALIE's guess. Them on the left, you on the right." = "Resaltado: lo que cree LEXALIE. Ellos a la izquierda, tú a la derecha.";
 "How the tap works" = "Cómo funciona el toque";
 "I didn't get that" = "No lo he pillado";
+"I don't recognise this song." = "No reconozco esta canción.";
 "I got it" = "Lo entendí";
 "I handled it" = "Ya lo resolví";
 "I knew it" = "Ya lo sabía";
@@ -158,6 +165,7 @@
 "In %lld min: %@." = "En %lld min: %@.";
 "In a call" = "En una llamada";
 "In a call with %@: moments go to its lesson" = "En llamada con %@: los momentos van a su lección";
+"In a video or a podcast: the sentence again, a little slower, one line said in your language, and the video goes on. With the speakers on, the line stays written. Never in calls." = "En un vídeo o un pódcast: la frase otra vez, un poco más lenta, una línea dicha en tu idioma, y el vídeo sigue. Con los altavoces, la línea se queda escrita. Nunca en llamadas.";
 "In calls, also listen to my voice (and mark when I say \"sorry?\")" = "En llamadas, escuchar también mi voz (y marcar cuando digo «sorry?»)";
 "In calls, keep text only (no audio clip)" = "En llamadas, guardar solo texto (sin clip de audio)";
 "In practice: %@" = "En la práctica: %@";
@@ -242,6 +250,7 @@
 "Not recognised" = "No reconocida";
 "Not set" = "Sin indicar";
 "Not signed in" = "Sin iniciar sesión";
+"Not sure" = "No estoy seguro";
 "Not this one? Pick the right piece" = "¿No es este? Elige el trozo correcto";
 "Not yet" = "Todavía no";
 "Noted" = "Anotado";
@@ -251,11 +260,12 @@
 "Nothing to review right now." = "Nada que repasar ahora.";
 "Now I get it" = "Ahora lo entiendo";
 "Now this is enough." = "Ahora te basta con esto.";
+"Now you get it" = "Ya lo entiendes";
 "Numbers" = "Números";
 "Numbers, dates, prices" = "Números, fechas, precios";
 "Off" = "Desactivado";
+"One question about the last minutes: what they meant, who or what it was, who's singing." = "Una pregunta sobre los últimos minutos: qué querían decir, quién o qué era, quién canta.";
 "One tap marks, two taps explain it now, hold for two seconds to start or stop listening. Tonight LEXALIE finds what you marked." = "Un toque marca, dos toques lo explican ya, mantén dos segundos para empezar o dejar de escuchar. Esta noche LEXALIE encuentra lo que marcaste.";
-"Only about understanding: what they asked you and what they asked you to do. When the call ends, the questions of the others and your answers, as text without names or numbers, go to our model to write it. Nothing about how you speak." = "Solo sobre lo que entendiste: qué te preguntaron y qué te pidieron hacer. Al terminar la llamada, las preguntas de los demás y tus respuestas, como texto sin nombres ni números, van a nuestro modelo para escribirlo. Nada sobre cómo hablas.";
 "Only on this Mac, never the sentences around them: for what comes back often. They fade after 60 days." = "Solo en este Mac, nunca las frases de alrededor: para lo que vuelve a menudo. Desaparecen a los 60 días.";
 "Only the hard ones" = "Solo las difíciles";
 "Only the last few minutes stay in memory. Nothing is saved until you tap." = "Solo los últimos minutos quedan en memoria. No se guarda nada hasta que tocas.";
@@ -319,6 +329,7 @@
 "Saved. The explanation will be waiting for you tonight." = "Guardado. La explicación te espera esta noche.";
 "Saved. To get explanations, sign in: Settings → Account." = "Guardado. Para recibir explicaciones, inicia sesión: Ajustes → Cuenta.";
 "Saved. Your account isn't on the testers' list yet: explained once it is." = "Guardado. Tu cuenta aún no está en la lista de testers: se explicará cuando lo esté.";
+"Say it" = "Dilo";
 "Scottish" = "Escocés";
 "Server" = "Servidor";
 "Settings" = "Ajustes";
@@ -356,6 +367,7 @@
 "Starting…" = "Iniciando…";
 "Stays on your device" = "Se queda en tu dispositivo";
 "Still open for you" = "Pendiente para ti";
+"Stop" = "Parar";
 "Subtitles only when you need them." = "Subtítulos solo cuando los necesitas.";
 "Sync" = "Sincronización";
 "Sync now" = "Sincronizar ahora";
@@ -399,7 +411,6 @@
 "The song again from this line, in Spotify or Music" = "La canción otra vez desde esta frase, en Spotify o Música";
 "The tester code is missing: add it in Settings." = "Falta el código de tester: añádelo en Ajustes.";
 "The things of the week, and what ties them together." = "Las cosas de la semana y lo que las une.";
-"The whole report" = "El informe completo";
 "The written story of your week couldn't load right now. It comes back with the connection." = "La historia escrita de tu semana no ha podido cargarse ahora. Vuelve con la conexión.";
 "There's no conversation for this moment: it was saved before this version, or without transcription on the Mac." = "No hay conversación para este momento: se guardó antes de esta versión o sin transcripción en el Mac.";
 "There's no screen to capture the sound from." = "No hay ninguna pantalla de la que capturar el sonido.";
@@ -440,6 +451,7 @@
 "Waiting" = "En espera";
 "Warm up your ear · 2 min" = "Calienta el oído · 2 min";
 "Warm up your ear · 2 min · %@" = "Calienta el oído · 2 min · %@";
+"Was it for me?" = "¿Era para mí?";
 "Watch with me" = "Mira conmigo";
 "Watching a video" = "Viendo un vídeo";
 "We couldn't send the link. Try again in a minute." = "No hemos podido enviar el enlace. Inténtalo de nuevo en un minuto.";
@@ -449,6 +461,7 @@
 "What a local got" = "Lo que pilló alguien de allí";
 "What comes back most" = "Lo que más vuelve";
 "What did I miss?" = "¿Qué se me ha escapado?";
+"What did they mean?" = "¿Qué quería decir?";
 "What did you miss?" = "¿Qué se te ha escapado?";
 "What is it?" = "¿Qué es?";
 "What slipped past you in recent calls" = "Lo que se te escapó en las últimas llamadas";
@@ -461,8 +474,10 @@
 "When a sentence slips past you, do you also want to see it in your language?" = "Cuando se te escapa una frase, ¿quieres verla también en español?";
 "When you ask for help (%@)" = "Cuando pides ayuda (%@)";
 "Who are you talking with?" = "¿Con quién hablas?";
+"Who or what is it?" = "¿Quién o qué es?";
 "Who or what it is" = "Quién o qué es";
 "Who said it?" = "¿Quién lo dijo?";
+"Who's singing?" = "¿Quién canta?";
 "Why do they say it?" = "¿Por qué se dice así?";
 "Why is it funny?" = "¿Por qué hace gracia?";
 "Why they laughed" = "Por qué se rieron";
@@ -473,8 +488,10 @@
 "Words run together" = "Palabras pegadas";
 "Words you'll probably hear" = "Palabras que probablemente oirás";
 "Write what you hear" = "Escribe lo que oyes";
+"Write…" = "Escribe…";
 "Writing your episode…" = "Escribiendo tu episodio…";
 "Written down. Do you get it?" = "Escrita. ¿La entiendes?";
+"Written only: in a call your voice could reach the others." = "Solo por escrito: en una llamada tu voz podría llegar a los demás.";
 "Wrong email or password." = "Email o contraseña incorrectos.";
 "Wrong sentence? The arrows move to the one before or after. Replay plays the real voice, Slow plays it slower." = "¿Frase equivocada? Las flechas pasan a la anterior o la siguiente. Replay reproduce la voz real, Slow más despacio.";
 "Yes" = "Sí";
@@ -486,6 +503,7 @@
 "You asked" = "Lo pediste";
 "You can change it from any card." = "Puedes cambiarlo desde cualquier tarjeta.";
 "You didn't catch it" = "No lo oíste";
+"You heard it again at %@, without a tap." = "La volviste a oír a las %@, sin tocar.";
 "You knew this before: it slipped away again, so it's back in your lessons." = "Esto ya lo sabías: se te ha vuelto a escapar, así que vuelve a tus lecciones.";
 "You paused here. Was it the language?" = "Aquí hiciste una pausa. ¿Era el idioma?";
 "You speak" = "Hablas";
@@ -515,6 +533,7 @@
 "Your model: it follows calls, films and songs and picks what you probably missed, without a tap" = "Tu modelo: sigue llamadas, películas y canciones y elige lo que probablemente se te escapó, sin tocar";
 "Your moments follow you on the web and on your iPhone." = "Tus momentos te siguen en la web y en tu iPhone.";
 "Your progress" = "Tu progreso";
+"Your question" = "Tu pregunta";
 "Your sign-in expired: sign in again (Settings → Account)." = "Tu sesión ha caducado: vuelve a entrar (Ajustes → Cuenta).";
 "Your week" = "Tu semana";
 "Your week, in four minutes" = "Tu semana, en cuatro minutos";

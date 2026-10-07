@@ -11,7 +11,18 @@ enum CardShape: Equatable {
 
     static let hearing: Set<String> = ["connected_speech", "speed_accent", "known_not_recognized", "overlapping_voices"]
 
+    /// The shapes that passed their bar in the comprehension test (P6, 07/10): heard 94, word 89, meant
+    /// 70. "It was for you" (62 of 70) and "who or what" (37 of 70) wait for the next measure; until
+    /// then their card is the plain one. A wrong shape is worse than none.
+    static var passed: Set<CardShape> = [.heard, .word, .tone]
+
     static func of(_ m: Moment) -> CardShape {
+        let shape = raw(m)
+        return passed.contains(shape) ? shape : .plain
+    }
+
+    /// The shape before the bar: what the explanation and the Mac say.
+    static func raw(_ m: Moment) -> CardShape {
         if let f = m.forYou?.trimmingCharacters(in: .whitespaces), !f.isEmpty { return .forYou }
         guard let first = m.pieces.first, first.guess != true else { return .plain }
         let tone = !(m.toneLabel ?? "").trimmingCharacters(in: .whitespaces).isEmpty

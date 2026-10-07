@@ -85,6 +85,9 @@ struct ReviewView: View {
             HStack {
                 Button { AppModel.shared.play(moment, slow: false) } label: { Label("Replay", systemImage: "play.fill") }
                 Button { AppModel.shared.play(moment, slow: true) } label: { Label("Slow", systemImage: "tortoise.fill") }
+                // Tonight with the ear (07/10): the voice, two seconds to try, the line, the voice again.
+                Button { hearExplained(moment) } label: { Label("Hear it explained", systemImage: "headphones") }
+                    .disabled(moment.turns == nil || moment.chosen == nil)
             }
             .controlSize(.large)
             .disabled(store.clipURL(moment) == nil)
@@ -167,7 +170,18 @@ struct ReviewView: View {
         if index < queue.count { playIfPlain(queue[index]) }
     }
 
+    private func hearExplained(_ moment: Moment) {
+        let current = store.moments.first(where: { $0.id == moment.id }) ?? moment
+        guard let url = store.clipURL(current), let turns = current.turns, let chosen = current.chosen,
+              turns.indices.contains(chosen) else { return }
+        Task { @MainActor in
+            await EarFlow.shared.evening(current, clip: url, turn: turns[chosen])
+            if queue.indices.contains(index), queue[index].id == moment.id { revealed = true }
+        }
+    }
+
     private func answer(_ review: Review, _ moment: Moment) {
+        EarFlow.shared.stopEvening()
         store.setReview(review, for: moment.id)
         Memory.shared.record(review == .known ? "review_known" : "review_again", pieces: moment.pieces, moment: moment)
         if review == .known { knownCount += 1 } else { againCount += 1 }
@@ -184,6 +198,7 @@ struct ReviewView: View {
             } else {
                 Text("\(knownCount) you know · \(againCount) back tomorrow").font(.title3)
             }
+            GotItLine()
             RefrainLine()
             weeks
             Spacer()
