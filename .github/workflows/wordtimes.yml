@@ -1,0 +1,85 @@
+name: Word times
+
+# The tap with the ear (07/10): can a word be cut from the real voice? The recognisers' word times
+# against AMI's human ones, sentence by sentence. Free: runners only, no paid service.
+
+on:
+  push:
+    paths: ["bench/wordtimes.py", ".github/workflows/wordtimes.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cases:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg && pip install --quiet numpy
+      - uses: actions/cache@v4
+        with:
+          path: bench/out/audio
+          key: wordtimes-ami-v1
+      - run: python3 bench/wordtimes.py cases
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wtcases
+          path: |
+            bench/out/wordtimes/cases.json
+            bench/out/wordtimes/clips
+
+  processor:
+    needs: cases
+    runs-on: ubuntu-24.04
+    env:
+      RUNNER_LABEL: ubuntu-24.04 (same model as Intel Macs)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install --quiet sherpa-onnx numpy
+      - uses: actions/download-artifact@v4
+        with:
+          name: wtcases
+          path: bench/out/wordtimes
+      - run: python3 bench/wordtimes.py sherpa
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wt-processor
+          path: bench/out/wordtimes/results
+
+  neural-engine:
+    needs: cases
+    runs-on: macos-26
+    env:
+      RUNNER_LABEL: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install --quiet numpy
+      - uses: actions/download-artifact@v4
+        with:
+          name: wtcases
+          path: bench/out/wordtimes
+      - run: cd bench/fluid && swift build -c release --product fluidwords
+      - run: python3 bench/wordtimes.py tool "Parakeet, Neural Engine (FluidAudio v2)" bench/fluid/.build/release/fluidwords v2
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wt-neural-engine
+          path: bench/out/wordtimes/results
+
+  report:
+    needs: [processor, neural-engine]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: wt-*
+          path: bench/out/wtresults
+      - run: python3 bench/wordtimes.py report
