@@ -41,7 +41,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: bench/out/comprehend/heard.json
-          key: comprehension-heard-${{ hashFiles('bench/comprehension/cases.json', 'bench/tap.py') }}-${{ inputs.sample }}
+          key: comprehension-heard-${{ hashFiles('bench/comprehension/cases.json', 'bench/tap.py') }}-${{ inputs.sample || '5' }}
           # A cache from other cases still helps: only the new taps are heard again.
           restore-keys: comprehension-heard-
       - name: The answers kept from earlier runs (reused while the server's instructions don't change)
@@ -54,7 +54,7 @@ jobs:
         run: python3 bench/comprehend.py audio
       - name: The clip before every tap, through Parakeet
         env:
-          COMPREHEND_SAMPLE: ${{ inputs.sample }}
+          COMPREHEND_SAMPLE: ${{ inputs.sample || '5' }}
         run: python3 bench/comprehend.py hear
       - name: The app's choosing and redacting, compiled
         run: |
@@ -63,10 +63,13 @@ jobs:
       - name: Cards, through the real server
         env:
           ASAID_TESTER_CODE: ${{ secrets.ASAID_TESTER_CODE }}
-          COMPREHEND_SAMPLE: ${{ inputs.sample }}
-          COMPREHEND_MAX_CALLS: ${{ inputs.max_calls }}
+          COMPREHEND_SAMPLE: ${{ inputs.sample || '5' }}
+          COMPREHEND_MAX_CALLS: ${{ inputs.max_calls || '40' }}
         run: python3 bench/comprehend.py cards
       - run: python3 bench/comprehend.py report
+      - name: The cards as notes on the run (readable without signing in)
+        if: always()
+        run: python3 bench/notes.py bench/out/comprehend/rows.json bench/out/comprehend/summary.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:

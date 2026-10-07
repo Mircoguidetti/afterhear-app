@@ -23,8 +23,11 @@ jobs:
       - name: The cases, through the real server
         env:
           ASAID_TESTER_CODE: ${{ secrets.ASAID_TESTER_CODE }}
-          TOLD_MAX_CALLS: ${{ inputs.max_calls }}
+          TOLD_MAX_CALLS: ${{ inputs.max_calls || '12' }}
         run: python3 bench/told.py
+      - name: The results as notes on the run (readable without signing in)
+        if: always()
+        run: python3 bench/notes.py bench/out/told.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
