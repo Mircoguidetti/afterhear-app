@@ -53,7 +53,7 @@ enum ToneMeter {
             if pace > usualPace * 1.35 { tags.append("faster than usual") }
         }
         if let next, next - turn.end >= 1.2 { tags.append(String(format: "a pause of %.1f s after", next - turn.end)) }
-        if laughs(voice, rate: voiceRate, from: turn.end - voiceStart, seconds: 3) { tags.append("laughter right after") }
+        if laughs(voice, rate: voiceRate, from: turn.end - voiceStart, seconds: 3) >= laughThreshold { tags.append("laughter right after") }
         return tags.joined(separator: "; ")
     }
 
