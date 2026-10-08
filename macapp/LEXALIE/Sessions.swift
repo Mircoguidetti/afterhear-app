@@ -119,14 +119,15 @@ final class Sessions: ObservableObject {
             guard text.split(separator: " ").count >= 2 else { continue }
             let start = clipStart.addingTimeInterval(turn.start).timeIntervalSince(s.start)
             let end = clipStart.addingTimeInterval(turn.end).timeIntervalSince(s.start)
-            guard end > 0 else { continue }
+            // The minute heard just before the session began (the first look) belongs to it too.
+            guard end > -90 else { continue }
             // The same words seen again in the next window (or the same sentence grown) is one line.
             if let k = s.lines.lastIndex(where: { Self.overlap($0, start, end) > 0.5 || $0.text == text }) {
                 if text.count > s.lines[k].text.count { s.lines[k].text = String(text.prefix(2000)); s.lines[k].end = end }
                 continue
             }
             guard s.lines.count < 2500 else { break }
-            s.lines.append(Line(i: s.lines.count, start: max(0, start), end: end, text: String(text.prefix(2000))))
+            s.lines.append(Line(i: s.lines.count, start: start, end: end, text: String(text.prefix(2000))))
             s.dirty = true
         }
         s.lines.sort { $0.start < $1.start }
