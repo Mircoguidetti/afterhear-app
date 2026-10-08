@@ -180,13 +180,51 @@ def ask():
     print('calls to the model (two per question):', _calls['n'], '·', cost())
 
 
+def show():
+    """Free: the results as plain lines in the run's log, to mark them by hand."""
+    for name in ('endcard', 'ask'):
+        path = os.path.join(OUT, name + '.json')
+        if not os.path.exists(path):
+            continue
+        rows = json.load(open(path))
+        if name == 'endcard':
+            for r in rows:
+                card = r['card']
+                print(f"\n=== CALL {r['file']} listener={r['listener'] or '-'} error={card.get('error', '')}")
+                for m in card.get('moments', []):
+                    print(f"  MOMENT [{m['why']}] line {m['line']}: {m['sentence']}")
+                    print(f"     said: {r['sentences'].get(str(m['line']), '')[:300]}")
+                    print(f"     meaning: {m['meaning']} | numbers: {m['numbers']} | negation: {m['negation']} | unsure: {m['unsure']}")
+                    for t in m.get('terms', []):
+                        print(f"     term: {t['term']} = {t['meaning']} (public={t['public']})")
+                for a in card.get('asked_you', []):
+                    print(f"  ASKED line {a['line']}: {a['sentence']} -> {a['meaning']}")
+                for a in card.get('open_questions', []):
+                    print(f"  OPEN line {a['line']}: {a['sentence']} -> {a['meaning']}")
+                for c in r['bench_asked']:
+                    print(f"  BENCH-ASKED {c['id']}: {c['sentence'][:200]} -> {c['reference']}")
+                for c in r['bench_hard']:
+                    print(f"  BENCH-HARD {c['id']}: {c.get('target')}")
+        else:
+            for r in rows:
+                a = r['answer']
+                print(f"\n=== {r['case']} session={r.get('right_session')} line={r.get('right_line')} | Q: {r['question']}")
+                print(f"  REF: {r.get('reference')} | SENT: {str(r.get('case_sentence'))[:200]}")
+                print(f"  A: {a.get('answer', a.get('error'))}")
+                for q in a.get('quotes', []):
+                    print(f"  QUOTE {q['session_id']}:{q['idx']}: {q['sentence']}")
+
+
 if __name__ == '__main__':
     what = sys.argv[1] if len(sys.argv) > 1 else ''
-    if what == 'corpus':
+    if what == 'show':
+        show()
+    elif what == 'corpus':
         corpus()
     elif what in ('endcard', 'ask'):
         if not os.environ.get('ASAID_TESTER_CODE'):
             sys.exit('ASAID_TESTER_CODE is not set: this needs the server.')
         {'endcard': endcard, 'ask': ask}[what]()
+        show()
     else:
         sys.exit(__doc__)
