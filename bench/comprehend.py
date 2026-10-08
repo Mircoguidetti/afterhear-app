@@ -428,6 +428,10 @@ def offers():
     print('\n'.join(lines))
     for r in rows:
         print('OFFER ' + json.dumps(r, ensure_ascii=False))
+    # The words before every tap too, so the choosing can be tried again off the runner, for free.
+    if os.environ.get('COMPREHEND_DUMP_WORDS'):
+        for t in json.load(open(os.path.join(OUT, 'taps.json'))):
+            print('TAPWORDS ' + json.dumps(t, ensure_ascii=False))
     return 0
 
 

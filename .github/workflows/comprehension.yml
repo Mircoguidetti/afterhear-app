@@ -79,6 +79,7 @@ jobs:
         env:
           COMPREHEND_SAMPLE: ${{ inputs.sample || '5' }}
           COMPREHEND_KINDS: ${{ inputs.kinds }}
+          COMPREHEND_DUMP_WORDS: "1"
         run: python3 bench/comprehend.py offers
       - name: Cards, through the real server
         if: ${{ inputs.what != 'offers' }}
