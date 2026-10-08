@@ -51,6 +51,7 @@ final class Sessions: ObservableObject {
     }
 
     struct Asked: Codable, Hashable {
+        var id = UUID()
         var line: Int
         var sentence: String
         var meaning: String

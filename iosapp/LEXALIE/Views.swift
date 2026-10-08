@@ -15,9 +15,11 @@ struct RootView: View {
 
     private var tabs: some View {
         TabView(selection: $tab) {
-            OutView().tabItem { Label("Out", systemImage: "waveform") }.tag(0)
+            // Block INSIEME (08/10): asking comes first, then your sessions with their cards.
+            AskTab().tabItem { Label("Ask", systemImage: "questionmark.bubble") }.tag(0)
+            SessionsTab().tabItem { Label("Together", systemImage: "rectangle.stack") }.tag(4)
+            OutView().tabItem { Label("Out", systemImage: "waveform") }.tag(5)
             EveningView().tabItem { Label("Tonight", systemImage: "moon") }.tag(1)
-            ProgressStoryView().tabItem { Label("Progress", systemImage: "chart.line.uptrend.xyaxis") }.tag(3)
             SettingsView().tabItem { Label("Settings", systemImage: "gearshape") }.tag(2)
         }
     }
@@ -434,6 +436,9 @@ struct SettingsView: View {
                         Text("A voice in my ear").tag("voice")
                     }
                     Button("Show me the gestures again") { UserDefaults.standard.set(false, forKey: "gesturesSeen") }
+                }
+                Section("Progress") {
+                    NavigationLink("Your progress") { ProgressStoryView() }
                 }
                 Section("Account") {
                     if let s = account.session {

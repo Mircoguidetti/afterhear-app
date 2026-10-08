@@ -19,6 +19,15 @@ final class WatchLink: NSObject, WCSessionDelegate {
         try? WCSession.default.updateApplicationContext(["listening": s != nil, "marks": s?.bookmarks.count ?? 0, "title": s?.title ?? ""])
     }
 
+    /// The latest end-of-session card, one line per moment (block INSIEME): the Watch shows it.
+    func sendCard(_ card: (title: String, lines: [String])) {
+        guard WCSession.isSupported(), WCSession.default.activationState == .activated, WCSession.default.isPaired else { return }
+        var context = WCSession.default.applicationContext
+        context["cardTitle"] = card.title
+        context["cardLines"] = card.lines
+        try? WCSession.default.updateApplicationContext(context)
+    }
+
     /// "Now" answered on the wrist even when the tap came from elsewhere (§ 11.14).
     func show(_ line: String) {
         guard WCSession.isSupported(), WCSession.default.activationState == .activated, WCSession.default.isPaired else { return }

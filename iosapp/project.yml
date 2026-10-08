@@ -50,7 +50,7 @@ targets:
         BGTaskSchedulerPermittedIdentifiers: [app.lexalie.ios.night]
         NSSupportsLiveActivities: true
         NSMicrophoneUsageDescription: LEXALIE keeps the last 30 minutes on this iPhone, compressed and encrypted, only while you choose to listen. Nothing leaves the phone during the day.
-        NSSpeechRecognitionUsageDescription: If you turn on "say sorry? to mark", this iPhone listens for that word, on the phone only.
+        NSSpeechRecognitionUsageDescription: Your spoken questions to LEXALIE, and "sorry?" when you turn it on, are recognised on this iPhone only.
         NSCalendarsFullAccessUsageDescription: LEXALIE offers to listen at your dinners and events, and stops by itself when they end.
         NSLocationWhenInUseUsageDescription: If you choose it, LEXALIE stops listening when you leave the place where you started.
         NSLocationAlwaysAndWhenInUseUsageDescription: If you choose it, LEXALIE stops listening when you leave the place where you started.

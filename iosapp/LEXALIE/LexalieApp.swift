@@ -7,6 +7,7 @@ struct LexalieApp: App {
     @StateObject private var sessions = Sessions.shared
     @StateObject private var night = Night.shared
     @StateObject private var account = Account.shared
+    @StateObject private var together = Together.shared
 
     var body: some Scene {
         WindowGroup {
@@ -14,6 +15,7 @@ struct LexalieApp: App {
                 .environmentObject(sessions)
                 .environmentObject(night)
                 .environmentObject(account)
+                .environmentObject(together)
                 .onOpenURL { url in
                     // A recording shared to LEXALIE (Apple's call recording from Notes, Voice Memos, Files).
                     if url.isFileURL { Task { await Sessions.shared.importShared(url) } } else { Account.shared.handle(url) }

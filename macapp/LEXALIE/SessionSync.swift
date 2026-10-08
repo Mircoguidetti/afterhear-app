@@ -107,7 +107,7 @@ final class SessionSync {
         for from in stride(from: 0, to: lines.count, by: 300) {
             try await rest("POST", "turns?on_conflict=session_id,idx", token: token, body: Array(lines[from..<min(from + 300, lines.count)]))
         }
-        guard card, !s.card.isEmpty, let uid = Account.shared.session?.userID else { return }
+        guard card, !s.card.isEmpty || !s.asked.isEmpty, let uid = Account.shared.session?.userID else { return }
         var rows: [[String: Any]] = []
         for m in s.card {
             let line = s.lines.first { $0.i == m.line }
@@ -128,6 +128,12 @@ final class SessionSync {
             rows.append(["id": m.id.uuidString.lowercased(), "session_id": id, "start_s": line?.start ?? 0, "end_s": line?.end ?? 0,
                          "source": m.source, "quote": line?.text ?? m.sentence, "card": card, "clip": path,
                          "discarded": m.discarded, "knew": m.knew] as [String: Any])
+        }
+        for a in s.asked {
+            let line = s.lines.first { $0.i == a.line }
+            rows.append(["id": a.id.uuidString.lowercased(), "session_id": id, "start_s": line?.start ?? 0, "end_s": line?.end ?? 0,
+                         "source": a.open ? "open" : "asked", "quote": a.sentence, "card": ["meaning": a.meaning] as [String: Any],
+                         "clip": NSNull(), "discarded": false, "knew": false] as [String: Any])
         }
         try await rest("POST", "session_moments?on_conflict=id", token: token, body: rows)
     }
