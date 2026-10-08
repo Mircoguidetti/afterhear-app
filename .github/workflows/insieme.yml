@@ -19,6 +19,10 @@ on:
         description: "Hard cap on calls to the model"
         type: string
         default: "40"
+      calls:
+        description: "With what = endcard: only these calls, comma separated (empty = the ten)"
+        type: string
+        default: ""
       show_run:
         description: "With what = show: the run whose results to print (free, no server)"
         type: string
@@ -57,6 +61,7 @@ jobs:
           INSIEME_MAX_CALLS: ${{ inputs.max_calls }}
           INSIEME_EXPECT_ENDCARD: ${{ inputs.expect_version }}
           INSIEME_EXPECT_ASK: ${{ inputs.expect_version }}
+          INSIEME_CALLS: ${{ inputs.calls }}
         run: python3 bench/insieme.py ${{ inputs.what }} | tee -a "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         if: always()
