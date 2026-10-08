@@ -17,12 +17,17 @@ on:
         description: "Hard cap on calls to the server (Gemini): the bench stops there."
         type: string
         default: "20"
+      what:
+        description: "cards = the comprehension cases; told = what they told you to do (12 calls at most); both"
+        type: string
+        default: "cards"
 
 permissions:
   contents: read
 
 jobs:
   comprehension:
+    if: ${{ inputs.what != 'told' }}
     runs-on: macos-14
     timeout-minutes: 300
     steps:
@@ -79,3 +84,19 @@ jobs:
             bench/out/comprehend/summary.json
             bench/out/comprehend/heard.json
             bench/out/comprehend/taps.json
+
+  # What they told you to do (block COSA 7): /api/told on written cases, 12 calls at most.
+  told:
+    if: ${{ inputs.what == 'told' || inputs.what == 'both' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: The cases, through the real server
+        env:
+          ASAID_TESTER_CODE: ${{ secrets.ASAID_TESTER_CODE }}
+          TOLD_MAX_CALLS: "12"
+        run: python3 bench/told.py
+      - name: The results as notes on the run (readable without signing in)
+        if: always()
+        run: python3 bench/notes.py bench/out/told.json
