@@ -160,7 +160,7 @@ final class Together: ObservableObject {
 
     // MARK: Words
 
-    static func date(_ text: String) -> Date? {
+    nonisolated static func date(_ text: String) -> Date? {
         let f = ISO8601DateFormatter()
         f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         if let d = f.date(from: text) { return d }
@@ -168,7 +168,7 @@ final class Together: ObservableObject {
         return f.date(from: text)
     }
 
-    static func kindLabel(_ kind: String) -> String {
+    nonisolated static func kindLabel(_ kind: String) -> String {
         switch kind {
         case "call": "A call"
         case "film": "A film"
