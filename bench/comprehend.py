@@ -389,12 +389,8 @@ def sample(listed):
     return out
 
 
-def cards():
-    if not os.environ.get('ASAID_TESTER_CODE'):
-        print('ASAID_TESTER_CODE is not set: the cards need the server.')
-        return 1
-    listed = sample(json.load(open(CASES)))
-    heard = json.load(open(os.path.join(OUT, 'heard.json')))
+def offered_all(listed, heard):
+    """The sentences the Mac would offer for every tap, through the compiled Swift tool (no server)."""
     taps = [{'id': c['id'], 'words': [[str(w[0]), str(w[1]), w[2]] for w in heard[c['id']]['words']],
              'tapAt': c['tap'] - heard[c['id']]['clip_start'],
              # The listener's first name, as on the Mac (Settings): it becomes [tu] before leaving (P3).
@@ -402,7 +398,46 @@ def cards():
     path = os.path.join(OUT, 'taps.json')
     json.dump(taps, open(path, 'w'))
     res = subprocess.run([BIN, path], capture_output=True, text=True, check=True)
-    offers = {r['id']: r['offered'] for r in map(json.loads, res.stdout.splitlines())}
+    return {r['id']: r['offered'] for r in map(json.loads, res.stdout.splitlines())}
+
+
+def offers():
+    """Free (no server): is the first sentence offered the right one, does it hold the word or the name the
+    card must explain, and does your name leave as [tu]? Run before any paid round (owner, 08/10)."""
+    listed = sample(json.load(open(CASES)))
+    heard = json.load(open(os.path.join(OUT, 'heard.json')))
+    got = offered_all(listed, heard)
+    lines = ['## The sentence offered, free (no server)', '', '| Kind | Cases | Right sentence first | Holds the target | Your name as [tu] |',
+             '|---|---|---|---|---|']
+    rows = []
+    for kind in NAMES:
+        xs = [c for c in listed if c['kind'] == kind and c['id'] in got]
+        if not xs:
+            continue
+        right = [bool(got[c['id']]) and same(got[c['id']][0], c, heard[c['id']]['clip_start']) for c in xs]
+        holds = [contains(got[c['id']][0]['text'], c['target']) if got[c['id']] else False for c in xs if c.get('target')]
+        tu = [bool(got[c['id']]) and '[tu]' in got[c['id']][0]['sent'] for c in xs if c.get('name')]
+        lines.append(f"| {NAMES[kind]} | {len(xs)} | {pct(sum(right), len(xs))} | {pct(sum(holds), len(holds)) if holds else '—'} | "
+                     f"{pct(sum(tu), len(tu)) if tu else '—'} |")
+        for c in xs:
+            o = got[c['id']][0] if got[c['id']] else {'text': '', 'sent': ''}
+            rows.append({'id': c['id'], 'kind': kind, 'offered': o['text'], 'sent': o['sent'],
+                         'holds': contains(o['text'], c['target']) if c.get('target') else None})
+    json.dump(rows, open(os.path.join(OUT, 'offers.json'), 'w'), indent=1, ensure_ascii=False)
+    tap.run.summary('\n'.join(lines))
+    print('\n'.join(lines))
+    for r in rows:
+        print('OFFER ' + json.dumps(r, ensure_ascii=False))
+    return 0
+
+
+def cards():
+    if not os.environ.get('ASAID_TESTER_CODE'):
+        print('ASAID_TESTER_CODE is not set: the cards need the server.')
+        return 1
+    listed = sample(json.load(open(CASES)))
+    heard = json.load(open(os.path.join(OUT, 'heard.json')))
+    offers = offered_all(listed, heard)
 
     def one(c):
         try:
@@ -508,4 +543,4 @@ if __name__ == '__main__':
     cmd = sys.argv[1] if len(sys.argv) > 1 else 'report'
     if cmd in ('align', 'cases'):
         sys.exit({'align': align, 'cases': cases}[cmd](sys.argv[2]))
-    sys.exit({'audio': audio, 'hear': hear, 'cards': cards, 'report': report}[cmd]())
+    sys.exit({'audio': audio, 'hear': hear, 'offers': offers, 'cards': cards, 'report': report}[cmd]())

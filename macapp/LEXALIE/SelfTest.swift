@@ -96,6 +96,13 @@ enum SelfTest {
         let beforeAnswer = Conversation.offer(answering, tapAt: 11.0, usualDelay: nil, freshWithin: AppModel.reactionSeconds).first
         check("an answer just starting doesn't hide the question", beforeAnswer.map { answering[$0.index].text.contains("figures") } ?? false,
               beforeAnswer.map { answering[$0.index].text } ?? "nothing offered")
+        // A sentence cut by a breath comes back whole (bench 08/10: "households." was offered alone).
+        let cut = words("We launched same day delivery with Instacart, reaching more than 80% of U.S", from: 0)
+            + words("households.", from: 6.3)
+        let joined = Conversation.turns(others: cut, mine: [], clipStart: start)
+        check("a sentence cut by a breath stays whole", joined.count == 1 && joined[0].text.contains("Instacart"), joined.map(\.text).joined(separator: " | "))
+        check("a model number is not a private number", Redactor.redact("our 737 MAX order book and the A320").contains("737 MAX")
+              && Redactor.redact("our 737 MAX order book and the A320").contains("A320"), Redactor.redact("our 737 MAX order book and the A320"))
     }
 
     // MARK: The tap with the ear (07/10)

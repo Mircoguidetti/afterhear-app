@@ -30,8 +30,45 @@ enum Conversation {
             let heard = Set(overlapping.flatMap { normalized($0.text) })
             return Double(words.intersection(heard).count) / Double(words.count) < 0.5
         }
-        return (theirs + ours).sorted { $0.start < $1.start }
+        return (joinTails(theirs) + ours).sorted { $0.start < $1.start }
     }
+
+    /// A sentence cut in two by a breath or by its length keeps its two halves together, so the tap
+    /// offers the whole sentence and not its tail (comprehension bench, 08/10: "households.", "typical
+    /// early in the life of an engine activity", "And then I can add to it" were offered in place of
+    /// the sentence with the name or the word in it, 11 cards in 160).
+    static func joinTails(_ turns: [Turn]) -> [Turn] {
+        var out: [Turn] = []
+        for turn in turns {
+            if var last = out.last, isTail(turn, of: last) {
+                last.end = max(last.end, turn.end)
+                last.text += " " + turn.text
+                out[out.count - 1] = last
+            } else {
+                out.append(turn)
+            }
+        }
+        return out
+    }
+
+    /// The previous piece stopped mid-sentence (no full stop) a moment before, and this one carries on:
+    /// it starts in lower case, the previous one ended on a comma or a joining word, or it's a few words.
+    private static func isTail(_ turn: Turn, of last: Turn) -> Bool {
+        guard turn.who == last.who, turn.start - last.end < tailGap, !endsSentence(last.text) else { return false }
+        let words = turn.text.split(separator: " ").count
+        guard last.text.split(separator: " ").count + words <= joinedWords else { return false }
+        let first = turn.text.trimmingCharacters(in: .whitespaces).first
+        let lastWord = (last.text.lowercased().split(separator: " ").last.map(String.init) ?? "")
+            .trimmingCharacters(in: .punctuationCharacters)
+        return first?.isLowercase == true || last.text.hasSuffix(",") || joining.contains(lastWord) || words <= 8
+    }
+
+    /// Seconds: a longer pause than the grouping one still belongs to the same sentence when it carries on.
+    static let tailGap: TimeInterval = 2.5
+    /// At most this many words in a sentence put back together.
+    static let joinedWords = 48
+    private static let joining: Set<String> = ["and", "but", "or", "so", "because", "that", "which", "who", "the", "a",
+                                               "of", "to", "with", "for", "in", "on", "uh", "um"]
 
     /// The index of the most likely missed turn (always one of theirs), or nil.
     /// - tapAt: seconds from clip start when you tapped.

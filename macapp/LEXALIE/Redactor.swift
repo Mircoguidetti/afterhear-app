@@ -42,7 +42,10 @@ enum Redactor {
             out.replaceSubrange(range, with: placeholder)
         }
         out = out.replacingOccurrences(of: #"[\w.+-]+@[\w-]+\.[\w.]+"#, with: "[email]", options: .regularExpression)
-        out = out.replacingOccurrences(of: #"\+?\d[\d \-.,]{1,}\d"#, with: "[numero]", options: .regularExpression)
+        // A model or a code glued to letters ("A320", "LEAP-1A", "K3") or followed by one in capitals
+        // ("737 MAX") is a product, not a private number: it stays, so "who or what" can say which.
+        out = out.replacingOccurrences(of: #"(?<![\p{L}\d-])\+?\d[\d \-.,]{1,}\d(?![\d\p{L}-]|\s+\p{Lu}{2,}\b)"#,
+                                       with: "[numero]", options: .regularExpression)
         return out
     }
 

@@ -26,7 +26,7 @@ on:
         type: string
         default: ""
       what:
-        description: "cards = the comprehension cases; told = what they told you to do (12 calls at most); both"
+        description: "cards = the comprehension cases; offers = only the sentence offered, free (no server); told = what they told you to do (12 calls at most); both"
         type: string
         default: "cards"
 
@@ -74,7 +74,14 @@ jobs:
         run: |
           swiftc -O macapp/LEXALIE/Ranking.swift macapp/LEXALIE/Conversation.swift macapp/LEXALIE/Redactor.swift \
             bench/comprehend/main.swift -o comprehend
+      - name: The sentence offered, free (no server)
+        if: ${{ inputs.what == 'offers' }}
+        env:
+          COMPREHEND_SAMPLE: ${{ inputs.sample || '5' }}
+          COMPREHEND_KINDS: ${{ inputs.kinds }}
+        run: python3 bench/comprehend.py offers
       - name: Cards, through the real server
+        if: ${{ inputs.what != 'offers' }}
         env:
           ASAID_TESTER_CODE: ${{ secrets.ASAID_TESTER_CODE }}
           COMPREHEND_SAMPLE: ${{ inputs.sample || '5' }}
@@ -82,7 +89,8 @@ jobs:
           COMPREHEND_KINDS: ${{ inputs.kinds }}
           COMPREHEND_EXPECT_VERSION: ${{ inputs.expect_version }}
         run: python3 bench/comprehend.py cards
-      - run: python3 bench/comprehend.py report
+      - if: ${{ inputs.what != 'offers' }}
+        run: python3 bench/comprehend.py report
       - name: The cards as notes on the run (readable without signing in)
         if: always()
         run: python3 bench/notes.py bench/out/comprehend/rows.json bench/out/comprehend/summary.json
