@@ -1,0 +1,47 @@
+name: Together bench
+
+# Block INSIEME through the real server: Gemini, so it costs credits. Only by hand, with the
+# owner's go and the expected version of the instructions (HANDOFF rules 12): nothing is sent if
+# the server isn't running that version yet.
+
+on:
+  workflow_dispatch:
+    inputs:
+      what:
+        description: "endcard = the end-of-session card on 10 real calls (10 calls); ask = 20 questions without saying the session (40 calls)"
+        type: choice
+        options: [endcard, ask]
+        default: endcard
+      expect_version:
+        description: "Instructions version the run must find on the server (GET /api/endcard or /api/ask)"
+        type: string
+      max_calls:
+        description: "Hard cap on calls to the model"
+        type: string
+        default: "40"
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 bench/insieme.py corpus
+      - name: Through the real server
+        env:
+          ASAID_TESTER_CODE: ${{ secrets.ASAID_TESTER_CODE }}
+          INSIEME_MAX_CALLS: ${{ inputs.max_calls }}
+          INSIEME_EXPECT_ENDCARD: ${{ inputs.expect_version }}
+          INSIEME_EXPECT_ASK: ${{ inputs.expect_version }}
+        run: python3 bench/insieme.py ${{ inputs.what }} | tee -a "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: insieme-${{ inputs.what }}
+          path: bench/out/insieme
