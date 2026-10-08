@@ -21,6 +21,10 @@ on:
         description: "Only these kinds, comma separated (heard, asked, named, word, who, meant); empty = all"
         type: string
         default: ""
+      expect_version:
+        description: "Instructions version the run must find on the server (GET /api/explain); otherwise nothing is sent"
+        type: string
+        default: ""
       what:
         description: "cards = the comprehension cases; told = what they told you to do (12 calls at most); both"
         type: string
@@ -76,6 +80,7 @@ jobs:
           COMPREHEND_SAMPLE: ${{ inputs.sample || '5' }}
           COMPREHEND_MAX_CALLS: ${{ inputs.max_calls || '40' }}
           COMPREHEND_KINDS: ${{ inputs.kinds }}
+          COMPREHEND_EXPECT_VERSION: ${{ inputs.expect_version }}
         run: python3 bench/comprehend.py cards
       - run: python3 bench/comprehend.py report
       - name: The cards as notes on the run (readable without signing in)

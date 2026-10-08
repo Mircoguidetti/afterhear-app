@@ -247,13 +247,22 @@ _lock = threading.Lock()
 _answers = {'version': None, 'kept': {}, 'reused': 0}
 
 
+# The version the run is meant to test (e.g. a prompt just merged): when the live server still has another
+# one (Vercel not done yet), the bench stops before spending anything.
+EXPECT = os.environ.get('COMPREHEND_EXPECT_VERSION', '')
+
+
 def answers_load():
     try:
         with urllib.request.urlopen(SERVER + '/api/explain', timeout=30) as r:
             _answers['version'] = json.loads(r.read()).get('version')
     except Exception as e:
+        if EXPECT:
+            sys.exit(f'No instructions version from the server ({str(e)[:80]}), expected {EXPECT}: nothing sent.')
         print('No instructions version from the server (', str(e)[:80], '): nothing reused this time.')
         return
+    if EXPECT and _answers['version'] != EXPECT:
+        sys.exit(f"The server has instructions {_answers['version']}, not {EXPECT} (not published yet?): nothing sent.")
     path = os.path.join(OUT, 'answers.json')
     if os.path.exists(path):
         _answers['kept'] = json.load(open(path))
