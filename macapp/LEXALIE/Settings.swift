@@ -93,6 +93,8 @@ enum Key {
     static let showTranslation = "showTranslation"
     /// The menu's switch (block M): a tap explains now, or keeps it for tonight. Every tap follows it.
     static let tapLater = "tapKeepsForTonight"
+    /// Calls delete themselves after this many days (0: kept until you delete them). Block INSIEME 6.
+    static let callsDeleteDays = "callsDeleteDays"
     /// Times in a row you opened it with it off; the card then asks once to keep it open.
     static let translationOpenedInARow = "translationOpenedInARow"
     static let translationKeepAsked = "translationKeepAsked"

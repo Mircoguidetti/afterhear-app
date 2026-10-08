@@ -5,7 +5,7 @@ import SwiftUI
 /// the notifications ("Five minutes now?", the quiz after a video): nothing arrives as a notification.
 struct EndCard {
     struct Item: Identifiable {
-        enum Kind { case rewound, spotted, open, told, marked, laughed, refrain }
+        enum Kind { case rewound, spotted, open, told, marked, laughed, refrain, picked }
         let id = UUID()
         let kind: Kind
         /// "You went back here", "Still open for you", "Why they laughed".
@@ -22,6 +22,9 @@ struct EndCard {
         var voice: URL? = nil
         /// The model wasn't sure it was meant for you, or the words were heard badly.
         var unsure = false
+        /// A moment of the end-of-session card (block INSIEME 2): its session and its id there.
+        var session: UUID? = nil
+        var cardMoment: UUID? = nil
     }
 
     let title: String
@@ -50,6 +53,19 @@ enum EndCards {
     /// The sentences you went back to (explained now), then what a local got and you probably didn't
     /// (your model's catches, when "Watch with me" was on). Music: never, only the tap (CTX 4).
     static func afterWatching(title: String?, since: Date) async {
+        let name = title ?? String(localized: "the video")
+        // The end-of-session card (block INSIEME 2): the moments you most likely missed, your taps among them.
+        if let ended = await Sessions.shared.end(kinds: ["video"]), let s = await SessionCard.make(ended) {
+            var items = SessionCard.items(s)
+            for rewind in RewindWatch.shared.take(since: since).prefix(1) {
+                guard let moment = await AppModel.shared.explainSaved(rewind.moment), let piece = moment.pieces.first else { continue }
+                items.append(.init(kind: .rewound, label: String(localized: "You went back here"), quote: moment.transcript,
+                                   detail: detail(piece, practice: moment.inPractice), moment: moment.id))
+            }
+            if let refrain = refrainItem(context: "video") { items.append(refrain) }
+            show(EndCard(title: String(localized: "After \(name)"), items: items, next: nextCall()))
+            return
+        }
         var items: [EndCard.Item] = await markedItems(since: since)
         for rewind in RewindWatch.shared.take(since: since).prefix(2) {
             guard let moment = await AppModel.shared.explainSaved(rewind.moment), let piece = moment.pieces.first else { continue }
@@ -65,7 +81,6 @@ enum EndCards {
                                quote: moment.transcript, detail: detail(piece, practice: moment.inPractice), moment: moment.id))
         }
         if let refrain = refrainItem(context: "video") { items.append(refrain) }
-        let name = title ?? String(localized: "the video")
         show(EndCard(title: local ? String(localized: "3 things a local got · \(name)") : String(localized: "After \(name)"),
                      items: items, next: nextCall()))
     }
@@ -75,6 +90,22 @@ enum EndCards {
     /// What's still open for you (a request with your name, a question you didn't really answer), why
     /// they laughed (only if the words before were heard well), and your next call if it's close.
     static func afterCall(open: [String], told lines: [String], since: Date, laughed: String?, with people: [String], reportID: String?) async {
+        let who = people.isEmpty ? String(localized: "your call") : ListFormatter.localizedString(byJoining: people)
+        // The end-of-session card (block INSIEME 2): moments, what they asked you, what nobody answered.
+        if let ended = await Sessions.shared.end(kinds: ["call"]), let s = await SessionCard.make(ended) {
+            var items = SessionCard.items(s)
+            if !s.card.contains(where: { $0.why == "joke" }), let laughed {
+                let id = AppModel.shared.addLaughMoment(line: laughed)
+                if let moment = await AppModel.shared.explainSaved(id, tone: "laughter right after"),
+                   let why = [moment.meant?.text, moment.inPractice, moment.pieces.first?.meaning].compactMap({ $0 }).first(where: { !$0.isEmpty }) {
+                    items.append(.init(kind: .laughed, label: String(localized: "Why they laughed"), quote: moment.transcript,
+                                       detail: linked(why), moment: moment.id))
+                }
+            }
+            if let refrain = refrainItem(context: "call") { items.append(refrain) }
+            show(EndCard(title: String(localized: "After the call with \(who)"), items: items, next: nextCall(), reportID: reportID))
+            return
+        }
         // What they told you to do, from the server (block COSA 7); without it, the lines found on this Mac.
         var items = await toldItems(lines, source: "call") ?? open.prefix(2).map { line in
             EndCard.Item(kind: .open, label: String(localized: "Still open for you"), quote: line, detail: nil, moment: nil)
@@ -90,7 +121,6 @@ enum EndCards {
         }
         // Your team's jargon: what keeps coming back in your calls (CTX 1, RIC 3).
         if let refrain = refrainItem(context: "call") { items.append(refrain) }
-        let who = people.isEmpty ? String(localized: "your call") : ListFormatter.localizedString(byJoining: people)
         show(EndCard(title: String(localized: "After the call with \(who)"), items: items, next: nextCall(), reportID: reportID))
     }
 
@@ -98,6 +128,11 @@ enum EndCards {
 
     /// At the doctor, with a landlord, at a counter (owner, 07/10): what they told you to do, and your taps.
     static func afterInPerson(lines: [String], since: Date) async {
+        if let recorded = Sessions.shared.record(kind: "in_person", title: String(localized: "Conversation"), lines: lines, start: since),
+           let s = await SessionCard.make(recorded) {
+            show(EndCard(title: String(localized: "After the conversation"), items: SessionCard.items(s), next: nextCall()))
+            return
+        }
         var items = await toldItems(lines, source: "in_person") ?? []
         items += await markedItems(since: since)
         show(EndCard(title: String(localized: "After the conversation"), items: items, next: nextCall()))
@@ -170,6 +205,7 @@ enum EndCards {
 struct EndCardView: View {
     let card: EndCard
     @State private var done: Set<UUID> = []
+    @State private var removed: Set<UUID> = []
     @State private var explained: [UUID: String] = [:]
 
     var body: some View {
@@ -181,7 +217,7 @@ struct EndCardView: View {
                     .buttonStyle(.plain).foregroundStyle(Brand.paper.opacity(0.6)).help("Close")
             }
             .padding(.bottom, 10)
-            ForEach(Array(card.items.enumerated()), id: \.element.id) { index, item in
+            ForEach(Array(card.items.filter { !removed.contains($0.id) }.enumerated()), id: \.element.id) { index, item in
                 if index > 0 { Divider().overlay(Brand.paper.opacity(0.1)).padding(.vertical, 12) }
                 row(item)
             }
@@ -223,6 +259,19 @@ struct EndCardView: View {
                 if item.kind == .refrain, let term = item.term, explained[item.id] == nil {
                     Button("What is it?") {
                         Task { explained[item.id] = await AppModel.shared.explainTerm(term) ?? String(localized: "Couldn't explain it now.") }
+                    }
+                } else if item.kind == .picked, let session = item.session, let id = item.cardMoment {
+                    if let voice = item.voice { Button("Replay") { ToldVoice.shared.play(voice) } }
+                    Button(done.contains(item.id) ? String(localized: "Noted: it won't come back") : String(localized: "I knew it")) {
+                        guard !done.contains(item.id) else { return }
+                        done.insert(item.id)
+                        Sessions.shared.knew(session, id)
+                    }
+                    if !removed.contains(item.id) {
+                        Button("Not important") {
+                            removed.insert(item.id)
+                            Sessions.shared.discard(session, id)
+                        }
                     }
                 } else if item.kind == .told {
                     // Their words again, with their voice: no box to tick, no reminder (comprehension, not notes).

@@ -188,7 +188,7 @@ final class Account: ObservableObject {
         let firstTime = self.session?.userID != session.userID
         self.session = session
         Keychain.save(session)
-        if firstTime { Sync.shared.signedIn() }
+        if firstTime { Sync.shared.signedIn(); SessionSync.shared.signedIn() }
     }
 }
 

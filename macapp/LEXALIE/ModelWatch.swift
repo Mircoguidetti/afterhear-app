@@ -95,12 +95,16 @@ final class ModelWatch: ObservableObject {
                 if let old = session { await finish(old) }
                 session = (current, title, now, now)
                 spottedKeys = []
+                if current == .video { await Sessions.shared.begin(kind: "video", title: title ?? "", people: []) }
             }
             session?.lastActive = now
             if session?.title == nil { session?.title = title }
             // Going back in a video is a tap (block R): noticed from the words, explained at the end.
             if current == .video {
-                RewindWatch.shared.observe(model.recentTurns(seconds: 60), since: now.addingTimeInterval(-60), show: session?.title)
+                let turns = model.recentTurns(seconds: 60)
+                RewindWatch.shared.observe(turns, since: now.addingTimeInterval(-60), show: session?.title)
+                Sessions.shared.observe(turns, clipStart: now.addingTimeInterval(-60))
+                if let title = session?.title { Sessions.shared.retitle(title) }
             }
             // The names and terms you hear, as nodes on this Mac (block MEM): never in songs.
             if current != .song {

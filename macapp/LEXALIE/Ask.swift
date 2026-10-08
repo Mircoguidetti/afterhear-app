@@ -82,6 +82,65 @@ final class Ask {
         }
     }
 
+    // MARK: Ask LEXALIE, over everything you listened to together (block INSIEME 1)
+
+    struct Quote: Identifiable {
+        let id = UUID()
+        let sentence: String
+        let place: String
+        let voice: URL?
+    }
+
+    struct Found {
+        let answer: String
+        let quotes: [Quote]
+    }
+
+    private struct AllReply: Decodable {
+        struct Q: Decodable { let session_id: String; let title: String; let kind: String; let started_at: String; let idx: Int; let sentence: String }
+        let found: Bool
+        let answer: String
+        let quotes: [Q]
+        let reason: String
+        let looked_in: [String]?
+        let error: String?
+    }
+
+    /// A question about anything you heard with LEXALIE, without saying where: "what did Tom mean about
+    /// the budget?", "what's Firebase?", "what did she say at the end of the film?". Signed in, our server
+    /// looks in your account (the session going on now included); otherwise this Mac sends its own
+    /// sessions. Names never reach Gemini; they come back here.
+    func askAll(_ question: String) async -> Found {
+        let q = question.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !q.isEmpty else { return Found(answer: "", quotes: []) }
+        AppModel.syncRedactor()
+        var names = Array(Redactor.privateNames.prefix(250))
+        if !Redactor.me.isEmpty { names.append(Redactor.me) }
+        var body: [String: Any] = [
+            "question": String(q.prefix(1000)), "names": names, "profile": Profile.shared.summary,
+            "now": ISO8601DateFormatter.localNow(),
+        ]
+        if let live = Sessions.shared.current { body["live"] = live.id.uuidString.lowercased() }
+        if Account.shared.signedIn {
+            await SessionSync.shared.flushLive()
+        } else {
+            body["sessions"] = Sessions.shared.inline(limit: 15)
+        }
+        do {
+            let reply: AllReply = try await CoachClient.post("api/ask", body)
+            if reply.error == "no_sessions" { return Found(answer: String(localized: "We haven't listened to anything together yet."), quotes: []) }
+            let quotes = reply.quotes.map { q -> Quote in
+                let when = Sync.parseDate(q.started_at).map { $0.formatted(.dateTime.weekday(.wide).hour().minute()) } ?? ""
+                let place = [when, q.title].filter { !$0.isEmpty }.joined(separator: " · ")
+                return Quote(sentence: q.sentence, place: place, voice: Sessions.shared.voice(session: q.session_id, line: q.idx))
+            }
+            Questions.shared.add(.init(question: q, answer: reply.answer, reason: reply.reason, sessions: reply.looked_in ?? []))
+            return Found(answer: reply.answer, quotes: quotes)
+        } catch {
+            return Found(answer: String(localized: "Couldn't explain it now."), quotes: [])
+        }
+    }
+
     /// The song is known on this Mac (Spotify, Music or Shazam): no server.
     private func singer() -> String {
         guard let song = NowPlaying.current() else { return String(localized: "I don't recognise this song.") }
@@ -154,6 +213,7 @@ struct AskView: View {
     let song: Bool
     @State private var text = ""
     @State private var answer: String?
+    @State private var quotes: [Ask.Quote] = []
     @State private var asking = false
     @StateObject private var voice = SpokenQuestion()
     @FocusState private var focused: Bool
@@ -161,7 +221,7 @@ struct AskView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text("Ask about what you just heard").font(.system(size: 13, weight: .semibold))
+                Text("Ask LEXALIE").font(.system(size: 13, weight: .semibold))
                 Spacer()
                 Button { Ask.shared.close() } label: { Image(systemName: "xmark").font(.system(size: 11, weight: .semibold)) }
                     .buttonStyle(.plain).foregroundStyle(Brand.paper.opacity(0.6))
@@ -178,7 +238,7 @@ struct AskView: View {
                 }
             }
             HStack(spacing: 8) {
-                TextField("Your question", text: $text)
+                TextField("Anything you heard, even days ago", text: $text)
                     .textFieldStyle(.plain)
                     .font(.system(size: 14))
                     .focused($focused)
@@ -209,6 +269,17 @@ struct AskView: View {
                 ProgressView().controlSize(.small)
             } else if let answer {
                 Text(answer).font(.system(size: 14)).fixedSize(horizontal: false, vertical: true)
+                ForEach(quotes) { quote in
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("“\(quote.sentence)”").font(.system(size: 13, design: .serif)).fixedSize(horizontal: false, vertical: true)
+                        HStack(spacing: 10) {
+                            if !quote.place.isEmpty { Text(quote.place).font(.system(size: 11)).foregroundStyle(Brand.paper.opacity(0.55)) }
+                            if let voice = quote.voice {
+                                Button("Replay") { ToldVoice.shared.play(voice) }.buttonStyle(.plain).font(.system(size: 11)).foregroundStyle(Brand.line)
+                            }
+                        }
+                    }
+                }
             }
             if context == .call {
                 Text("Written only: in a call your voice could reach the others.")
@@ -222,9 +293,18 @@ struct AskView: View {
         .onAppear { focused = true }
     }
 
+    /// Your own question goes over everything you listened to together; the ready ones are about just now.
     private func send() {
         let q = text
-        run { await Ask.shared.ask(q, context: context) }
+        guard !asking, !q.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        asking = true
+        Task { @MainActor in
+            let found = await Ask.shared.askAll(q)
+            answer = found.answer
+            quotes = found.quotes
+            asking = false
+            Ask.shared.fit()
+        }
     }
 
     private func run(_ work: @escaping () async -> String) {
@@ -233,6 +313,7 @@ struct AskView: View {
         Task { @MainActor in
             let a = await work()
             answer = a
+            quotes = []
             asking = false
             Ask.shared.fit()
         }

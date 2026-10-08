@@ -29,7 +29,7 @@ enum CoachClient {
         var request = URLRequest(url: base.appendingPathComponent(path))
         request.httpMethod = "POST"
         // Writing a report or an episode takes the model a while (owner, 03/10: the episode timed out at 15 s).
-        request.timeoutInterval = path == "api/report" || path == "api/podcast" || path == "api/story" ? 90 : 15
+        request.timeoutInterval = ["api/report", "api/podcast", "api/story", "api/endcard", "api/ask"].contains(path) ? 90 : 15
         request.setValue("application/json", forHTTPHeaderField: "content-type")
         try await ServerAccess.authorize(&request, settings: settings)
         var full = body
@@ -145,9 +145,12 @@ final class CallCoach: ObservableObject {
                 session = Session(id: call?.id ?? "ctx-\(Int(now.timeIntervalSince1970))", title: call?.title ?? String(localized: "Call"),
                                   people: call?.people ?? [], start: now, lastInCall: now)
                 ToldVoice.shared.reset()
+                await Sessions.shared.begin(kind: "call", title: call?.title ?? "", people: call?.people ?? [])
             }
             session?.lastInCall = now
-            observe(AppModel.shared.recentTurns(seconds: 60), clipStart: now.addingTimeInterval(-60))
+            let turns = AppModel.shared.recentTurns(seconds: 60)
+            observe(turns, clipStart: now.addingTimeInterval(-60))
+            Sessions.shared.observe(turns, clipStart: now.addingTimeInterval(-60))
             listenForLaughter(now: now)
             // Nothing shows up by itself during a call (owner, 06/10 night): a question put to you is on
             // the card when you tap, and at the end of the call among what is still open for you.

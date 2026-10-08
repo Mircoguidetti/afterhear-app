@@ -86,6 +86,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             AppModel.shared.boot()
             Onboarding.showIfNew()
             Sync.shared.boot()
+            SessionSync.shared.boot()
             await CalendarWatch.shared.boot()
         }
     }

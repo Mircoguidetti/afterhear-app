@@ -30,6 +30,7 @@ enum SelfTest {
     static func run() async {
         AppSettings.registerDefaults()
         pieces()
+        await together()
         await ear()
         let samples = addExamples()
         await windows(samples)
@@ -290,6 +291,55 @@ enum SelfTest {
         return ids
     }
 
+    // MARK: Block INSIEME: sessions, the end card, the profile
+
+    private static func together() async {
+        let sessions = Sessions.shared
+        await sessions.begin(kind: "call", title: "Self-test call", people: ["Tom"])
+        let clipStart = Date().addingTimeInterval(-60)
+        sessions.observe([
+            Turn(who: "them", start: 2, end: 6, text: "The budget is frozen until the board"),
+            Turn(who: "tu", start: 7, end: 9, text: "Okay, sure."),
+            Turn(who: "them", start: 58, end: 59.5, text: "Still being said"),
+        ], clipStart: clipStart)
+        sessions.observe([Turn(who: "them", start: 2, end: 7, text: "The budget is frozen until the board signs off.")], clipStart: clipStart)
+        let live = sessions.current
+        check("session: a line seen twice is one line, the longer kept", live?.lines.count == 1 && live?.lines.first?.text.hasSuffix("signs off.") == true,
+              live?.lines.map(\.text).joined(separator: " | ") ?? "no session")
+        check("session: your own words are not kept", !(live?.lines.contains { $0.text.contains("Okay") } ?? true))
+        let wrong = await sessions.end(kinds: ["video"])
+        check("session: a video ending doesn't end the call", wrong == nil && sessions.current != nil)
+        let ended = await sessions.end(kinds: ["call"])
+        check("session: kept when it ends", ended != nil && sessions.sessions.contains { $0.id == ended?.id } && sessions.current == nil)
+        let inline = sessions.inline(limit: 3)
+        check("ask: this Mac's sessions for the server", (inline.first?["lines"] as? [[String: Any]])?.count == 1)
+        if let id = ended?.id {
+            sessions.forget(id)
+            check("session: forgotten here at once", !sessions.sessions.contains { $0.id == id })
+        }
+
+        let me = Redactor.me
+        Redactor.me = "Anna"
+        check("card: numbers and your name back", Sessions.restore("[tu], ti chiede i [numero] report entro venerdì", from: "Anna, could you send the 3 reports by Friday?")
+              == "Anna, ti chiede i 3 report entro venerdì")
+        Redactor.me = me
+        let m = Sessions.CardMoment(line: 0, sentence: "Our adjusted EBITDA stands at 1.8 billion euros.", why: "acronym", meaning: "Il margine operativo",
+                                    numbers: "1,8 miliardi di euro", negation: "", terms: [.init(term: "adjusted EBITDA", meaning: "margine senza voci straordinarie", isPublic: true),
+                                                                                          .init(term: "Phoenix", meaning: "", isPublic: false)], unsure: false, source: "picked")
+        let detail = SessionCard.detail(m)
+        check("card: digits, the acronym, an internal name never invented", detail.contains("1,8 miliardi") && detail.contains("adjusted EBITDA: margine") && detail.contains("Phoenix:"), detail)
+        check("card: a label for every kind", ["tap", "word", "acronym", "name", "meant", "numbers", "negation", "joke", "speed", "asked", "other"].allSatisfy {
+            var x = m
+            x.why = $0
+            return !SessionCard.label(x).isEmpty
+        })
+        let answers = (Profile.shared.data.workField, Profile.shared.data.callsWith, Profile.shared.data.accents)
+        Profile.shared.setAnswers(work: "finance", calls: "clients in London", accents: "Scottish")
+        check("profile: the three answers go to the server's prompt", Profile.shared.summary.contains("finance") && Profile.shared.summary.contains("Scottish"))
+        check("profile: readable", Profile.shared.readable.count >= 3)
+        Profile.shared.setAnswers(work: answers.0, calls: answers.1, accents: answers.2)
+    }
+
     // MARK: Every window, once
 
     private static func windows(_ samples: [UUID]) async {
@@ -306,6 +356,14 @@ enum SelfTest {
             ("permissions", AnyView(PermissionsView())),
             ("welcome", AnyView(OnboardingView(done: {}))),
             ("your week", AnyView(PodcastView())),
+            ("end of session card", AnyView(EndCardView(card: EndCard(title: "After the call with Tom", items: [
+                { var i = EndCard.Item(kind: .picked, label: "An acronym", quote: "Our adjusted EBITDA stands at 1.8 billion euros.",
+                                       detail: "Il margine operativo\n1,8 miliardi di euro", moment: nil)
+                  i.session = UUID(); i.cardMoment = UUID(); return i }(),
+                EndCard.Item(kind: .told, label: "They asked you", quote: "Anna, could you send the numbers by Friday?", detail: "Ti chiede i numeri entro venerdì", moment: nil),
+                EndCard.Item(kind: .open, label: "Nobody answered", quote: "What about Q3?", detail: "Il terzo trimestre è rimasto aperto", moment: nil),
+            ])))),
+            ("ask LEXALIE", AnyView(AskView(context: .video, song: false))),
         ]
         for (name, view) in list {
             AppWindows.show(id: "selftest-\(name)", title: name, width: 520, height: 640) { view }

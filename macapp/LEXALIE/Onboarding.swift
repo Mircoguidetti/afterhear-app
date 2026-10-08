@@ -92,7 +92,7 @@ struct OnboardingView: View {
                 Wordmark()
                 Spacer()
                 HStack(spacing: 6) {
-                    ForEach(0..<5, id: \.self) { i in
+                    ForEach(0..<6, id: \.self) { i in
                         Circle().fill(i == step ? Brand.paper : Brand.paper.opacity(0.2)).frame(width: 6, height: 6)
                     }
                 }
@@ -101,8 +101,9 @@ struct OnboardingView: View {
                 switch step {
                 case 0: SignInStep(standalone: false)
                 case 1: languages
-                case 2: permissions
-                case 3: translations
+                case 2: AboutYouStep()
+                case 3: permissions
+                case 4: translations
                 default: tryIt
                 }
             }
@@ -110,8 +111,8 @@ struct OnboardingView: View {
             HStack {
                 if step > 0 { Button("Back") { step -= 1 }.buttonStyle(.plain).foregroundStyle(.secondary) }
                 Spacer()
-                Button(step == 4 ? String(localized: "Start") : step == 0 && !account.signedIn ? String(localized: "Not now") : String(localized: "Continue")) {
-                    if step == 4 { done(); NSApp.keyWindow?.close() } else { step += 1 }
+                Button(step == 5 ? String(localized: "Start") : step == 0 && !account.signedIn ? String(localized: "Not now") : String(localized: "Continue")) {
+                    if step == 5 { done(); NSApp.keyWindow?.close() } else { step += 1 }
                 }
                 .buttonStyle(.borderedProminent).tint(Brand.accent).foregroundStyle(Brand.onyx)
                 .keyboardShortcut(.defaultAction)
@@ -217,6 +218,39 @@ struct OnboardingView: View {
 }
 
 /// The account step: Google in one click, or an email link. No password to invent (owner, 03/10).
+/// Three questions at the start (block INSIEME 5): the card then picks what's hard for you.
+struct AboutYouStep: View {
+    @State private var work = ""
+    @State private var calls = ""
+    @State private var accents = ""
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Three things about you").font(.system(size: 24, weight: .semibold))
+                Text("So the card at the end shows what's hard for you, not what you already know. You can change or delete them in Settings.")
+                    .font(.system(size: 14)).foregroundStyle(Brand.paper.opacity(0.65)).fixedSize(horizontal: false, vertical: true)
+            }
+            field(String(localized: "Your field"), String(localized: "e.g. finance, software, a hospital"), $work)
+            field(String(localized: "Who your calls are with"), String(localized: "e.g. clients in London, a team in India"), $calls)
+            field(String(localized: "The accents you hear most"), String(localized: "e.g. Scottish, Indian, American"), $accents)
+        }
+        .onAppear {
+            work = Profile.shared.data.workField
+            calls = Profile.shared.data.callsWith
+            accents = Profile.shared.data.accents
+        }
+        .onDisappear { Profile.shared.setAnswers(work: work, calls: calls, accents: accents) }
+    }
+
+    private func field(_ label: String, _ hint: String, _ text: Binding<String>) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(label).font(.system(size: 13, weight: .medium))
+            TextField(hint, text: text).textFieldStyle(.roundedBorder)
+        }
+    }
+}
+
 struct SignInStep: View {
     /// Shown alone (signed out after setup): it closes itself once you're in.
     let standalone: Bool

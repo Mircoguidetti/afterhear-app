@@ -174,11 +174,11 @@ def explain(sentence):
 
 
 def judge(sentence, body):
-    """The mark comes from the server (api/judge), with its own keys: only the tester code is needed here."""
+    """The mark comes from the server (api/judgecard), with its own keys: only the tester code is needed here."""
     code = os.environ.get('ASAID_TESTER_CODE')
     if not code or not body:
         return None
-    req = urllib.request.Request(SERVER + '/api/judge', method='POST',
+    req = urllib.request.Request(SERVER + '/api/judgecard', method='POST',
                                  data=json.dumps({'sentence': sentence, 'explanation': body}).encode(),
                                  headers={'content-type': 'application/json', 'x-lexalie-code': code})
     try:

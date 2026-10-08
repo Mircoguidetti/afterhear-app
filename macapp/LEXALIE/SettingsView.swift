@@ -91,10 +91,11 @@ struct SettingsView: View {
             }
             // Before every call (owner, 03/10): in view, with Google Calendar.
             CalendarSection()
+            TogetherSection()
             Section("Privacy") {
                 PrivateModelRow(heard: HeardLanguage(rawValue: heard) ?? .enGB)
                 Toggle("In calls, keep text only (no audio clip)", isOn: $callsTextOnly)
-                Text("Voices never leave your devices: everything is transcribed here. Only the text of the sentence you ask about goes to our model to explain it. In calls without people's names, numbers or your own names (the people you talk with, your words, your calendar); companies, products and places stay, so it can tell you who or what they are. A moment's audio stays on this Mac for \(Store.clipDays) days, then it's deleted.")
+                Text("Everything is transcribed on this Mac: no bot joins your calls and no recording of the whole call is kept. Your sessions (what the others said, as text), their cards and your questions go to your account, protected, so your iPhone and the web see them; we never train anything on them, and you delete them when you want. To explain, our model gets the text without people's names, numbers or your own names; companies, products and places stay, so it can tell you who or what they are. Only the few seconds of voice of each moment on a card leave this Mac, to replay them anywhere.")
                     .font(.caption).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
                 // Block MEM: the names and terms LEXALIE noticed, only on this Mac, gone in 60 days or now.
@@ -148,6 +149,54 @@ struct SettingsView: View {
 }
 
 /// Sign in with the same account as the web app, so moments show up there too.
+/// Block INSIEME: what you listened to together, how long calls stay, and what LEXALIE knows about you.
+private struct TogetherSection: View {
+    @ObservedObject private var profile = Profile.shared
+    @ObservedObject private var sessions = Sessions.shared
+    @AppStorage(Key.callsDeleteDays) private var days = 0
+    @State private var sure = false
+    @State private var open = false
+
+    var body: some View {
+        Section("What you listened to together") {
+            Picker("Keep calls", selection: $days) {
+                Text("Until I delete them").tag(0)
+                Text("30 days").tag(30)
+                Text("90 days").tag(90)
+                Text("One year").tag(365)
+            }
+            .onChange(of: days) { _ in profile.changed() }
+            Text("Videos, films and podcasts stay until you delete them, so you can ask about them weeks later.")
+                .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+            HStack {
+                let count = sessions.sessions.count
+                Text("Sessions kept: \(count)")
+                Spacer()
+                Button(sure ? String(localized: "Sure? Click again") : String(localized: "Forget everything I heard")) {
+                    if sure {
+                        Sessions.shared.forgetAll()
+                        Profile.shared.forget()
+                        sure = false
+                    } else {
+                        sure = true
+                    }
+                }
+                .controlSize(.small)
+            }
+            DisclosureGroup("What LEXALIE knows about you", isExpanded: $open) {
+                let lines = profile.readable
+                if lines.isEmpty {
+                    Text("Nothing yet: it learns from your taps, your questions and what you remove from a card.")
+                        .font(.caption).foregroundStyle(.secondary)
+                } else {
+                    ForEach(lines, id: \.self) { Text($0).font(.callout) }
+                }
+                Button("Forget it") { profile.forget() }.controlSize(.small)
+            }
+        }
+    }
+}
+
 private struct AccountSection: View {
     let webApp: String
     @ObservedObject private var account = Account.shared
