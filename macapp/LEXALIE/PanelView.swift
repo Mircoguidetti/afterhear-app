@@ -371,6 +371,12 @@ struct PanelView: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .help(meant.evidence)
             }
+            if let glossary = moment.glossary, !glossary.isEmpty {
+                Text("Explained before: \(glossary)")
+                    .font(.system(size: 12.5))
+                    .foregroundStyle(Brand.paper.opacity(0.75))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
             if short, let cause = moment.pieces.first?.cause, ShortCards.announce(cause) {
                 Text("Now this is enough.").font(.system(size: 12)).foregroundStyle(Brand.paper.opacity(0.55))
             }

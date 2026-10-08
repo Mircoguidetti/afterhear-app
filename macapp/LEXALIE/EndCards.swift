@@ -127,7 +127,8 @@ enum EndCards {
         var items: [EndCard.Item] = []
         for mark in marks.prefix(4) {
             guard let moment = await AppModel.shared.explainSaved(mark.id) else { continue }
-            let what = moment.pieces.first.map { detail($0, practice: moment.inPractice) } ?? moment.inPractice ?? moment.translation
+            var what = moment.pieces.first.map { detail($0, practice: moment.inPractice) } ?? moment.inPractice ?? moment.translation
+            if let glossary = moment.glossary, !glossary.isEmpty { what += "\n" + String(localized: "Explained before: \(glossary)") }
             let time = moment.date.formatted(date: .omitted, time: .shortened)
             items.append(.init(kind: .marked, label: String(localized: "You tapped here · \(time)"), quote: moment.transcript,
                                detail: what, moment: moment.id))

@@ -26,6 +26,15 @@ final class Nodes {
         var reacted = false
         /// Last time a card showed it as a refrain: never twice in three days.
         var shownAt: Date? = nil
+        /// The glossary (08/10): the one sentence where someone explained this acronym or project name
+        /// ("CMS, which stands for…"), with where and when. Only that sentence, only on this Mac.
+        var explained: Explained? = nil
+    }
+
+    struct Explained: Codable {
+        let sentence: String
+        let at: Date
+        let source: String
     }
 
     private(set) var nodes: [String: Node] = [:]
@@ -55,6 +64,11 @@ final class Nodes {
                 let key = Memory.key(text)
                 guard key.count >= 2 else { continue }
                 var node = nodes[key] ?? Node(key: key, text: text, kind: kind, sightings: [])
+                if kind != "person", Self.explains(turn.text, term: text) {
+                    node.explained = Explained(sentence: String(turn.text.prefix(300)), at: Date(), source: String(source.prefix(120)))
+                    nodes[key] = node
+                    dirty = true
+                }
                 // The same name twice in a minute is one sighting.
                 if let last = node.sightings.last, last.source == source, Date().timeIntervalSince(last.at) < 60 { continue }
                 node.sightings.append(Sighting(at: Date(), source: String(source.prefix(120)), context: context))
@@ -89,6 +103,40 @@ final class Nodes {
             }
         }
         return out
+    }
+
+    /// Someone says what the term is: "X stands for", "X, which means", "by X I mean", "what we call X",
+    /// "X sta per", "X, cioè" (the languages of the app's calls, the most common forms).
+    nonisolated static func explains(_ text: String, term: String) -> Bool {
+        let t = NSRegularExpression.escapedPattern(for: term)
+        let forms = [
+            "\\b\(t)\\b,? (which |that )?(stands for|means|is short for|is what we call|refers to)\\b",
+            "\\bby \(t) (I|we) mean\\b", "\\bwhat we call \(t)\\b", "\\b\(t),? (i\\.e\\.|that is|meaning)\\b",
+            "\\b\(t),? (che )?(sta per|significa|vuol dire|cioè)\\b", "\\b\(t),? (c'est-à-dire|signifie|veut dire)\\b",
+            "\\b\(t),? (o sea|significa|quiere decir)\\b", "\\b\(t),? (das heißt|bedeutet|steht für)\\b",
+        ]
+        return forms.contains { text.range(of: $0, options: [.regularExpression, .caseInsensitive]) != nil }
+    }
+
+    /// The glossary on a card: a term in this sentence that someone explained earlier (not in the last
+    /// two minutes: that's this very sentence), most recent first. Nil when nothing was explained.
+    func explanation(in text: String) -> (term: String, explained: Explained)? {
+        let key = Memory.key(text)
+        let found = nodes.values.compactMap { node -> (String, Explained)? in
+            guard node.kind != "person", node.key.count >= 2, let e = node.explained,
+                  Date().timeIntervalSince(e.at) > 120, " \(key) ".contains(" \(node.key) ") else { return nil }
+            return (node.text, e)
+        }
+        return found.max { $0.1.at < $1.1.at }.map { (term: $0.0, explained: $0.1) }
+    }
+
+    /// The line the card shows: "CMS · said on Tuesday in Weekly sync: “CMS, which stands for …”".
+    func glossaryLine(for text: String) -> String? {
+        guard let found = explanation(in: text) else { return nil }
+        let term = found.term, e = found.explained
+        let day = e.at.formatted(.dateTime.weekday(.wide))
+        let place = e.source.isEmpty ? "" : " · \(e.source)"
+        return "\(term) · \(day)\(place): “\(e.sentence)”"
     }
 
     /// You tapped on something with this name in it.

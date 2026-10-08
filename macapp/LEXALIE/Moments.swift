@@ -206,6 +206,8 @@ struct Moment: Codable, Identifiable {
     var inPractice: String? = nil
     /// "Sarah asked you to …" when the sentence was for you (P3), with the real name.
     var forYou: String? = nil
+    /// The glossary (08/10): where a term of this sentence was explained in an earlier call or video.
+    var glossary: String? = nil
     var soundsLike: String? = nil
     var equivalent: String? = nil
     /// The tone in a word ("ironico"), only when the explanation is very sure.

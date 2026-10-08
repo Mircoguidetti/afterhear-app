@@ -104,6 +104,8 @@ enum SelfTest {
             + words("households.", from: 6.3)
         let joined = Conversation.turns(others: cut, mine: [], clipStart: start)
         check("a sentence cut by a breath stays whole", joined.count == 1 && joined[0].text.contains("Instacart"), joined.map(\.text).joined(separator: " | "))
+        check("glossary: a term explained is recognised", Nodes.explains("So BRP, which stands for the bed refresh programme, is late", term: "BRP")
+              && Nodes.explains("il KPI, cioè l'indicatore", term: "KPI") && !Nodes.explains("BRP is late again", term: "BRP"))
         check("a model number is not a private number", Redactor.redact("our 737 MAX order book and the A320").contains("737 MAX")
               && Redactor.redact("our 737 MAX order book and the A320").contains("A320"), Redactor.redact("our 737 MAX order book and the A320"))
     }

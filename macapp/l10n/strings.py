@@ -8,9 +8,10 @@ from t6 import R as R6
 from t7 import R as R7
 from t8 import R as R8
 from t9 import R as R9
+from t10 import R as R10
 
 T = {}
-for row in R1 + R2 + R3 + R4 + R5 + R6 + R7 + R8 + R9:
+for row in R1 + R2 + R3 + R4 + R5 + R6 + R7 + R8 + R9 + R10:
     if row[0] in T:
         raise SystemExit(f'twice: {row[0]!r}')
     T[row[0]] = row[1:]

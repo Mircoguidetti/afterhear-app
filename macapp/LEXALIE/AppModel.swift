@@ -594,6 +594,7 @@ final class AppModel: ObservableObject {
             moment.meant = explanation.meant
             moment.inPractice = explanation.inPractice
             moment.forYou = explanation.forYou
+            moment.glossary = Nodes.shared.glossaryLine(for: moment.transcript)
             moment.soundsLike = explanation.soundsLike
             moment.equivalent = explanation.equivalent
             moment.toneLabel = explanation.tone
