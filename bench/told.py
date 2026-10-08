@@ -21,6 +21,7 @@ SERVER = os.environ.get('LEXALIE_SERVER', 'https://asaid-nine.vercel.app')
 MAX_CALLS = int(os.environ.get('TOLD_MAX_CALLS', '20'))
 
 # want: words that must appear in some item (quote or meaning), one list per expected item;
+# also: requests for the listener that may come back or not (both are right);
 # never: words that must not be in any quote; empty want = nothing should come back.
 CASES = [
     {'id': 'doctor', 'source': 'in_person', 'heard': 'en-GB', 'lines': [
@@ -33,7 +34,7 @@ CASES = [
         "The flat's yours from the first.",
         "I'll need the deposit by Friday, otherwise I can't hold it.",
         "Oh and the boiler's a bit temperamental, just bleed the radiators in winter."],
-     'want': [['deposit', 'friday']], 'never': []},
+     'want': [['deposit', 'friday']], 'also': [['radiator', 'boiler']], 'never': []},
     {'id': 'call-deck', 'source': 'call', 'heard': 'en-US', 'lines': [
         "Okay, so the launch moves to March.",
         "[PERSON_1] will book the room for the offsite.",
@@ -51,7 +52,7 @@ CASES = [
     {'id': 'pharmacy', 'source': 'in_person', 'heard': 'en-GB', 'lines': [
         "That's eight sixty, please.", "You'll need to show your health card next time, love.",
         "Keep them in the fridge once opened."],
-     'want': [['health card'], ['fridge']], 'never': []},
+     'want': [['health card'], ['fridge']], 'also': [['eight sixty', '8,60', '8.60']], 'never': []},
     {'id': 'doctor-es', 'source': 'in_person', 'heard': 'es-ES', 'lines': [
         "Bueno, no es nada grave.",
         "Tómese una pastilla cada ocho horas, y no conduzca mientras las tome.",
@@ -60,7 +61,7 @@ CASES = [
     {'id': 'question', 'source': 'call', 'heard': 'en-US', 'lines': [
         "So we can do the review Tuesday or Wednesday.", "[tu], what works better for you?",
         "No rush, just let me know today."],
-     'want': [['tuesday', 'wednesday', 'works']], 'never': []},
+     'want': [['tuesday', 'wednesday', 'works']], 'also': [['let me know', 'today']], 'never': []},
     {'id': 'someone-else', 'source': 'call', 'heard': 'en-US', 'lines': [
         "[PERSON_1], please call the supplier about the delay.", "And [PERSON_2], update the tracker.",
         "That's it from me."],
@@ -110,13 +111,18 @@ def check(case, answer):
     want = case['want']
     got['found'] = sum(found(w, items) for w in want)
     got['expected'] = len(want)
-    got['extra'] = max(0, len(items) - max(len(want), 1)) if want else len(items)
+    # An item is extra unless it answers one of the wanted or allowed requests.
+    allowed = want + case.get('also', [])
+    got['extra'] = sum(not any(found(w, [i]) for w in allowed) for i in items)
     got['forbidden'] = [n for n in case['never'] if any(n in i.get('quote', '').lower() for i in items)]
     # The quote must be the speaker's words, not a rewrite: most of its words are in the lines.
     got['quotes_real'] = all(sum(w in source for w in words(i.get('quote', ''))) >= 0.8 * max(1, len(words(i.get('quote', ''))))
                              for i in items)
     got['short'] = all(len(i.get('meaning', '').split()) <= 18 for i in items)
-    got['ok'] = (got['found'] == len(want) and got['extra'] == 0 and not got['forbidden'] and got['quotes_real'] and got['short'])
+    # The meaning is in the listener's language (Italian here): no English days, months or numbers left.
+    english = r"\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday|january|february|march|april|june|july|august|september|october|november|december|sixty|seventy|eighty|ninety|twenty|thirty|forty|fifty)\b"
+    got['translated'] = not any(re.search(english, i.get('meaning', '').lower()) for i in items)
+    got['ok'] = (got['found'] == len(want) and got['extra'] == 0 and not got['forbidden'] and got['quotes_real'] and got['short'] and got['translated'])
     return got
 
 
@@ -133,11 +139,11 @@ def main():
     lines = ['## What they told you to do (/api/told)', '',
              f'{len(rows)} written cases (doctor, landlord, pharmacy, bank, calls; some with nothing for you), {calls["n"]} calls to the server.',
              f'**Right: {ok} of {len(rows)}** (every request for you found, nothing extra, nobody else\'s task, real quotes, short meanings).', '',
-             '| Case | Right | Found | Extra | Someone else\'s | Items |', '|---|---|---|---|---|---|']
+             '| Case | Right | Found | Extra | Someone else\'s | In Italian | Items |', '|---|---|---|---|---|---|---|']
     for r in rows:
         shown = ' / '.join(f"“{i.get('quote', '')}” → {i.get('meaning', '')}{' (unsure)' if i.get('unsure') else ''}" for i in r['items']) or (r.get('error') or '—')
         lines.append(f"| {r['id']} | {'yes' if r['ok'] else 'no'} | {r.get('found', 0)}/{r.get('expected', 0)} | {r.get('extra', 0)} | "
-                     f"{', '.join(r.get('forbidden') or []) or '—'} | {shown.replace('|', '/')} |")
+                     f"{', '.join(r.get('forbidden') or []) or '—'} | {'yes' if r.get('translated', True) else 'no'} | {shown.replace('|', '/')} |")
     text = '\n'.join(lines)
     print(text)
     summary = os.environ.get('GITHUB_STEP_SUMMARY')
