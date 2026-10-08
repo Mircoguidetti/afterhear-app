@@ -25,13 +25,13 @@ enum ParticipantNotice: String, CaseIterable, Identifiable {
     /// The message, in the language of the call (the language you hear), never the app's.
     static func message(for heard: HeardLanguage = AppSettings.current.heard) -> String {
         switch String(heard.rawValue.prefix(2)) {
-        case "it": "Uso LEXALIE per seguire meglio la call: non registra la riunione, tiene solo le frasi che segno."
-        case "es": "Uso LEXALIE para seguir mejor la llamada: no graba la reunión, solo guarda las frases que marco."
-        case "fr": "J’utilise LEXALIE pour mieux suivre l’appel : il n’enregistre pas la réunion, il garde seulement les phrases que je marque."
-        case "de": "Ich nutze LEXALIE, um dem Call besser zu folgen: Es nimmt das Meeting nicht auf, es behält nur die Sätze, die ich markiere."
-        case "ru": "Я пользуюсь LEXALIE, чтобы лучше следить за звонком: он не записывает встречу, а сохраняет только фразы, которые я отмечаю."
-        case "pt": "Uso o LEXALIE para acompanhar melhor a chamada: ele não grava a reunião, só guarda as frases que eu marco."
-        default: "I’m using LEXALIE to follow the call better: it doesn’t record the meeting, it only keeps the sentences I mark."
+        case "it": "Uso LEXALIE per seguire meglio la call: nessun bot entra nella call e non si conserva la registrazione. Trascrive sul mio Mac quello che si dice, solo per aiutarmi a capire, e posso cancellarlo quando voglio."
+        case "es": "Uso LEXALIE para seguir mejor la llamada: ningún bot entra en la llamada y no se guarda la grabación. Transcribe en mi Mac lo que se dice, solo para ayudarme a entender, y puedo borrarlo cuando quiera."
+        case "fr": "J’utilise LEXALIE pour mieux suivre l’appel : aucun bot ne rejoint l’appel et aucun enregistrement n’est gardé. Il transcrit sur mon Mac ce qui se dit, seulement pour m’aider à comprendre, et je peux l’effacer quand je veux."
+        case "de": "Ich nutze LEXALIE, um dem Call besser zu folgen: Kein Bot tritt bei, und es wird keine Aufnahme behalten. Es schreibt auf meinem Mac mit, was gesagt wird, nur damit ich es verstehe, und ich kann es jederzeit löschen."
+        case "ru": "Я пользуюсь LEXALIE, чтобы лучше следить за звонком: никакой бот не подключается, и запись не сохраняется. Он расшифровывает на моём Mac то, что говорится, только чтобы помочь мне понять, и я могу удалить это в любой момент."
+        case "pt": "Uso o LEXALIE para acompanhar melhor a chamada: nenhum bot entra na chamada e não se guarda a gravação. Transcreve no meu Mac o que se diz, só para me ajudar a perceber, e posso apagar quando quiser."
+        default: "I’m using LEXALIE to follow the call better: no bot joins the call and no recording is kept. It transcribes on my Mac what is said, only to help me understand, and I can delete it whenever I want."
         }
     }
 

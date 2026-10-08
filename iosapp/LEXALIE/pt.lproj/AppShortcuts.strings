@@ -1,0 +1,11 @@
+/* Siri phrases (App Shortcuts) in this language: "Ask LEXALIE" first (block INSIEME). */
+"Ask ${applicationName}" = "Pergunta à ${applicationName}";
+"${applicationName}, a question" = "${applicationName}, uma pergunta";
+"I didn't get that in ${applicationName}" = "Não percebi em ${applicationName}";
+"Mark it in ${applicationName}" = "Marca em ${applicationName}";
+"Explain it now in ${applicationName}" = "Explica agora em ${applicationName}";
+"Turn ${applicationName} on or off" = "Liga ou desliga ${applicationName}";
+"I missed something earlier in ${applicationName}" = "Escapou-me algo antes em ${applicationName}";
+"Start listening with ${applicationName}" = "Começa a ouvir com ${applicationName}";
+"I'm out with ${applicationName}" = "Estou fora com ${applicationName}";
+"Stop listening with ${applicationName}" = "Para de ouvir com ${applicationName}";

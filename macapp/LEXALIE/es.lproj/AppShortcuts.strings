@@ -1,0 +1,6 @@
+/* Siri phrases (App Shortcuts) in this language: "Ask LEXALIE" first (block INSIEME). */
+"Ask ${applicationName}" = "Pregunta a ${applicationName}";
+"${applicationName}, a question" = "${applicationName}, una pregunta";
+"I didn't get that in ${applicationName}" = "No lo he entendido en ${applicationName}";
+"${applicationName}, what did they say" = "${applicationName}, qué han dicho";
+"Mark it in ${applicationName}" = "Márcalo en ${applicationName}";

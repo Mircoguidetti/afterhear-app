@@ -22,12 +22,13 @@ struct MarkView: View {
     @AppStorage("watchGesturesSeen") private var seen = false
     @State private var lastTap = Date.distantPast
     @State private var holding = false
+    @State private var question = ""
 
     var body: some View {
         if !seen {
             WatchGuide { seen = true }
         } else {
-            main
+            main.onAppear { link.loadCard() }
         }
     }
 
@@ -63,6 +64,20 @@ struct MarkView: View {
                 } else {
                     // The iPhone stays in the bag: the Watch is the microphone on the table.
                     Button("Record on the Watch") { table.begin() }.font(.footnote)
+                }
+                // Block INSIEME: ask by dictation, and the latest card, one line per moment.
+                TextField("Ask LEXALIE", text: $question)
+                    .onSubmit {
+                        link.ask(question)
+                        question = ""
+                    }
+                if !link.cardLines.isEmpty {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(link.cardTitle).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
+                        ForEach(link.cardLines.prefix(4), id: \.self) { line in
+                            Text(line).font(.footnote).frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                    }
                 }
                 Text(active ? "Tap: mark · Two taps: now · Hold: off" : "Hold to start listening")
                     .font(.caption2).foregroundStyle(.secondary).multilineTextAlignment(.center)
