@@ -365,7 +365,12 @@ def card_case(c, offered, clip_start):
     return row
 
 
+KINDS = [k for k in os.environ.get('COMPREHEND_KINDS', '').split(',') if k]  # only these kinds, e.g. "who,named"
+
+
 def sample(listed):
+    if KINDS:
+        listed = [c for c in listed if c['kind'] in KINDS]
     if not SAMPLE:
         return listed
     out = []

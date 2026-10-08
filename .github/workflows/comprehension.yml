@@ -17,6 +17,10 @@ on:
         description: "Hard cap on calls to the server (Gemini): the bench stops there."
         type: string
         default: "20"
+      kinds:
+        description: "Only these kinds, comma separated (heard, asked, named, word, who, meant); empty = all"
+        type: string
+        default: ""
       what:
         description: "cards = the comprehension cases; told = what they told you to do (12 calls at most); both"
         type: string
@@ -60,6 +64,7 @@ jobs:
       - name: The clip before every tap, through Parakeet
         env:
           COMPREHEND_SAMPLE: ${{ inputs.sample || '5' }}
+          COMPREHEND_KINDS: ${{ inputs.kinds }}
         run: python3 bench/comprehend.py hear
       - name: The app's choosing and redacting, compiled
         run: |
@@ -70,6 +75,7 @@ jobs:
           ASAID_TESTER_CODE: ${{ secrets.ASAID_TESTER_CODE }}
           COMPREHEND_SAMPLE: ${{ inputs.sample || '5' }}
           COMPREHEND_MAX_CALLS: ${{ inputs.max_calls || '40' }}
+          COMPREHEND_KINDS: ${{ inputs.kinds }}
         run: python3 bench/comprehend.py cards
       - run: python3 bench/comprehend.py report
       - name: The cards as notes on the run (readable without signing in)
