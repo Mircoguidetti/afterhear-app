@@ -10,7 +10,7 @@ on:
       what:
         description: "endcard = the end-of-session card on 10 real calls (10 calls); ask = 20 questions without saying the session (40 calls)"
         type: choice
-        options: [endcard, ask]
+        options: [endcard, ask, show]
         default: endcard
       expect_version:
         description: "Instructions version the run must find on the server (GET /api/endcard or /api/ask)"
@@ -19,9 +19,14 @@ on:
         description: "Hard cap on calls to the model"
         type: string
         default: "40"
+      show_run:
+        description: "With what = show: the run whose results to print (free, no server)"
+        type: string
+        default: ""
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   run:
@@ -32,8 +37,21 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: python3 bench/insieme.py corpus
+      - name: Results of an earlier run (free)
+        if: ${{ inputs.what == 'show' }}
+        uses: actions/download-artifact@v4
+        with:
+          pattern: insieme-*
+          path: bench/out/insieme
+          merge-multiple: true
+          run-id: ${{ inputs.show_run }}
+          github-token: ${{ github.token }}
+      - if: ${{ inputs.what == 'show' }}
+        run: python3 bench/insieme.py show
+      - if: ${{ inputs.what != 'show' }}
+        run: python3 bench/insieme.py corpus
       - name: Through the real server
+        if: ${{ inputs.what != 'show' }}
         env:
           ASAID_TESTER_CODE: ${{ secrets.ASAID_TESTER_CODE }}
           INSIEME_MAX_CALLS: ${{ inputs.max_calls }}
