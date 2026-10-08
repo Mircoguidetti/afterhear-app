@@ -179,6 +179,42 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
     @Published var tied = 0
     @Published var help: String?
     @Published var asking = false
+    /// The latest end-of-session card, one line per moment (block INSIEME).
+    @Published var cardTitle = ""
+    @Published var cardLines: [String] = []
+
+    /// "Ask LEXALIE", dictated here: the iPhone looks in everything you listened to together.
+    func ask(_ question: String) {
+        let q = question.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !q.isEmpty else { return }
+        let session = WCSession.default
+        guard session.isReachable else {
+            help = "Your iPhone isn't reachable."
+            return
+        }
+        asking = true
+        session.sendMessage(["ask": q], replyHandler: { reply in
+            DispatchQueue.main.async {
+                self.asking = false
+                self.help = reply["help"] as? String
+                WKInterfaceDevice.current().play(.notification)
+            }
+        }, errorHandler: { _ in
+            DispatchQueue.main.async { self.asking = false; self.help = "Couldn't ask now." }
+        })
+    }
+
+    /// The latest card, fresh from the iPhone.
+    func loadCard() {
+        let session = WCSession.default
+        guard session.isReachable else { return }
+        session.sendMessage(["card": true], replyHandler: { reply in
+            DispatchQueue.main.async {
+                self.cardTitle = reply["cardTitle"] as? String ?? self.cardTitle
+                self.cardLines = reply["cardLines"] as? [String] ?? self.cardLines
+            }
+        }, errorHandler: nil)
+    }
 
     func mark(minutesAgo: Double) {
         WKInterfaceDevice.current().play(.click)
@@ -234,6 +270,8 @@ final class PhoneLink: NSObject, ObservableObject, WCSessionDelegate {
         DispatchQueue.main.async {
             self.listening = context["listening"] as? Bool ?? false
             self.marks = context["marks"] as? Int ?? 0
+            if let title = context["cardTitle"] as? String { self.cardTitle = title }
+            if let lines = context["cardLines"] as? [String] { self.cardLines = lines }
         }
     }
 

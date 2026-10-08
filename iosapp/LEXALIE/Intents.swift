@@ -81,8 +81,34 @@ struct StopListeningIntent: AppIntent {
     }
 }
 
+/// "Hey Siri, ask LEXALIE" (block INSIEME 1, owner 08/10): Siri asks what you want to know, LEXALIE
+/// looks in everything you listened to together and Siri says the answer. The answer is also given
+/// back as text, so a shortcut can take it further (Siri does the action, LEXALIE gives the facts).
+struct AskLexalieIntent: AppIntent {
+    static var title: LocalizedStringResource = "Ask LEXALIE"
+    static var description = IntentDescription("A question about anything you heard with LEXALIE: what they meant, who or what it was, what was said and when.")
+    static var openAppWhenRun = false
+
+    @Parameter(title: "Question", requestValueDialog: IntentDialog("What do you want to ask?"))
+    var question: String
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog {
+        guard Account.shared.signedIn else {
+            return .result(value: "", dialog: "Open LEXALIE and sign in with the account you use on the Mac.")
+        }
+        guard let answer = await Together.shared.ask(question) else {
+            return .result(value: "", dialog: "I couldn't ask now. Try again in a moment.")
+        }
+        let text = answer.error == "no_sessions" ? "We haven't listened to anything together yet." : answer.answer
+        return .result(value: text, dialog: IntentDialog(stringLiteral: text))
+    }
+}
+
 struct UhsideShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
+        AppShortcut(intent: AskLexalieIntent(), phrases: ["Ask \(.applicationName)", "\(.applicationName), a question"],
+                    shortTitle: "Ask LEXALIE", systemImageName: "questionmark.bubble")
         AppShortcut(intent: MarkIntent(), phrases: ["I didn't get that in \(.applicationName)", "Mark it in \(.applicationName)"],
                     shortTitle: "I didn't get that", systemImageName: "hand.tap")
         AppShortcut(intent: NowIntent(), phrases: ["Explain it now in \(.applicationName)"],

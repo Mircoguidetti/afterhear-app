@@ -15,20 +15,21 @@ struct MarkMomentIntent: AppIntent {
     }
 }
 
-/// "Hey Siri, ask LEXALIE": one question about what you just heard (07/10). Siri listens and answers
-/// out loud, so nothing of ours opens the microphone.
+/// "Hey Siri, ask LEXALIE" (block INSIEME 1, owner 08/10): one question about anything you heard with
+/// LEXALIE, just now or days ago. Siri listens and answers out loud, so nothing of ours opens the
+/// microphone; the answer also comes back as text, for a shortcut to take further.
 struct AskIntent: AppIntent {
-    static var title: LocalizedStringResource = "Ask about what I just heard"
-    static var description = IntentDescription("One question about the last minutes: what they meant, who or what it was, who's singing.")
+    static var title: LocalizedStringResource = "Ask LEXALIE"
+    static var description = IntentDescription("A question about anything you heard with LEXALIE: what they meant, who or what it was, what was said and when.")
     static var openAppWhenRun = false
 
     @Parameter(title: "Question", requestValueDialog: IntentDialog("What do you want to know?"))
     var question: String
 
     @MainActor
-    func perform() async throws -> some IntentResult & ProvidesDialog {
-        let answer = await Ask.shared.ask(question, context: ContextDetector.current(), speak: false)
-        return .result(dialog: IntentDialog(stringLiteral: answer))
+    func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog {
+        let found = await Ask.shared.askAll(question)
+        return .result(value: found.answer, dialog: IntentDialog(stringLiteral: found.answer))
     }
 }
 

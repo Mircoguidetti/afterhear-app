@@ -56,6 +56,23 @@ final class WatchLink: NSObject, WCSessionDelegate {
 
     /// Two taps on the wrist: the answer goes back to the Watch, one line (§ 19.5).
     func session(_ session: WCSession, didReceiveMessage message: [String: Any], replyHandler: @escaping ([String: Any]) -> Void) {
+        // "Ask LEXALIE" dictated on the wrist (block INSIEME): the iPhone asks, the Watch shows the answer.
+        if let question = message["ask"] as? String {
+            Task { @MainActor in
+                let answer = await Together.shared.ask(question)
+                replyHandler(["help": answer.map { $0.error == "no_sessions" ? "We haven't listened to anything together yet." : $0.answer }
+                              ?? "Couldn't ask now. Open LEXALIE on the iPhone."])
+            }
+            return
+        }
+        if message["card"] != nil {
+            Task { @MainActor in
+                await Together.shared.refresh()
+                let card = Together.shared.latest()
+                replyHandler(["cardTitle": card.title, "cardLines": card.lines])
+            }
+            return
+        }
         guard message["now"] != nil else {
             handle(message)
             replyHandler([:])
