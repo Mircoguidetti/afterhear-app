@@ -129,7 +129,10 @@ def endcard():
     check_version('/api/endcard', os.environ.get('INSIEME_EXPECT_ENDCARD', ''))
     data = calls()
     rows = []
+    only = [x for x in os.environ.get('INSIEME_CALLS', '').split(',') if x]
     for f, listener in CALLS:
+        if only and f not in only:
+            continue
         lines = [{'i': l['i'], 'who': 'them', 'text': as_listener(l['text'], listener)[:1200]} for l in data[f]][:2500]
         started = time.time()
         card = post('/api/endcard', {'lines': lines, 'kind': 'call', 'heard': 'en', 'native': 'it', 'level': 'B2',
