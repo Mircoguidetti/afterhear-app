@@ -23,6 +23,19 @@ enum Redactor {
         if myName.count >= 2 {
             out = out.replacingOccurrences(of: "\\b\(NSRegularExpression.escapedPattern(for: myName))\\b", with: "[tu]",
                                            options: [.regularExpression, .caseInsensitive])
+            // The recogniser spells your name one letter off ("Marcus" for Markus, "Rayner" for Rainer):
+            // a capitalised word that close to a name of 5 letters or more is still you (bench 08/10).
+            if myName.count >= 5 {
+                let mine = myName.lowercased()
+                let close = out.split(separator: " ").map(String.init).filter { token in
+                    let word = token.trimmingCharacters(in: .punctuationCharacters)
+                    return word.first?.isUppercase == true && word.lowercased() != mine && oneOff(word.lowercased(), mine)
+                }
+                for word in Set(close.map { $0.trimmingCharacters(in: .punctuationCharacters) }) {
+                    out = out.replacingOccurrences(of: "\\b\(NSRegularExpression.escapedPattern(for: word))\\b", with: "[tu]",
+                                                   options: .regularExpression)
+                }
+            }
         }
         let tagger = NLTagger(tagSchemes: [.nameType])
         tagger.string = out
@@ -47,6 +60,20 @@ enum Redactor {
         out = out.replacingOccurrences(of: #"(?<![\p{L}\d-])\+?\d[\d \-.,]{1,}\d(?![\d\p{L}-]|\s+\p{Lu}{2,}\b)"#,
                                        with: "[numero]", options: .regularExpression)
         return out
+    }
+
+    /// One letter changed, added or missing, and the same first letter.
+    static func oneOff(_ first: String, _ second: String) -> Bool {
+        let a = Array(first), b = Array(second)
+        guard a.first == b.first, abs(a.count - b.count) <= 1 else { return false }
+        var i = 0, j = 0, edits = 0
+        while i < a.count, j < b.count {
+            if a[i] == b[j] { i += 1; j += 1; continue }
+            edits += 1
+            if edits > 1 { return false }
+            if a.count > b.count { i += 1 } else if a.count < b.count { j += 1 } else { i += 1; j += 1 }
+        }
+        return edits + (a.count - i) + (b.count - j) <= 1
     }
 
     /// One of your own names, whole or as one of its words ("Phoenix" in "Project Phoenix").

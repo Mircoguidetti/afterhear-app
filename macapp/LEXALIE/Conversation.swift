@@ -51,15 +51,23 @@ enum Conversation {
         return out
     }
 
-    /// The previous piece stopped mid-sentence (no full stop) a moment before, and this one carries on:
-    /// it starts in lower case, the previous one ended on a comma or a joining word, or it's a few words.
+    /// This piece carries on the one before, a moment later. When the one before stopped mid-sentence
+    /// (no full stop): it starts in lower case, the one before ended on a comma or a joining word, or it's
+    /// a few words. When the recogniser put a full stop in the middle ("…compared to theirs? And | the tire
+    /// category overall"): it is short and starts in lower case or with a joining word. Tried on the 373
+    /// taps of the bench (08/10): sentence first 176 → 183 of 204, the name in it 24 → 28 of 38.
     private static func isTail(_ turn: Turn, of last: Turn) -> Bool {
-        guard turn.who == last.who, turn.start - last.end < tailGap, !endsSentence(last.text) else { return false }
+        guard turn.who == last.who, turn.start - last.end < tailGap else { return false }
         let words = turn.text.split(separator: " ").count
         guard last.text.split(separator: " ").count + words <= joinedWords else { return false }
         let first = turn.text.trimmingCharacters(in: .whitespaces).first
+        let firstWord = (turn.text.lowercased().split(separator: " ").first.map(String.init) ?? "")
+            .trimmingCharacters(in: .punctuationCharacters)
         let lastWord = (last.text.lowercased().split(separator: " ").last.map(String.init) ?? "")
             .trimmingCharacters(in: .punctuationCharacters)
+        if endsSentence(last.text) {
+            return words <= 20 && (first?.isLowercase == true || joining.contains(firstWord))
+        }
         return first?.isLowercase == true || last.text.hasSuffix(",") || joining.contains(lastWord) || words <= 8
     }
 

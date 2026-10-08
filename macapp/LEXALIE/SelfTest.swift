@@ -72,6 +72,9 @@ enum SelfTest {
         Redactor.me = "Marco"
         let toYou = Redactor.redact("Marco, could you send the deck by Friday?")
         check("your name leaves as [tu]", toYou.contains("[tu]") && !toYou.contains("Marco"), toYou)
+        Redactor.me = "Markus"
+        let misspelt = Redactor.redact("So, first question, Marcus, could we talk about the recovery fund?")
+        check("your name one letter off still leaves as [tu]", misspelt.contains("[tu]") && !misspelt.contains("Marcus"), misspelt)
         Redactor.me = before
 
         let syllables = EarSignals.syllables("we should probably reschedule the meeting")
