@@ -94,8 +94,9 @@ jobs:
           key: tap-heard-macos-26-${{ hashFiles('bench/tap.py', 'bench/fluid/**', 'bench/out/tap/cases.json') }}
       - run: python3 bench/tap.py clips
       - run: swiftc -O macapp/LEXALIE/Ranking.swift macapp/LEXALIE/Conversation.swift bench/tap/main.swift -o turns
+      # Always built: with the words cached the tool still runs for any clip the cache doesn't have
+      # (08/10: skipping it left the gate blocked with "fluidwords: no such file").
       - name: FluidAudio, as the app
-        if: steps.heard.outputs.cache-hit != 'true'
         run: cd bench/fluid && swift build -c release --product fluidwords
       - run: python3 bench/tap.py tool "Parakeet, Neural Engine (FluidAudio v2)" bench/fluid/.build/release/fluidwords v2
       - name: Apple's new recogniser (may not run on a runner)
