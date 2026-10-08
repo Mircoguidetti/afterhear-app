@@ -1,0 +1,161 @@
+id	kind	mark	reason
+word-231	word	yes	headwind = ostacolo, fattore negativo; fits revenue held back
+word-1558	word	yes	cost-out tailwind = vantaggio da tagli costi, grows through year
+word-135	word	yes	run rate = ricavi annui a regime
+word-894	word	yes	free cash flow = cassa residua dopo costi e investimenti
+word-11534	word	partly	EBITDA piece correct, but "adjusted" (no one-offs) only as rettificato in translation
+word-11729	word	yes	value accretive piece = che crea valore, aumenta valore/EPS
+word-142	word	partly	no piece; only translation a parita di negozi, IP says stime di vendita
+word-18968	word	yes	comp sales = vendite a negozi comparabili
+word-9291	word	yes	same-store NOI growth explained
+word-9376	word	yes	trailing 12-month = ultimi dodici mesi
+word-1169	word	yes	provide color = dare piu dettagli
+word-19478	word	yes	give us some color = dare dettagli
+word-941	word	yes	backlog = portafoglio ordini non ancora evasi
+word-4675	word	yes	deleveraging = riduzione del debito
+word-909	word	yes	capex = investimenti in beni durevoli e impianti
+word-868	word	no	card glosses ex and taking it from the top, not organically
+word-2634	word	yes	synergy funnel = pipeline di risparmi da sinergie
+word-812	word	yes	decremental margins = calo utili al calare dei ricavi
+word-9344	word	yes	cap rate = rendimento annuo immobiliare
+word-1062	word	yes	no piece, but IP clearly: aerei volano meno (utilization)
+word-2831	word	yes	book-to-bill >1 = more orders than billed
+word-796	word	partly	piece is sound only; liquidity only as cassa disponibile in IP
+word-900	word	yes	mark-to-market = valutazione a prezzi correnti
+word-12872	word	yes	top line = ricavi, prima delle spese
+word-849	word	partly	no piece; only translation in conclusione, pieces explain other phrases
+word-19247	word	no	card picked next clause (lapping); flattish not explained
+word-12060	word	yes	opex = spese operative, not OPEC
+word-1085	word	yes	ramp = crescita progressiva
+word-19306	word	yes	volume surcharges = carrier extra fees at peak volumes
+word-88	word	yes	dilutive = riduce l'utile per azione
+word-139	word	yes	covenants = clausole/vincoli dei creditori
+word-885	word	yes	impairments = svalutazioni contabili
+word-9309	word	yes	pent-up demand = domanda repressa
+word-9398	word	yes	contractual escalators = aumenti periodici del canone
+word-1810	word	yes	low single digits = 1-3%
+word-918	word	yes	sequentially = vs trimestre precedente
+word-9346	word	yes	MOB rent rolls = registro affitti immobili medici
+word-8022	word	yes	DAP = fosfato diammonico, fertilizzante
+word-2028	word	yes	Kaizens = workshop di miglioramento continuo (lean)
+word-824	word	yes	sugarcoat = indorare la pillola
+word-1575	word	yes	high calorie = growth with high margins, here not
+word-4707	word	partly	ESG never expanded; pieces EcoVadis/MSCI, only sostenibilita hinted
+word-1292	word	yes	de-risk = ridurre il rischio finanziario a bilancio
+word-1369	word	yes	furloughs = sospensioni temporanee non retribuite
+word-1609	word	yes	sit back = restare passivi
+who-12528	who	partly	explains GRAIL only; Illumina just named, not explained
+who-12560	who	yes	Galleri = GRAIL's blood screening test for many cancers
+who-1772	who	yes	Cytiva = Danaher life-sciences/biotech supplier
+who-1762	who	no	Cepheid masked as [nome], never explained
+who-1970	who	yes	Videojet = Danaher subsidiary making industrial printing and marking
+who-1968	who	no	Rainer masked as [nome]; card explains 'bring' and 'look forward to' only
+who-5673	who	partly	explains parent NextEra Energy; Partners only named in translation
+who-11546	who	yes	Nordex = German wind turbine maker
+who-11540	who	yes	E.ON = German energy multinational
+who-311	who	no	right sentence now, but Amazon only named; pieces explain install/price phrases
+who-18926	who	yes	buybuy BABY = baby-product chain of Bed Bath & Beyond
+who-1767	who	yes	Beckman Coulter = US clinical diagnostics maker, Danaher group
+who-1798	who	yes	Radiometer = Danaher blood-gas diagnostic-device company
+who-1760	who	yes	IDT = Integrated DNA Technologies, Danaher, diagnostic reagents
+who-12640	who	yes	BMS piece = Bristol Myers Squibb, US pharma company
+who-1243	who	yes	LEAP-1A = CFM jet engine for Airbus A320neo
+who-885	who	partly	explains GE Capital (parent); GECAS only named in translation
+who-945	who	yes	CFM56 = established CFM International jet-engine family
+who-1128	who	partly	737 MAX named with Boeing, no piece; only implied Boeing planes
+who-9329	who	yes	Mercy = large US nonprofit hospital network (named 'Mercy Health')
+who-9317	who	yes	CMS = US federal agency running Medicare and Medicaid
+who-9286	who	yes	PPP = Paycheck Protection Program, US pandemic loans for payroll/rent
+who-2653	who	yes	Gardner Denver = US pump/compressor maker merged with Ingersoll Rand
+who-2601	who	yes	IRX = company's internal operating/execution model
+who-9278	who	partly	no HCA piece now; only implied 'big hospital groups' in in_practice
+who-1812	who	yes	DBS = Danaher Business System, continuous improvement
+who-19092	who	yes	Instacart = US same-day grocery delivery platform
+who-19093	who	yes	Harmon Face Values = beauty/personal-care chain of Bed Bath & Beyond
+who-5801	who	no	wrong transcription ('game is part of the background'), pipeline absent
+who-5690	who	yes	FPL = Florida Power & Light, NextEra subsidiary
+who-7959	who	no	misheard as 'SRAZK 3', only generic internal project code
+who-11885	who	yes	EU Recovery Fund = EU post-pandemic fund (NextGenerationEU)
+who-4707	who	yes	MSCI = index provider and ESG rater
+who-254	who	yes	Jefferies = US investment bank
+who-12694	who	yes	FDA = US agency regulating drugs and medical devices
+who-9627	who	yes	CARES Act piece = 2020 US federal COVID relief law
+meant-1030	meant	partly	only 'altre novità su questo argomento'; no further cost cuts
+meant-1028	meant	yes	right-size glossed as euphemism for cutting costs/staff
+meant-1070	meant	yes	rightsizing = cutting production and jobs
+meant-1024	meant	yes	layoffs and cost cuts at headquarters
+meant-1462	meant	partly	only 'aspettiamo di vedere come va'; no refusal to size impact
+meant-2543	meant	partly	literal 'aspettano di vedere'; no 'can't say yet, depends on gas'
+meant-1553	meant	yes	'troppo presto per fare previsioni': no forecast now
+meant-1886	meant	yes	'troppo presto per stimare i volumi' of COVID tests
+meant-12095	meant	yes	'non si sbilancia, troppo presto per sapere': can't answer
+meant-1576	meant	no	card only on 'cost and execution issues'; one-offs recurring missing
+meant-2047	meant	yes	best businesses in their sectors
+meant-3043	meant	partly	not raising estimate out of prudence; misses 'likely beat 250'
+meant-3047	meant	yes	won't promise savings above 250 million
+meant-4894	meant	yes	can't quantify now, decision taken jointly with customers
+meant-8268	meant	yes	extra gains minimal even if prices rise
+meant-8292	meant	yes	demand not really growing, just back to normal
+meant-8303	meant	no	ASR dropped "n't": card says they DO forecast acceleration
+meant-11789	meant	partly	'molte variabili in gioco' but not 'so no precise number'
+meant-11961	meant	partly	literal 'nella media, non basso'; misses softening modest profitability
+meant-12247	meant	partly	'non intende rispondere, solo indiscrezione' leans dismissal; not neither-confirm-nor-deny
+meant-19330	meant	no	ASR garbled 'prudent'; card says shipping costs fall
+meant-19337	meant	partly	'presto per tirare le somme' but ASR 'effective'; deliberately low outlook missing
+meant-1201	meant	yes	they won't give further details for now
+meant-1610	meant	partly	no quick recovery right, but '$2B stanziato o tagliato' ambiguous
+meant-1267	meant	yes	temporary measures no longer enough: permanent cuts and layoffs
+meant-4967	meant	yes	no precise estimates until they see the ramp
+meant-9523	meant	partly	generic 'did I understand right'; probe for pipeline growth not explicit
+meant-1582	meant	partly	'richiederanno ancora impegno': not that business still not good enough
+meant-1111	meant	yes	bad results from own operational mistakes, not COVID
+meant-19397	meant	yes	cleaning normally solid, now struggling
+meant-27	meant	yes	results bad (adds external-causes framing)
+meant-5932	meant	no	wrong transcription ('can't transform the economics')
+meant-6005	meant	no	wrong transcription ('how we are very strong')
+meant-12151	meant	yes	openly admits missing future projects
+meant-184	meant	partly	tail clause; weather hurts sales, misses blaming-while-denying excuse
+meant-2644	meant	yes	not raising savings target out of prudence
+meant-2667	meant	yes	recovering cash, cautious with reserves
+asked-185	asked	yes	[tu] vocative, 'ti chiede di riformulare la seconda parte della domanda'
+asked-231	asked	yes	[tu], 'ti chiede' how much California store conversions hurt revenue
+asked-1280	asked	yes	'ti chiedono se vuoi aggiungere' on liquidity vs leverage
+asked-1343	asked	yes	[tu] vocative, 'ti stanno passando la parola' to add something
+asked-1913	asked	yes	'ti chiede di spiegare perche' proprio questo momento'
+asked-2049	asked	yes	[tu] vocative, segment down more than corporate average
+asked-3509	asked	yes	'ti chiede se vuoi aggiungere dettagli alla risposta'
+asked-4302	asked	no	wrong fragment, garbled ('tenere tempo'), for_you empty, question lost
+asked-4920	asked	yes	[tu] vocative, how much of cost cuts structural/permanent
+asked-5619	asked	yes	'ti chiede la tua opinione' on tort/litigation
+asked-5972	asked	yes	[tu] vocative, which regions you focus on
+asked-6261	asked	no	garbled ASR, for_you empty; answer-first-question request lost
+asked-8022	asked	partly	name lost (Juvakar), third person; ramp-up/DAP content right
+asked-8057	asked	partly	Joc heard as 'Doc', analyst question content right, not framed as you
+asked-8074	asked	yes	[tu], puoi parlarne tu; 'ti chiede di intervenire'
+asked-8154	asked	partly	Josh->[nome], third person 'chiede come intendono'; capital priorities right
+asked-8617	asked	partly	name outside fragment, for_you empty, neutral 'chiede se'; content right
+asked-9119	asked	partly	Kurt->[nome], 'passa la parola a [nome]' third person; content right
+asked-9500	asked	yes	[tu], 'ti chiede se vuoi spiegare tu' pipeline; on/off campus in translation
+asked-9668	asked	yes	'ti chiede' confidence drivers (occupancy vs spreads); NOI 3% not named
+asked-9684	asked	yes	[tu], 'ti chiedono se vuoi rispondere tu', 'ti passano la parola'
+asked-10154	asked	partly	[tu], 'ti chiede' but 2019 became 'quella cifra'; comparison lost
+asked-10336	asked	yes	[tu] vocative, update on integration efforts
+asked-10803	asked	partly	garbled (ducts->'asset'), [tu] o chiunque; FCF importance roughly kept
+asked-11419	asked	partly	name lost, 'chiede a un collega chi risponde'; not framed as you
+asked-11885	asked	yes	[tu] kept, 'ti chiede' how RWE benefits from EU recovery fund
+asked-12947	asked	yes	[tu] vocative, OPEX trajectory to reach the targets
+asked-13143	asked	yes	[tu], 'ti chiede se la spiegazione risponde al tuo dubbio'
+asked-13384	asked	yes	'ti chiede' how current trends shape long-term supply/demand scenarios
+asked-14566	asked	yes	'ti chiede se avete preso quel cliente' plus details; Q3 not named
+asked-14674	asked	yes	'ti chiede' tier 3 share of total revenue
+asked-15939	asked	yes	'ti chiede' inventory level at year end
+asked-16160	asked	yes	'ti chiede' new wholesale customers from new demand drivers
+asked-16356	asked	no	'the enemy' - wrong transcription, request lost
+asked-17731	asked	yes	'ti chiede se hai fornito stime' Q4 growth
+named-184	named	no	no false alarm
+named-1968	named	partly	for_you empty but in_practice 'chiede che valore porti tu'; hints asked of you
+named-8150	named	no	no false alarm (garbled fragment)
+named-8229	named	no	thanks, no request claimed
+named-9442	named	no	no false alarm (Rob only cited)
+named-10360	named	no	no false alarm
+named-10508	named	no	co-presenter taking questions, no request to you claimed
