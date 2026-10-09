@@ -1,0 +1,60 @@
+name: Angles bench
+
+# The new angles on public content (bench/angles.py): developer podcasts and question time in the
+# Italian Chamber. corpus, text and show are free; card and ask go through the real server (Gemini:
+# credits), only by hand with the owner's go and the expected version of the instructions.
+
+on:
+  workflow_dispatch:
+    inputs:
+      what:
+        description: "corpus / text / show = free; card = one call per session; ask = two calls per question"
+        type: choice
+        options: [corpus, text, card, ask, show]
+        default: corpus
+      expect_version:
+        description: "Instructions version the run must find on the server (GET /api/endcard or /api/ask)"
+        type: string
+      max_calls:
+        description: "Hard cap on calls to the model"
+        type: string
+        default: "20"
+      show_run:
+        description: "With what = show: the run whose results to print"
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Results of an earlier run (free)
+        if: ${{ inputs.what == 'show' }}
+        uses: actions/download-artifact@v4
+        with:
+          pattern: angles-*
+          path: bench/out/angles
+          merge-multiple: true
+          run-id: ${{ inputs.show_run }}
+          github-token: ${{ github.token }}
+      - name: Run
+        env:
+          ASAID_TESTER_CODE: ${{ (inputs.what == 'card' || inputs.what == 'ask') && secrets.ASAID_TESTER_CODE || '' }}
+          INSIEME_MAX_CALLS: ${{ inputs.max_calls }}
+          INSIEME_EXPECT_ENDCARD: ${{ inputs.expect_version }}
+          INSIEME_EXPECT_ASK: ${{ inputs.expect_version }}
+        run: python3 bench/angles.py ${{ inputs.what }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: angles-${{ inputs.what }}
+          path: bench/out/angles
