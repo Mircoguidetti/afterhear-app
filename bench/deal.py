@@ -89,11 +89,14 @@ def facts(f, answer, date):
 def run():
     insieme.check_version('/api/endcard', os.environ.get('INSIEME_EXPECT_ENDCARD', ''))
     rows = []
-    for f in SINGLE:
+    only = os.environ.get('DEAL_ONLY', '')
+    for f in ([] if only else SINGLE):
         ls, answer, secs = card(f, [])
         rows.append({'group': 'single', 'file': f, 'seconds': secs, 'card': answer, 'text': {l['i']: l['text'] for l in ls}})
         print(f, {k: len(answer.get(k, [])) for k in ('numbers', 'traps', 'claims', 'dodged', 'asked_you')}, answer.get('error', ''))
     for company, files in CHAINS.items():
+        if only and company != only:
+            continue
         dossier = []
         for k, f in enumerate(files):
             ls, answer, secs = card(f, dossier)
