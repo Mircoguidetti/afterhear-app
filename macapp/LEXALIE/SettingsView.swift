@@ -48,11 +48,14 @@ struct SettingsView: View {
                 }
                 .onChange(of: heard) { _ in AppModel.shared.languageChanged() }
                 // No level to choose (owner, 06/10 night): LEXALIE learns it from your cards.
-                VStack(alignment: .leading, spacing: 2) {
-                    Toggle("The sentence in your language too", isOn: $showTranslation)
-                    Text("Under each sentence, what it says in your language.").font(.caption).foregroundStyle(.secondary)
+                // Your own language (owner, 09/10): nothing to translate.
+                if !Translator.same(HeardLanguage(rawValue: heard) ?? .enGB, NativeLanguage(rawValue: native) ?? .system) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Toggle("The sentence in your language too", isOn: $showTranslation)
+                        Text("Under each sentence, what it says in your language.").font(.caption).foregroundStyle(.secondary)
+                    }
+                    TranslationRow(heard: HeardLanguage(rawValue: heard) ?? .enGB, native: NativeLanguage(rawValue: native) ?? .system)
                 }
-                TranslationRow(heard: HeardLanguage(rawValue: heard) ?? .enGB, native: NativeLanguage(rawValue: native) ?? .system)
             }
             Section("When you ask for help (\(DoubleTapOption.nowLabel))") {
                 Toggle("Pause the video while I read", isOn: $pauseVideo)

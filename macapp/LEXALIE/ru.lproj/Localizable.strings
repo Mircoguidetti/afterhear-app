@@ -41,6 +41,7 @@
 "A meeting from your calendar" = "Встреча из календаря";
 "A one-time download from Apple, then it works offline too." = "Однократная загрузка от Apple, потом работает и без сети.";
 "A person" = "Человек";
+"A question about anything you heard with LEXALIE: what they meant, who or what it was, what was said and when." = "Вопрос обо всём, что ты слышал с LEXALIE: что имели в виду, кто или что это было, что и когда сказали.";
 "A word I didn't know" = "Слово, которого я не знал";
 "A word you may not know" = "Слово, которое ты, возможно, не знаешь";
 "Above about %@ syllables a second it gets hard." = "Выше примерно %@ слогов в секунду становится трудно.";
@@ -67,7 +68,6 @@
 "Anything you heard, even days ago" = "Всё, что ты слышал, даже несколько дней назад";
 "App: %@" = "Приложение: %@";
 "Ask LEXALIE" = "Спроси LEXALIE";
-"Ask about what I just heard" = "Спросить о том, что я только что услышал";
 "At the end" = "В конце";
 "Attention" = "Внимание";
 "Audio unclear" = "Неразборчивый звук";
@@ -302,7 +302,6 @@
 "Numbers" = "Числа";
 "Numbers, dates, prices" = "Числа, даты, цены";
 "Off" = "Выкл.";
-"One question about the last minutes: what they meant, who or what it was, who's singing." = "Один вопрос о последних минутах: что имели в виду, кто или что это было, кто поёт.";
 "One tap marks, two taps explain it now, hold for two seconds to start or stop listening. Tonight LEXALIE finds what you marked." = "Одно касание отмечает, два — объясняют сразу, удержание две секунды включает или выключает прослушивание. Вечером LEXALIE найдёт отмеченное.";
 "One year" = "Один год";
 "Only on this Mac, never the sentences around them: for what comes back often. They fade after 60 days." = "Только на этом Mac, без фраз вокруг: для того, что часто повторяется. Исчезают через 60 дней.";
@@ -486,7 +485,6 @@
 "Try it." = "Попробуйте.";
 "Turn on LEXALIE in “Accessibility”, then reopen it." = "Включите LEXALIE в «Универсальном доступе», затем откройте его снова.";
 "Turn on LEXALIE in “Screen & System Audio Recording”, then reopen it." = "Включите LEXALIE в «Запись экрана и системного звука», затем откройте его снова.";
-"Two languages and you're set. We guessed them from your Mac." = "Два языка — и готово. Мы угадали их по вашему Mac.";
 "Two permissions." = "Два разрешения.";
 "Type it, then Check" = "Напечатайте, затем «Проверить»";
 "Under each sentence, what it says in your language." = "Под каждой фразой — что она значит по-русски.";
@@ -506,6 +504,7 @@
 "Watch with me" = "Смотри со мной";
 "Watching a video" = "Смотрите видео";
 "We couldn't send the link. Try again in a minute." = "Не удалось отправить ссылку. Попробуйте через минуту.";
+"We guessed them from your Mac. They can also be the same." = "Мы угадали их по вашему Mac. Они могут и совпадать.";
 "We haven't listened to anything together yet." = "Мы ещё ничего не слушали вместе.";
 "We sent a link to %@. Open it on this Mac." = "Мы отправили ссылку на %@. Откройте её на этом Mac.";
 "Web app" = "Веб-приложение";

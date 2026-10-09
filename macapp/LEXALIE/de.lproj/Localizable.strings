@@ -41,6 +41,7 @@
 "A meeting from your calendar" = "Ein Meeting aus deinem Kalender";
 "A one-time download from Apple, then it works offline too." = "Ein einmaliger Download von Apple, danach geht es auch offline.";
 "A person" = "Eine Person";
+"A question about anything you heard with LEXALIE: what they meant, who or what it was, what was said and when." = "Eine Frage zu allem, was du mit LEXALIE gehört hast: was gemeint war, wer oder was es war, was wann gesagt wurde.";
 "A word I didn't know" = "Ein Wort, das ich nicht kannte";
 "A word you may not know" = "Ein Wort, das du vielleicht nicht kennst";
 "Above about %@ syllables a second it gets hard." = "Ab etwa %@ Silben pro Sekunde wird es schwer.";
@@ -67,7 +68,6 @@
 "Anything you heard, even days ago" = "Alles, was du gehört hast, auch vor Tagen";
 "App: %@" = "App: %@";
 "Ask LEXALIE" = "Frag LEXALIE";
-"Ask about what I just heard" = "Nach dem fragen, was ich gerade gehört habe";
 "At the end" = "Am Ende";
 "Attention" = "Aufmerksamkeit";
 "Audio unclear" = "Ton unklar";
@@ -302,7 +302,6 @@
 "Numbers" = "Zahlen";
 "Numbers, dates, prices" = "Zahlen, Daten, Preise";
 "Off" = "Aus";
-"One question about the last minutes: what they meant, who or what it was, who's singing." = "Eine Frage zu den letzten Minuten: was gemeint war, wer oder was das war, wer singt.";
 "One tap marks, two taps explain it now, hold for two seconds to start or stop listening. Tonight LEXALIE finds what you marked." = "Einmal tippen markiert, zweimal tippen erklärt sofort, zwei Sekunden halten startet oder stoppt das Zuhören. Heute Abend findet LEXALIE, was du markiert hast.";
 "One year" = "Ein Jahr";
 "Only on this Mac, never the sentences around them: for what comes back often. They fade after 60 days." = "Nur auf diesem Mac, nie die Sätze drumherum: für das, was oft vorkommt. Nach 60 Tagen sind sie weg.";
@@ -486,7 +485,6 @@
 "Try it." = "Probier es aus.";
 "Turn on LEXALIE in “Accessibility”, then reopen it." = "Aktiviere LEXALIE unter „Bedienungshilfen“ und öffne es erneut.";
 "Turn on LEXALIE in “Screen & System Audio Recording”, then reopen it." = "Aktiviere LEXALIE unter „Bildschirm- & Systemaudioaufnahme“ und öffne es erneut.";
-"Two languages and you're set. We guessed them from your Mac." = "Zwei Sprachen und du bist startklar. Wir haben sie von deinem Mac erraten.";
 "Two permissions." = "Zwei Berechtigungen.";
 "Type it, then Check" = "Tippe es, dann Prüfen";
 "Under each sentence, what it says in your language." = "Unter jedem Satz, was er auf Deutsch heißt.";
@@ -506,6 +504,7 @@
 "Watch with me" = "Schau mit mir";
 "Watching a video" = "Beim Video";
 "We couldn't send the link. Try again in a minute." = "Der Link konnte nicht gesendet werden. Versuch es in einer Minute noch mal.";
+"We guessed them from your Mac. They can also be the same." = "Wir haben sie von deinem Mac erraten. Es kann auch dieselbe sein.";
 "We haven't listened to anything together yet." = "Wir haben noch nichts zusammen gehört.";
 "We sent a link to %@. Open it on this Mac." = "Wir haben einen Link an %@ geschickt. Öffne ihn auf diesem Mac.";
 "Web app" = "Web-App";

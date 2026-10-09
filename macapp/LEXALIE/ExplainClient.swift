@@ -62,7 +62,7 @@ enum ExplainClient {
             native: settings.native.rawValue,
             level: settings.level,
             level_reliability: LevelEstimate.reliability,
-            translation_shown: UserDefaults.standard.bool(forKey: Key.showTranslation),
+            translation_shown: UserDefaults.standard.bool(forKey: Key.showTranslation) && !Translator.same(settings.heard, settings.native),
             literal: literal.map { String(Redactor.redact($0, publicMedia: publicMedia).prefix(600)) },
             known: Array(known.prefix(500)),
             struggling: Array(struggling.prefix(200)),

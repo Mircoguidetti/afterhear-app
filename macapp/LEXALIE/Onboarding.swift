@@ -85,6 +85,7 @@ struct OnboardingView: View {
 
     private var heardLanguage: HeardLanguage { HeardLanguage(rawValue: heard) ?? .enGB }
     private var nativeLanguage: NativeLanguage { NativeLanguage(rawValue: native) ?? .it }
+    private var sameLanguage: Bool { Translator.same(heardLanguage, nativeLanguage) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -109,10 +110,11 @@ struct OnboardingView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             HStack {
-                if step > 0 { Button("Back") { step -= 1 }.buttonStyle(.plain).foregroundStyle(.secondary) }
+                // Your own language (owner, 09/10): no translation to offer, so no step for it.
+                if step > 0 { Button("Back") { step -= step == 5 && sameLanguage ? 2 : 1 }.buttonStyle(.plain).foregroundStyle(.secondary) }
                 Spacer()
                 Button(step == 5 ? String(localized: "Start") : step == 0 && !account.signedIn ? String(localized: "Not now") : String(localized: "Continue")) {
-                    if step == 5 { done(); NSApp.keyWindow?.close() } else { step += 1 }
+                    if step == 5 { done(); NSApp.keyWindow?.close() } else { step += step == 3 && sameLanguage ? 2 : 1 }
                 }
                 .buttonStyle(.borderedProminent).tint(Brand.accent).foregroundStyle(Brand.onyx)
                 .keyboardShortcut(.defaultAction)
@@ -139,7 +141,7 @@ struct OnboardingView: View {
 
     private var languages: some View {
         VStack(alignment: .leading, spacing: 18) {
-            title(String(localized: "Subtitles only when you need them."), String(localized: "Two languages and you're set. We guessed them from your Mac."))
+            title(String(localized: "Subtitles only when you need them."), String(localized: "We guessed them from your Mac. They can also be the same."))
             Picker("You speak", selection: $native) {
                 ForEach(NativeLanguage.allCases) { Text($0.label).tag($0.rawValue) }
             }
