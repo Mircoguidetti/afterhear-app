@@ -128,6 +128,11 @@ def replay():
             for x in c.get('contradictions', []):
                 d = facts_by_id.get(x['fact_id'], {})
                 print(f"  {label} {x['line']} [{x['kind']}] {x['note']}\n      before ({d.get('date')}): {d.get('fact')}")
+        for x in answer.get('traps', []):
+            print(f"  NOW TRAP {x['line']} [{x['kind']}] {x['note']}")
+        for x in answer.get('numbers', []):
+            if 'EBITDA' in x['metric'].upper():
+                print(f"  NOW NUM {x['line']} {x['value']} = {x['metric']} | {x['qualifier']}")
         rows.append({**r, 'card': answer, 'seconds': secs})
     json.dump(rows, open(os.path.join(OUT, 'deal-replay.json'), 'w'), ensure_ascii=False, indent=1)
     print('calls to the server:', insieme._calls['n'], '·', insieme.cost())
