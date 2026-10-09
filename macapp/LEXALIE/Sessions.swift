@@ -173,6 +173,16 @@ final class Sessions: ObservableObject {
         SessionSync.shared.schedule()
     }
 
+    /// The questions nobody answered the last time with these people, or in this recurring meeting
+    /// (owner, 09/10): they come back before the next call. Only what was left open, never minutes.
+    func leftOpen(before call: Call) -> [Asked] {
+        let key = CallHistory.key(for: call)
+        let last = sessions.filter { $0.kind == "call" && $0.start < call.start.addingTimeInterval(-60) }
+            .sorted { $0.start > $1.start }
+            .first { CallHistory.key(for: Call(id: "", title: $0.title, start: $0.start, end: $0.end ?? $0.start, people: $0.people, guests: 0)) == key }
+        return Array((last?.asked.filter(\.open) ?? []).prefix(2))
+    }
+
     func update(_ s: Session) {
         var s = s
         s.dirty = true

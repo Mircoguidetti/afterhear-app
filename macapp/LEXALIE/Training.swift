@@ -59,6 +59,11 @@ struct PrepCard: View {
             } else if !failed {
                 HStack { ProgressView().controlSize(.small); Text("Preparing your card…").font(.caption).foregroundStyle(.secondary) }
             }
+            let open = Sessions.shared.leftOpen(before: call)
+            if !open.isEmpty {
+                Text("Left open last time").font(.caption).foregroundStyle(.secondary)
+                ForEach(open, id: \.self) { q in Text(q.meaning).font(.callout) }
+            }
             let accent = call.people.compactMap { store.accent(of: $0) }.first
             Button(accent.map { String(localized: "Warm up your ear · 2 min · \(Person.label($0))") } ?? String(localized: "Warm up your ear · 2 min")) {
                 NSWorkspace.shared.open(Watch.url(accent: accent, cause: nil))

@@ -313,6 +313,16 @@ enum SelfTest {
         check("session: kept when it ends", ended != nil && sessions.sessions.contains { $0.id == ended?.id } && sessions.current == nil)
         let inline = sessions.inline(limit: 3)
         check("ask: this Mac's sessions for the server", (inline.first?["lines"] as? [[String: Any]])?.count == 1)
+        if var s = ended {
+            s.asked = [.init(line: 0, sentence: "Who owns the budget after March?", meaning: "Chi gestisce il budget dopo marzo?", open: true),
+                       .init(line: 0, sentence: "Tom, can you send it?", meaning: "Ti chiede di mandarlo", open: false)]
+            sessions.update(s)
+            let next = Call(id: "self-test-next", title: "Self-test call", start: Date().addingTimeInterval(3600), end: Date().addingTimeInterval(5400), people: ["Tom"], guests: 1)
+            let other = Call(id: "self-test-other", title: "Other", start: Date().addingTimeInterval(3600), end: Date().addingTimeInterval(5400), people: ["Priya"], guests: 1)
+            let open = sessions.leftOpen(before: next)
+            check("prep: what was left open with Tom comes back before the next call with him, and only that",
+                  open.map(\.meaning) == ["Chi gestisce il budget dopo marzo?"] && sessions.leftOpen(before: other).isEmpty, open.map(\.meaning).joined(separator: " | "))
+        }
         if let id = ended?.id {
             sessions.forget(id)
             check("session: forgotten here at once", !sessions.sessions.contains { $0.id == id })

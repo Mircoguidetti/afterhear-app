@@ -226,6 +226,8 @@
 "Last time: " = "В прошлый раз: ";
 "Last time: %@. Two minutes to go over them?" = "В прошлый раз: %@. Две минуты, чтобы повторить?";
 "Last two weeks" = "Последние две недели";
+"Left open last time" = "Осталось открытым в прошлый раз";
+"Left open last time: %@" = "Осталось открытым в прошлый раз: %@";
 "Less important for you: %@" = "Менее важно для тебя: %@";
 "Listen again" = "Слушать снова";
 "Listen again. Can you catch what they said?" = "Послушайте ещё раз. Удаётся разобрать, что сказали?";

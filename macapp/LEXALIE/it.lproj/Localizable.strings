@@ -226,6 +226,8 @@
 "Last time: " = "L’ultima volta: ";
 "Last time: %@. Two minutes to go over them?" = "L’ultima volta: %@. Due minuti per ripassarle?";
 "Last two weeks" = "Ultime due settimane";
+"Left open last time" = "Rimasto aperto l'ultima volta";
+"Left open last time: %@" = "Rimasto aperto l'ultima volta: %@";
 "Less important for you: %@" = "Meno importanti per te: %@";
 "Listen again" = "Ascolta di nuovo";
 "Listen again. Can you catch what they said?" = "Riascolta. Riesci a capire cosa hanno detto?";
