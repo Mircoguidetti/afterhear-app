@@ -3,6 +3,7 @@
   python3 bench/deal.py corpus     # free: Earnings-21 and Earnings-22 human transcripts (sparse clone)
   python3 bench/deal.py run        # 8 single calls + 3 companies call after call with a dossier (17 calls)
   python3 bench/deal.py show       # free: an earlier run's results as lines in the log
+  python3 bench/deal.py replay     # the chain calls of an earlier run again, each with the same dossier it had
 
 Real public calls (Rev.com's Earnings-21 and Earnings-22, CC BY-SA 4.0) stand in for the calls a deal
 team has with management: figures, guidance, analysts' questions, and answers that go around them.
@@ -110,6 +111,28 @@ def run():
     print('calls to the server:', insieme._calls['n'], '·', insieme.cost())
 
 
+def replay():
+    """Same calls, same dossiers as an earlier run: only the instructions changed, so the
+    contradictions can be compared one for one."""
+    insieme.check_version('/api/endcard', os.environ.get('INSIEME_EXPECT_ENDCARD', ''))
+    only = os.environ.get('DEAL_ONLY', '')
+    before = json.load(open(os.path.join(OUT, 'deal.json')))
+    rows = []
+    for r in before:
+        if r['group'] == 'single' or not r.get('dossier') or (only and r['group'] != only):
+            continue
+        ls, answer, secs = card(r['file'], r['dossier'])
+        facts_by_id = {d['id']: d for d in r['dossier']}
+        print(f"\n=== {r['group']} · {r['file']} · {secs} s {answer.get('error', '')}")
+        for label, c in (('BEFORE', r['card']), ('NOW', answer)):
+            for x in c.get('contradictions', []):
+                d = facts_by_id.get(x['fact_id'], {})
+                print(f"  {label} {x['line']} [{x['kind']}] {x['note']}\n      before ({d.get('date')}): {d.get('fact')}")
+        rows.append({**r, 'card': answer, 'seconds': secs})
+    json.dump(rows, open(os.path.join(OUT, 'deal-replay.json'), 'w'), ensure_ascii=False, indent=1)
+    print('calls to the server:', insieme._calls['n'], '·', insieme.cost())
+
+
 def show():
     for r in json.load(open(os.path.join(OUT, 'deal.json'))):
         c, t = r['card'], r['text']
@@ -138,6 +161,11 @@ if __name__ == '__main__':
         corpus()
     elif what == 'show':
         show()
+    elif what == 'replay':
+        if not os.environ.get('ASAID_TESTER_CODE'):
+            sys.exit('ASAID_TESTER_CODE is not set: this needs the server.')
+        corpus()
+        replay()
     elif what == 'run':
         if not os.environ.get('ASAID_TESTER_CODE'):
             sys.exit('ASAID_TESTER_CODE is not set: this needs the server.')

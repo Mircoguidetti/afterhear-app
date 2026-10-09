@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       what:
-        description: "run = 17 calls to the model; show = print an earlier run (free)"
+        description: "run = 17 calls to the model; replay = an earlier run's chain calls again with the same dossiers; show = print an earlier run (free)"
         type: choice
-        options: [run, show]
+        options: [run, replay, show]
         default: run
       expect_version:
         description: "Instructions version the run must find on the server (GET /api/endcard)"
@@ -23,7 +23,7 @@ on:
         type: string
         default: ""
       show_run:
-        description: "With what = show: the run whose results to print"
+        description: "With what = show or replay: the earlier run"
         type: string
         default: ""
 
@@ -41,7 +41,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Results of an earlier run (free)
-        if: ${{ inputs.what == 'show' }}
+        if: ${{ inputs.what == 'show' || inputs.what == 'replay' }}
         uses: actions/download-artifact@v4
         with:
           name: deal-run
@@ -50,13 +50,13 @@ jobs:
           github-token: ${{ github.token }}
       - name: Run
         env:
-          ASAID_TESTER_CODE: ${{ inputs.what == 'run' && secrets.ASAID_TESTER_CODE || '' }}
+          ASAID_TESTER_CODE: ${{ (inputs.what == 'run' || inputs.what == 'replay') && secrets.ASAID_TESTER_CODE || '' }}
           INSIEME_MAX_CALLS: ${{ inputs.max_calls }}
           INSIEME_EXPECT_ENDCARD: ${{ inputs.expect_version }}
           DEAL_ONLY: ${{ inputs.only }}
         run: python3 bench/deal.py ${{ inputs.what }}
       - uses: actions/upload-artifact@v4
-        if: ${{ always() && inputs.what == 'run' }}
+        if: ${{ always() && (inputs.what == 'run' || inputs.what == 'replay') }}
         with:
           name: deal-run
           path: bench/out/deal
