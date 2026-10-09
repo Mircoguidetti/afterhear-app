@@ -93,7 +93,7 @@ final class Deals: ObservableObject {
 
     @Published private(set) var deals: [Deal] = []
     /// Calls with no keyword match join this deal, when set (the deal you're working on now).
-    @Published var active: UUID? {
+    @Published var active: UUID? = nil {
         didSet { UserDefaults.standard.set(active?.uuidString, forKey: "activeDeal") }
     }
     @Published private(set) var working = false
@@ -108,7 +108,7 @@ final class Deals: ObservableObject {
 
     private func save() {
         try? FileManager.default.createDirectory(at: file.deletingLastPathComponent(), withIntermediateDirectories: true)
-        if let data = try? JSONEncoder().encode(deals) { try? data.write(to: file, options: [.atomic, .completeFileProtection]) }
+        if let data = try? JSONEncoder().encode(deals) { try? data.write(to: file, options: .atomic) }
     }
 
     @discardableResult
@@ -196,7 +196,7 @@ final class Deals: ObservableObject {
         let day = DateFormatter()
         day.dateFormat = "dd/MM"
         let facts: [[String: Any]] = dossier.suffix(200).map {
-            ["id": $0.id, "source": $0.source, "date": day.string(from: $0.date), "topic": $0.topic, "fact": String($0.fact.prefix(300))]
+            ["id": $0.id, "source": $0.source, "date": day.string(from: $0.date), "topic": $0.topic, "fact": String($0.fact.prefix(300))] as [String: Any]
         }
         return try? await CoachClient.post("api/endcard", ["mode": "deal", "source": source, "lines": lines, "dossier": facts])
     }

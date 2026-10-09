@@ -345,11 +345,14 @@ final class Sessions: ObservableObject {
         return all.prefix(limit).map { s in
             ["id": s.id.uuidString.lowercased(), "kind": s.kind, "title": s.title, "people": s.people,
              "started_at": SessionSync.iso(s.start),
-             "lines": s.lines.suffix(deal == nil ? 400 : 1500).map {
-                 ["i": $0.i, "who": $0.mine == true ? "you" : "them", "text": deal == nil ? $0.text : Redactor.redact($0.text, keepNumbers: true),
-                  "start": $0.start, "end": $0.end] as [String: Any]
-             }] as [String: Any]
+             "lines": s.lines.suffix(deal == nil ? 400 : 1500).map { Self.inlineLine($0, deal: deal != nil) }] as [String: Any]
         }
+    }
+
+    private static func inlineLine(_ l: Line, deal: Bool) -> [String: Any] {
+        let who = l.mine == true ? "you" : "them"
+        let text = deal ? Redactor.redact(l.text, keepNumbers: true) : l.text
+        return ["i": l.i, "who": who, "text": text, "start": l.start, "end": l.end]
     }
 
     /// The voice of a line, when it's a moment of that session's card.

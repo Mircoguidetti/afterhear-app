@@ -54,8 +54,8 @@ jobs:
           cd macapp
           xcodebuild -project LEXALIE.xcodeproj -scheme LEXALIE -configuration Release \
             -destination 'generic/platform=macOS' -derivedDataPath build \
-            CURRENT_PROJECT_VERSION=${{ github.run_number }} build | tail -80
-          exit ${PIPESTATUS[0]}
+            CURRENT_PROJECT_VERSION=${{ github.run_number }} build > build.log 2>&1 || { grep -E "error:" build.log | sort -u | head -40; tail -40 build.log; exit 1; }
+          tail -80 build.log
       # The self-test (macapp/LEXALIE/SelfTest.swift): the inner pieces, then every window opened
       # with example moments. If a check fails or a window takes the app down, nothing is published.
       - name: Self-test, every window opened
