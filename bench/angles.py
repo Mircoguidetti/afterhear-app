@@ -101,7 +101,7 @@ def camera(n):
             break
         m = SPEAKER.match(p)
         if m:
-            who, p = m.group(1).title(), m.group(2)
+            who, p = m.group(1).strip().title(), m.group(2)
         if not who or len(p) < 2:
             continue
         for sentence in re.split(r'(?<=[.?!])\s+(?=[A-ZÀ-Ü])', p):
@@ -150,12 +150,14 @@ def corpus():
 
 
 def text():
+    """The Italian lines worth a question (acronyms, numbers, long answers), to write the questions."""
     for s in sessions():
         if s['heard'] != 'it':
             continue
         print(f"\n=== {s['id']}")
-        for l in s['lines']:
-            print(f"{l['i']} {l['who']}: {l['text']}")
+        picked = [l for l in s['lines'] if re.search(r'\b[A-Z]{2,}\b|\d', l['text']) and len(l['text']) > 60]
+        for l in picked[:70]:
+            print(f"{l['i']} {l['who']}: {l['text'][:220]}")
 
 
 def card():
