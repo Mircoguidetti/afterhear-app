@@ -59,7 +59,7 @@ enum ParticipantNotice: String, CaseIterable, Identifiable {
         }
     }
 
-    static func copy() {
+    @MainActor static func copy() {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(Sessions.shared.current?.deal != nil ? dealMessage() : message(), forType: .string)
     }

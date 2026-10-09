@@ -322,7 +322,7 @@ struct DealsView: View {
     }
 
     @ViewBuilder
-    private func dossier(_ d: Deal) -> some View {
+    private func dossier(_ d: Deals.Deal) -> some View {
         VStack(alignment: .leading, spacing: 22) {
             VStack(alignment: .leading, spacing: 6) {
                 Text(d.name).font(.system(size: 24, weight: .semibold))
@@ -389,7 +389,7 @@ struct DealsView: View {
         }
     }
 
-    private func askBox(_ d: Deal) -> some View {
+    private func askBox(_ d: Deals.Deal) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 TextField("Ask about this deal: what did management say about churn?", text: $question)
@@ -410,7 +410,7 @@ struct DealsView: View {
         }
     }
 
-    private func ask(_ d: Deal) {
+    private func ask(_ d: Deals.Deal) {
         let q = question
         asking = true
         Task {
