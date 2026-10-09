@@ -1,0 +1,134 @@
+[
+ {
+  "session": "js-party-300",
+  "line": 199,
+  "question": "Cos'è l'RPC di cui parlavano nel podcast su JavaScript?",
+  "reference": "Remote Procedure Call, un vecchio modello che torna con React/Next"
+ },
+ {
+  "session": "go-time-300",
+  "line": 678,
+  "question": "Perché l'episodio 300 di Go Time si chiamava 300 Multiple Choices?",
+  "reference": "È il codice HTTP 300: il server offre più rappresentazioni"
+ },
+ {
+  "session": "go-time-280",
+  "line": 69,
+  "question": "Cos'è il dispositivo OEM di cui parlava Neethu?",
+  "reference": "Il dispositivo collegato al microscopio o alla videocamera, che manda le immagini al gateway"
+ },
+ {
+  "session": "go-time-280",
+  "line": 173,
+  "question": "Cos'è Wait For It?",
+  "reference": "Un'utilità Go che aspetta che host e porta TCP dei servizi siano pronti"
+ },
+ {
+  "session": "go-time-260",
+  "line": 214,
+  "question": "Cosa vuol dire definire un alert basato sugli SLO?",
+  "reference": "Un allarme sulla metrica di latenza rispetto all'obiettivo di servizio"
+ },
+ {
+  "session": "js-party-320",
+  "line": 130,
+  "question": "In Solid, cos'è un elemento div scritto in JSX?",
+  "reference": "Semplicemente un vero elemento div HTML, niente DOM virtuale"
+ },
+ {
+  "session": "js-party-340",
+  "line": 202,
+  "question": "Cos'è JSR di cui parlava Ryan Dahl?",
+  "reference": "Un nuovo registro di pacchetti, concorrente di npm"
+ },
+ {
+  "session": "js-party-340",
+  "line": 206,
+  "question": "Cosa vuol dire che Deno inizia una LTS?",
+  "reference": "Una versione con supporto a lungo termine, API che non cambiano"
+ },
+ {
+  "session": "practical-ai-250",
+  "line": 133,
+  "question": "Cosa offre LanceDB che pochi altri hanno?",
+  "reference": "Accelerazione GPU per costruire gli indici"
+ },
+ {
+  "session": "practical-ai-270",
+  "line": 42,
+  "question": "Cosa vuol dire la O di GPT-4o?",
+  "reference": "Omni"
+ },
+ {
+  "session": "practical-ai-290",
+  "line": 90,
+  "question": "Da dove partirebbe Ben per migliorare un sistema RAG?",
+  "reference": "Dalle leve più semplici del RAG"
+ },
+ {
+  "session": "ship-it-90",
+  "line": 278,
+  "question": "Da quale servizio a quale stavano spostando la CI di Changelog?",
+  "reference": "Da CircleCI a GitHub Actions"
+ },
+ {
+  "session": "ship-it-90",
+  "line": 341,
+  "question": "Dove si trova l'immagine runtime di Changelog?",
+  "reference": "Su GHCR, ghcr.io/thechangelog/changelog-runtime"
+ },
+ {
+  "session": "ship-it-110",
+  "line": 109,
+  "question": "Cos'è WASI di cui parlavano a Ship It?",
+  "reference": "L'interfaccia di sistema di WebAssembly per far girare le applicazioni"
+ },
+ {
+  "session": "camera-419",
+  "line": 139,
+  "question": "Cosa sono le COT di cui parlava il ministro della Salute?",
+  "reference": "Centrali operative territoriali, previste dal PNRR per l'assistenza territoriale"
+ },
+ {
+  "session": "camera-419",
+  "line": 146,
+  "question": "Quante COT hanno fatto le regioni rispetto all'obiettivo europeo?",
+  "reference": "612 contro un obiettivo di 480"
+ },
+ {
+  "session": "camera-419",
+  "line": 83,
+  "question": "Quanto paga l'Italia ogni anno all'OMS?",
+  "reference": "Circa 18 milioni di dollari obbligatori nel 2024, più 7,8 volontari"
+ },
+ {
+  "session": "camera-414",
+  "line": 82,
+  "question": "Cos'è il CIPESS che deve approvare il progetto del ponte?",
+  "reference": "Il comitato interministeriale per la programmazione economica e lo sviluppo sostenibile"
+ },
+ {
+  "session": "camera-400",
+  "line": 19,
+  "question": "Cosa sono le CER di cui parlava Pichetto Fratin?",
+  "reference": "Comunità energetiche rinnovabili"
+ },
+ {
+  "session": "camera-397",
+  "line": 188,
+  "question": "Cos'è l'EFSA che deciderà sulla carne coltivata?",
+  "reference": "L'Autorità europea per la sicurezza alimentare, a Parma"
+ },
+ {
+  "session": "camera-414",
+  "line": 13,
+  "question": "Cosa ha permesso alle navi il decreto 34 del 2020?",
+  "reference": "Di fare le operazioni portuali in autoproduzione durante l'epidemia"
+ },
+ {
+  "session": "camera-397",
+  "line": 106,
+  "question": "Quanti detenuti erano iscritti all'università?",
+  "reference": "1.509 nell'anno 2023-2024, di cui 177 stranieri"
+ }
+]

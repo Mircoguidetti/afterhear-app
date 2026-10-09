@@ -147,6 +147,11 @@ def corpus():
         for l in s['lines'][:3]:
             print('   ', l['who'], '|', l['text'][:160])
     print(len(got), 'sessions')
+    for path in ('/api/endcard', '/api/ask'):
+        try:
+            print('server', path, 'version', insieme.version(path))
+        except Exception as e:  # noqa: BLE001
+            print('server', path, 'not read:', str(e)[:80])
 
 
 def text():
