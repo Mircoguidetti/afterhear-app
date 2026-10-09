@@ -14,7 +14,9 @@ enum Redactor {
     /// guests of your calls. They never leave the Mac, even when they look like a company or a place.
     static var privateNames: Set<String> = []
 
-    static func redact(_ text: String, publicMedia: Bool = false) -> String {
+    /// `keepNumbers`: a deal call (owner, 09/10): the figures are the point, and they are the company's,
+    /// not anyone's private data; people's names still go.
+    static func redact(_ text: String, publicMedia: Bool = false, keepNumbers: Bool = false) -> String {
         var out = text
         if publicMedia {
             return out.replacingOccurrences(of: #"[\w.+-]+@[\w-]+\.[\w.]+"#, with: "[email]", options: .regularExpression)
@@ -57,6 +59,7 @@ enum Redactor {
         out = out.replacingOccurrences(of: #"[\w.+-]+@[\w-]+\.[\w.]+"#, with: "[email]", options: .regularExpression)
         // A model or a code glued to letters ("A320", "LEAP-1A", "K3") or followed by one in capitals
         // ("737 MAX") is a product, not a private number: it stays, so "who or what" can say which.
+        if keepNumbers { return out }
         out = out.replacingOccurrences(of: #"(?<![\p{L}\d-])\+?\d[\d \-.,]{1,}\d(?![\d\p{L}-]|\s+\p{Lu}{2,}\b)"#,
                                        with: "[numero]", options: .regularExpression)
         return out

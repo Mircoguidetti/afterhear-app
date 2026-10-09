@@ -91,6 +91,11 @@ enum EndCards {
     /// they laughed (only if the words before were heard well), and your next call if it's close.
     static func afterCall(open: [String], told lines: [String], since: Date, laughed: String?, with people: [String], reportID: String?) async {
         let who = people.isEmpty ? String(localized: "your call") : ListFormatter.localizedString(byJoining: people)
+        // A deal call (owner, 09/10): the deal card instead, nothing touched during the call.
+        if Sessions.shared.current?.deal != nil {
+            if let ended = await Sessions.shared.end(kinds: ["call"]) { await Deals.shared.finish(ended) }
+            return
+        }
         // The end-of-session card (block INSIEME 2): moments, what they asked you, what nobody answered.
         if let ended = await Sessions.shared.end(kinds: ["call"]), let s = await SessionCard.make(ended) {
             var items = SessionCard.items(s)

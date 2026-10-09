@@ -145,7 +145,8 @@ final class CallCoach: ObservableObject {
                 session = Session(id: call?.id ?? "ctx-\(Int(now.timeIntervalSince1970))", title: call?.title ?? String(localized: "Call"),
                                   people: call?.people ?? [], start: now, lastInCall: now)
                 ToldVoice.shared.reset()
-                await Sessions.shared.begin(kind: "call", title: call?.title ?? "", people: call?.people ?? [])
+                await Sessions.shared.begin(kind: "call", title: call?.title ?? "", people: call?.people ?? [],
+                                            deal: Deals.shared.deal(forCall: call?.title ?? "")?.id)
             }
             session?.lastInCall = now
             let turns = AppModel.shared.recentTurns(seconds: 60)

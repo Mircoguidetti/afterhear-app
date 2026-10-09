@@ -278,7 +278,9 @@ final class CalendarWatch: NSObject, ObservableObject, UNUserNotificationCenterD
         guard at > now else { return }
         let recap = CallHistory.last(like: call, before: call.start).map(CallHistory.recap)
         // What was left open last time comes back now (owner, 09/10).
-        let open = Sessions.shared.leftOpen(before: call).first.map { String(localized: "Left open last time: \($0.meaning)") }
+        let open = Deals.shared.deal(forCall: call.title, orActive: false).flatMap { Deals.shared.openPoints($0).first }
+            .map { String(localized: "To clear up: \($0)") }
+            ?? Sessions.shared.leftOpen(before: call).first.map { String(localized: "Left open last time: \($0.meaning)") }
         guard recap != nil || open != nil else { return }
         let content = UNMutableNotificationContent()
         content.title = String(localized: "\(call.who) at \(call.start.formatted(date: .omitted, time: .shortened))")

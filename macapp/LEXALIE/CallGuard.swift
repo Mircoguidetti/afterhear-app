@@ -35,6 +35,19 @@ enum ParticipantNotice: String, CaseIterable, Identifiable {
         }
     }
 
+    /// In a deal call (owner, 09/10): why, in a line the other side expects from an investor.
+    static func dealMessage(for heard: HeardLanguage = AppSettings.current.heard) -> String {
+        switch String(heard.rawValue.prefix(2)) {
+        case "it": "Per non sbagliare numeri e dettagli uso LEXALIE: trascrive la call sul mio Mac, nessun bot entra e non si conserva nessuna registrazione."
+        case "es": "Para no equivocarme con cifras y detalles uso LEXALIE: transcribe la llamada en mi Mac, ningún bot entra y no se guarda ninguna grabación."
+        case "fr": "Pour ne pas me tromper sur les chiffres et les détails, j’utilise LEXALIE : il transcrit l’appel sur mon Mac, aucun bot ne rejoint l’appel et aucun enregistrement n’est gardé."
+        case "de": "Damit ich mich bei Zahlen und Details nicht vertue, nutze ich LEXALIE: Es schreibt den Call auf meinem Mac mit, kein Bot tritt bei, und es wird keine Aufnahme behalten."
+        case "ru": "Чтобы не ошибиться в цифрах и деталях, я пользуюсь LEXALIE: он расшифровывает звонок на моём Mac, никакой бот не подключается, и запись не сохраняется."
+        case "pt": "Para não errar números e detalhes uso o LEXALIE: transcreve a chamada no meu Mac, nenhum bot entra e não se guarda nenhuma gravação."
+        default: "To keep figures and details accurate I use LEXALIE: it transcribes the call on my Mac, no bot joins and no recording is kept."
+        }
+    }
+
     static let category = "participants"
 
     static func registerCategory() {
@@ -48,7 +61,7 @@ enum ParticipantNotice: String, CaseIterable, Identifiable {
 
     static func copy() {
         NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(message(), forType: .string)
+        NSPasteboard.general.setString(Sessions.shared.current?.deal != nil ? dealMessage() : message(), forType: .string)
     }
 }
 

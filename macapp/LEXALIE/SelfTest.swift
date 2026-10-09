@@ -31,6 +31,7 @@ enum SelfTest {
         AppSettings.registerDefaults()
         pieces()
         await together()
+        await dealsCheck()
         await ear()
         let samples = addExamples()
         await windows(samples)
@@ -348,6 +349,57 @@ enum SelfTest {
         check("profile: the three answers go to the server's prompt", Profile.shared.summary.contains("finance") && Profile.shared.summary.contains("Scottish"))
         check("profile: readable", Profile.shared.readable.count >= 3)
         Profile.shared.setAnswers(work: answers.0, calls: answers.1, accents: answers.2)
+    }
+
+    /// Deals (owner, 09/10): calls join by the calendar word, figures keep their numbers, nothing of a
+    /// deal goes to the account or into "Ask" outside its dossier.
+    private static func dealsCheck() async {
+        let deals = Deals.shared
+        let previous = deals.active
+        var d = Deals.Deal(name: "Self-test deal", keyword: "Alfa")
+        deals.insertForTest(d)
+        deals.active = nil
+        check("deal: a call with the word joins it", deals.deal(forCall: "Project ALFA – management call")?.id == d.id)
+        check("deal: a call without it doesn't", deals.deal(forCall: "Weekly sync") == nil)
+        check("deal: figures keep their numbers, names still go",
+              Redactor.redact("Revenue was 18.2 million, said Tom Baker", keepNumbers: true).contains("18.2")
+              && !Redactor.redact("Revenue was 18.2 million", keepNumbers: false).contains("18.2"))
+        var card = Deals.Card()
+        card.numbers = [.init(line: 3, sentence: "Adjusted EBITDA was 4.1 million", value: "4,1 mln", metric: "EBITDA", status: "fact",
+                              qualifier: "adjusted", topic: "margini", unsure: false)]
+        card.contradictions = [.init(line: 5, sentence: "Churn is about 8%", fact_id: "x", kind: "contradicts", note: "Management: 4%; qui: 8%")]
+        card.dodged = [.init(line: 7, answer_line: -1, question: "Quanto pesa il primo cliente?", how: "non risponde")]
+        var call = Deals.Call(id: UUID(), title: "Alfa – CFO", date: Date(), source: "management", card: card)
+        call.lines = [3: "Adjusted EBITDA was 4.1 million"]
+        let facts = Deals.facts(from: card, call: call)
+        check("deal: a figure becomes a fact with its qualifier", facts.first?.fact == "EBITDA: 4,1 mln (adjusted) [fact]", facts.first?.fact ?? "none")
+        d.calls = [call]
+        d.facts = facts
+        deals.insertForTest(d)
+        check("deal: what to clear up before the next call", deals.openPoints(d) == ["Management: 4%; qui: 8%", "Quanto pesa il primo cliente?"])
+        deals.removeFact(facts[0].id, deal: d.id)
+        check("deal: 'Not right' takes a fact out", deals.deals.first { $0.id == d.id }?.facts.isEmpty == true)
+        await Sessions.shared.begin(kind: "call", title: "Alfa – CFO", people: [], deal: d.id)
+        Sessions.shared.observe([Turn(who: "them", start: 2, end: 6, text: "Revenue grew twelve percent last year."),
+                                 Turn(who: "tu", start: 7, end: 9, text: "What share is the largest customer?")], clipStart: Date().addingTimeInterval(-60))
+        let live = Sessions.shared.current
+        check("deal: your own questions are kept in a deal call", live?.lines.contains { $0.mine == true } == true)
+        check("deal: its calls never go into 'Ask' outside the deal", !Sessions.shared.inline(limit: 50).contains { ($0["id"] as? String) == live?.id.uuidString.lowercased() }
+              && Sessions.shared.inline(limit: 50, deal: d.id).count == 1)
+        if let ended = await Sessions.shared.end(kinds: ["call"]) {
+            _ = await Sessions.shared.cutDealClips(ended, lines: [])
+            Sessions.shared.forget(ended.id)
+        }
+        AppWindows.show(id: "selftest-deals", title: "deals", width: 760, height: 720) {
+            DealsView(selected: d.id, call: call.id).environmentObject(Deals.shared)
+        }
+        try? await Task.sleep(nanoseconds: 1_500_000_000)
+        AppWindows.show(id: "selftest-deals-dossier", title: "deal dossier", width: 760, height: 720) {
+            DealsView(selected: d.id).environmentObject(Deals.shared)
+        }
+        try? await Task.sleep(nanoseconds: 1_500_000_000)
+        deals.removeForTest(d.id)
+        deals.active = previous
     }
 
     // MARK: Every window, once
