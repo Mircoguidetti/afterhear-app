@@ -1,0 +1,57 @@
+name: Deal bench
+
+# The deal card (bench/deal.py) on public earnings calls: Gemini, so it costs credits. Only by hand,
+# with the owner's go and the expected version of the instructions (HANDOFF rule 12). show is free.
+
+on:
+  workflow_dispatch:
+    inputs:
+      what:
+        description: "run = 17 calls to the model; show = print an earlier run (free)"
+        type: choice
+        options: [run, show]
+        default: run
+      expect_version:
+        description: "Instructions version the run must find on the server (GET /api/endcard)"
+        type: string
+      max_calls:
+        description: "Hard cap on calls to the model"
+        type: string
+        default: "17"
+      show_run:
+        description: "With what = show: the run whose results to print"
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Results of an earlier run (free)
+        if: ${{ inputs.what == 'show' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: deal-run
+          path: bench/out/deal
+          run-id: ${{ inputs.show_run }}
+          github-token: ${{ github.token }}
+      - name: Run
+        env:
+          ASAID_TESTER_CODE: ${{ inputs.what == 'run' && secrets.ASAID_TESTER_CODE || '' }}
+          INSIEME_MAX_CALLS: ${{ inputs.max_calls }}
+          INSIEME_EXPECT_ENDCARD: ${{ inputs.expect_version }}
+        run: python3 bench/deal.py ${{ inputs.what }}
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && inputs.what == 'run' }}
+        with:
+          name: deal-run
+          path: bench/out/deal
