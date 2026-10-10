@@ -146,7 +146,6 @@ struct MenuView: View {
                 }
                 Button("Settings") { open("settings") }
                 Menu("More") {
-                    Button("Deals") { Deals.open() }
                     Button("What matters") { open("matters") }
                     Button("All moments") { open("diary") }
                     Button("Your week") { Podcast.shared.open() }

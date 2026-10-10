@@ -8,7 +8,6 @@
 "%@: mark it for tonight. %@: help me now." = "%@: отметить на вечер. %@: помочь сейчас.";
 "%@: mark it. %@: help me now." = "%@: отметить. %@: помочь сейчас.";
 "%@: nobody explained it in this session" = "%@: в этой сессии это никто не объяснил";
-"%lld calls" = "Звонков: %lld";
 "%lld expressions you now know." = "Выражений, которые вы теперь знаете: %lld.";
 "%lld in calls" = "%lld в звонках";
 "%lld moments today." = "Моментов сегодня: %lld.";
@@ -26,7 +25,6 @@
 "%lld wk ago" = "%lld нед. назад";
 "%lld you know · %lld back tomorrow" = "Знаете: %lld · вернутся завтра: %lld";
 "%lld%% followed, up from %lld%%" = "понято %lld%%, было %lld%%";
-"1 call" = "1 звонок";
 "1 expression you now know." = "Выражений, которые вы теперь знаете: 1.";
 "1 hour before" = "За 1 час";
 "1 moment today." = "Сегодня 1 момент.";
@@ -40,7 +38,6 @@
 "30 days" = "30 дней";
 "90 days" = "90 дней";
 "A call app" = "Приложение для звонков";
-"A deal is the folder of one acquisition." = "Сделка — это папка одной покупки.";
 "A meeting from your calendar" = "Встреча из календаря";
 "A one-time download from Apple, then it works offline too." = "Однократная загрузка от Apple, потом работает и без сети.";
 "A person" = "Человек";
@@ -70,15 +67,12 @@
 "Anything else" = "Всё остальное";
 "Anything you heard, even days ago" = "Всё, что ты слышал, даже несколько дней назад";
 "App: %@" = "Приложение: %@";
-"Ask" = "Спросить";
 "Ask LEXALIE" = "Спроси LEXALIE";
-"Ask about this deal: what did management say about churn?" = "Спроси об этой сделке: что руководство сказало об оттоке клиентов?";
 "At the end" = "В конце";
 "Attention" = "Внимание";
 "Audio unclear" = "Неразборчивый звук";
 "Australian" = "Австралийский";
 "Back" = "Назад";
-"Banker" = "Банк";
 "Based on %lld moments." = "На основе %lld моментов.";
 "Battery low: %lld saved, explained when you charge" = "Мало заряда: сохранено %lld, объясним на зарядке";
 "Before %@" = "Перед %@";
@@ -89,9 +83,6 @@
 "Call" = "Звонок";
 "Call started: LEXALIE waits until you've told them" = "Звонок начался: LEXALIE ждёт, пока вы предупредите участников";
 "Call started: do you want to tell the others?" = "Звонок начался: предупредить участников?";
-"Calls" = "Звонки";
-"Calls with no calendar word join this deal" = "Звонки без слова в календаре попадают в эту сделку";
-"Calls with “%@” in the calendar title join by themselves." = "Звонки с «%@» в названии события добавляются сами.";
 "Cancel" = "Отмена";
 "Careful: a negation" = "Внимание: отрицание";
 "Catching up…" = "Догоняем…";
@@ -119,15 +110,10 @@
 "Couldn't pause the video. LEXALIE presses play/pause for you: it needs Accessibility (System Settings → Privacy & Security). Or turn off \"Pause the video\" in Settings." = "Не удалось поставить видео на паузу. LEXALIE нажимает воспроизведение/паузу за вас: нужен Универсальный доступ (Системные настройки → Конфиденциальность и безопасность). Или выключите «Пауза видео» в настройках.";
 "Couldn't sync. Will try again soon." = "Не удалось синхронизировать. Скоро попробую снова.";
 "Cultural reference" = "Культурная отсылка";
-"Customer" = "Клиент";
-"Deal name" = "Название сделки";
-"Deals" = "Сделки";
 "Delete" = "Удалить";
-"Delete %@?" = "Удалить %@?";
 "Delete all" = "Удалить всё";
 "Delete every moment and clip? If you're signed in, they're deleted from your account too." = "Удалить все моменты и фрагменты? Если вы вошли в аккаунт, они удалятся и оттуда.";
 "Delete everything" = "Удалить всё";
-"Delete this deal and its calls" = "Удалить сделку и её звонки";
 "Delete this moment" = "Удалить этот момент";
 "Delete this moment?" = "Удалить этот момент?";
 "Diary" = "Дневник";
@@ -138,7 +124,6 @@
 "Didn't get this word? Click it." = "Не поняли слово? Нажмите на него.";
 "Disconnect" = "Отключить";
 "Does the person speaking know LEXALIE is listening?" = "Знает ли собеседник, что LEXALIE слушает?";
-"Doesn't match earlier calls" = "Не сходится с прошлыми звонками";
 "Don't listen until I've told them" = "Не слушать, пока я их не предупрежу";
 "Done" = "Готово";
 "Done for today." = "На сегодня всё.";
@@ -158,7 +143,6 @@
 "Enter a valid email." = "Введите действующий адрес почты.";
 "Everything is ready." = "Всё готово.";
 "Everything is transcribed on this Mac: no bot joins your calls and no recording of the whole call is kept. Your sessions (what the others said, as text), their cards and your questions go to your account, protected, so your iPhone and the web see them; we never train anything on them, and you delete them when you want. To explain, our model gets the text without people's names, numbers or your own names; companies, products and places stay, so it can tell you who or what they are. Only the few seconds of voice of each moment on a card leave this Mac, to replay them anywhere." = "Всё расшифровывается на этом Mac: никакой бот не заходит в твои созвоны, и запись всего звонка не хранится. Твои сессии (что сказали другие, текстом), их карточки и твои вопросы идут в твой аккаунт, под защитой, чтобы их видели iPhone и веб; мы ничего на них не обучаем, и ты удаляешь их, когда хочешь. Для объяснений наша модель получает текст без имён людей, чисел и твоих собственных имён; компании, продукты и места остаются, чтобы она могла сказать, кто это или что. Этот Mac покидают только несколько секунд голоса каждого момента карточки, чтобы переслушать их где угодно.";
-"Expert or former employee" = "Эксперт или бывший сотрудник";
 "Explain" = "Объяснить";
 "Explain now" = "Объяснить сразу";
 "Explain this sentence instead" = "Объяснить лучше эту фразу";
@@ -168,7 +152,6 @@
 "False alarm" = "Ложная тревога";
 "Fast speech" = "Быстрая речь";
 "Fewer than last week (%lld): you need it less." = "Меньше, чем на прошлой неделе (%lld): он нужен вам всё реже.";
-"Figures" = "Цифры";
 "Finish signing in in your browser." = "Завершите вход в браузере.";
 "Five minutes now, while it's fresh?" = "Пять минут сейчас, пока свежо в памяти?";
 "For a more natural voice: System Settings → Accessibility → Spoken Content → System voice → Manage voices." = "Для более естественного голоса: Системные настройки → Универсальный доступ → Устная речь → Системный голос → Управлять голосами.";
@@ -222,7 +205,6 @@
 "It starts again by itself in an hour, or when this call ends." = "Включится само через час или когда закончится этот звонок.";
 "It was for you" = "Это было тебе";
 "Italian" = "Итальянский";
-"Its calls are read against each other: every figure as said, what doesn't match, what wasn't answered. They stay on this Mac." = "Её звонки сверяются друг с другом: каждая цифра так, как её сказали, что не сходится, что осталось без ответа. Всё остаётся на этом Mac.";
 "Keep calls" = "Хранить созвоны";
 "Keep it always open?" = "Всегда показывать?";
 "Know which song is playing in Spotify or Music" = "Знать, какая песня играет в Spotify или Музыке";
@@ -246,7 +228,6 @@
 "Last two weeks" = "Последние две недели";
 "Left open last time" = "Осталось открытым в прошлый раз";
 "Left open last time: %@" = "Осталось открытым в прошлый раз: %@";
-"Lender" = "Кредитор";
 "Less important for you: %@" = "Менее важно для тебя: %@";
 "Listen again" = "Слушать снова";
 "Listen again. Can you catch what they said?" = "Послушайте ещё раз. Удаётся разобрать, что сказали?";
@@ -260,7 +241,6 @@
 "Listening to music" = "Слушаю музыку";
 "Listening…" = "Слушаю…";
 "Loading…" = "Загрузка…";
-"Management" = "Руководство";
 "Mark it: nothing stops, it's waiting for you tonight." = "Отметить: ничего не останавливается, ждёт вас вечером.";
 "Marked" = "Отмечено";
 "Marked · battery low" = "Отмечено · мало заряда";
@@ -284,11 +264,9 @@
 "Never" = "Никогда";
 "Never listen in calls like this one" = "Никогда не слушать такие звонки";
 "Never listen in these calls" = "Никогда не слушать эти звонки";
-"New deal" = "Новая сделка";
 "New word" = "Новое слово";
 "Next" = "Далее";
 "No" = "Нет";
-"No call yet. Name the deal's word in the calendar event, or set this deal for calls with no word." = "Звонков пока нет. Впиши слово сделки в событие календаря или выбери эту сделку для звонков без слова.";
 "No hard words in this piece." = "В этом фрагменте нет трудных слов.";
 "No moments yet" = "Пока нет моментов";
 "No moments yet today." = "Сегодня пока нет моментов.";
@@ -297,7 +275,6 @@
 "No, the meaning is enough" = "Нет, мне хватит смысла";
 "Nobody answered" = "Никто не ответил";
 "Nobody has spoken in the last few minutes: nothing to go back to." = "Последние минуты никто не говорил: возвращаться не к чему.";
-"Not answered" = "Без ответа";
 "Not downloaded yet" = "Ещё не загружено";
 "Not even written" = "Даже написанное — нет";
 "Not important" = "Неважно";
@@ -306,7 +283,6 @@
 "Not listening yet: tell the others first." = "Пока не слушаю: сначала предупредите участников.";
 "Not now" = "Не сейчас";
 "Not recognised" = "Не распознано";
-"Not right" = "Неверно";
 "Not set" = "Не указано";
 "Not signed in" = "Вход не выполнен";
 "Not sure" = "Не уверен";
@@ -319,7 +295,6 @@
 "Nothing heard in the last few minutes." = "За последние минуты ничего не слышно.";
 "Nothing interrupts you: explained together when the video, the call or the conversation ends." = "Ничто не прерывает: всё объясняется вместе, когда заканчиваются видео, звонок или разговор.";
 "Nothing slipped past you with %@ yet. Tap whenever something does: it'll be here next time." = "С %@ вы пока ничего не упустили. Коснитесь, когда это случится: в следующий раз это будет здесь.";
-"Nothing to flag in this call." = "В этом звонке нечего отметить.";
 "Nothing to review right now." = "Сейчас нечего повторять.";
 "Nothing yet. Tap when something slips past you: what keeps coming back shows up here." = "Пока ничего. Нажимай, когда что-то ускользает: то, что повторяется, появится здесь.";
 "Nothing yet: it learns from your taps, your questions and what you remove from a card." = "Пока ничего: он учится на твоих нажатиях, вопросах и том, что ты убираешь с карточки.";
@@ -342,7 +317,6 @@
 "Or %@" = "Или %@";
 "Or your email" = "Или ваша почта";
 "Or: %@" = "Или: %@";
-"Other" = "Другое";
 "Other / not sure" = "Другой / не знаю";
 "Out there: iPhone and Watch" = "В городе: iPhone и Watch";
 "Password" = "Пароль";
@@ -356,7 +330,6 @@
 "Play" = "Слушать";
 "Play any video. When a sentence slips past you:" = "Включите любое видео. Когда фраза ускользнёт:";
 "Play this line" = "Включить эту строку";
-"Portfolio company" = "Портфельная компания";
 "Portuguese (Brazil)" = "Португальский (Бразилия)";
 "Portuguese (Portugal)" = "Португальский (Португалия)";
 "Practise them now" = "Потренироваться сейчас";
@@ -371,7 +344,6 @@
 "Questions that slipped past you" = "Вопросы, которые вы упустили";
 "Quick explanation from this Mac. The full one comes as soon as our server answers." = "Быстрое объяснение с этого Mac. Полное придёт, как только ответит наш сервер.";
 "Quit LEXALIE" = "Выйти из LEXALIE";
-"Read it carefully" = "Читай внимательно";
 "Reads the calendars in the Calendar app on this Mac (iCloud, Google, Outlook), or Google Calendar directly. Only meetings with other people or a video link count. Your account gets the call's title, time and the people you track in LEXALIE, never the guest list or the notes." = "Читает календари в приложении «Календарь» на этом Mac (iCloud, Google, Outlook) или напрямую Google Календарь. Учитываются только встречи с другими людьми или со ссылкой на видео. В аккаунт попадают название, время и люди, за которыми вы следите в LEXALIE, никогда не список гостей и не заметки.";
 "Ready" = "Готово";
 "Ready · stays on your device" = "Готово · остаётся на вашем устройстве";
@@ -458,7 +430,6 @@
 "That link has expired or was already used. Try again." = "Ссылка устарела или уже использована. Попробуйте снова.";
 "The accents you hear most" = "Акценты, которые ты слышишь чаще всего";
 "The audio for this moment has already been deleted (it's kept %lld days)." = "Звук этого момента уже удалён (хранится дней: %lld).";
-"The card couldn't be made: the server wasn't reachable. The call is kept on this Mac." = "Не удалось сделать карточку: сервер был недоступен. Звонок остаётся на этом Mac.";
 "The detailed report couldn't be made this time (no connection or no tester code)." = "Подробный отчёт в этот раз не получился (нет связи или нет кода тестировщика).";
 "The doctor, a landlord, a meeting in a room: this Mac's microphone, after you ask them." = "Врач, арендодатель, встреча в комнате: микрофон этого Mac, после того как ты спросишь.";
 "The download stopped: %@" = "Загрузка остановилась: %@";
@@ -500,10 +471,7 @@
 "This week" = "Эта неделя";
 "Three things about you" = "Три вещи о тебе";
 "To add the line, connect Google Calendar again and allow editing events." = "Чтобы добавить строку, подключите Google Календарь заново и разрешите изменять события.";
-"To clear up before the next call" = "Прояснить до следующего звонка";
-"To clear up: %@" = "Прояснить: %@";
 "To hear the sentence you missed, in a film or a call. macOS asks once." = "Чтобы услышать упущенную фразу в фильме или на звонке. macOS спросит один раз.";
-"To verify" = "Проверить";
 "Today: %lld moments in %lld min of listening%@" = "Сегодня: моментов %lld за %lld мин прослушивания%@";
 "Tonight" = "Вечером";
 "Tonight (%lld)" = "Вечером (%lld)";
@@ -555,7 +523,6 @@
 "What slipped past you last time" = "Что вы упустили в прошлый раз";
 "What they meant" = "Что они имели в виду";
 "What they really meant" = "Что имелось в виду";
-"What was said, by topic" = "Что было сказано, по темам";
 "What you improved since last time" = "Что улучшилось с прошлого раза";
 "What you listened to together" = "Что вы слушали вместе";
 "What's this song?" = "Что это за песня?";
@@ -567,7 +534,6 @@
 "Who or what is it?" = "Кто или что это?";
 "Who or what it is" = "Кто или что это";
 "Who said it?" = "Кто это сказал?";
-"Who was it" = "Кто это был";
 "Who your calls are with" = "С кем у тебя созвоны";
 "Who's singing?" = "Кто поёт?";
 "Why do they say it?" = "Почему так говорят?";
@@ -577,7 +543,6 @@
 "With %@" = "С %@";
 "With the real voice. Five minutes." = "С настоящим голосом. Пять минут.";
 "Without it, LEXALIE doesn't hear your “sorry?” in calls." = "Без него LEXALIE не услышит ваше «простите?» в звонках.";
-"Word in the calendar title" = "Слово в названии события";
 "Words run together" = "Слитная речь";
 "Words you'll probably hear" = "Слова, которые вы, вероятно, услышите";
 "Write what you hear" = "Напишите, что слышите";
@@ -646,9 +611,7 @@
 "e.g. Scottish, Indian, American" = "напр. шотландский, индийский, американский";
 "e.g. clients in London, a team in India" = "напр. клиенты в Лондоне, команда в Индии";
 "e.g. finance, software, a hospital" = "напр. финансы, софт, больница";
-"estimate" = "оценка";
 "fast speech and accents" = "быстрая речь и акценты";
-"forecast" = "прогноз";
 "in %@" = "в %@";
 "in your language" = "по-русски";
 "jokes" = "шутки";
@@ -656,7 +619,6 @@
 "macOS asks again after a new version. Turn LEXALIE on in both, then reopen it." = "После новой версии macOS спрашивает снова. Включите LEXALIE в обоих, затем откройте его снова.";
 "names and references" = "имена и отсылки";
 "negations" = "отрицания";
-"not sure it was heard right" = "не уверен, что расслышано верно";
 "numbers and dates" = "числа и даты";
 "numbers said fast" = "быстро сказанные числа";
 "of the call followed" = "звонка понято";

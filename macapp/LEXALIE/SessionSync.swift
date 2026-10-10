@@ -58,7 +58,7 @@ final class SessionSync {
 
     /// Before a question to "Ask LEXALIE": the session going on right now reaches the account too.
     func flushLive() async {
-        guard let token = await Account.shared.accessToken(), let live = Sessions.shared.current, live.deal == nil else { return }
+        guard let token = await Account.shared.accessToken(), let live = Sessions.shared.current else { return }
         try? await push(live, token: token, card: false)
         lastLive = Date()
     }
@@ -76,12 +76,11 @@ final class SessionSync {
                 try await remove(id, token: token)
                 toForget.remove(id)
             }
-            // A deal's calls never leave this Mac (owner, 09/10): not the text, not the voice.
-            for s in Sessions.shared.sessions where s.dirty && s.deal == nil {
+            for s in Sessions.shared.sessions where s.dirty {
                 try await push(s, token: token, card: true)
                 Sessions.shared.markSynced(s.id)
             }
-            if let live = Sessions.shared.current, live.deal == nil, Date().timeIntervalSince(lastLive) > 110 {
+            if let live = Sessions.shared.current, Date().timeIntervalSince(lastLive) > 110 {
                 try await push(live, token: token, card: false)
                 lastLive = Date()
             }

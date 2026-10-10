@@ -20,8 +20,6 @@ final class Sessions: ObservableObject {
         var start: Double
         var end: Double
         var text: String
-        /// Your own words: kept only in a deal call (the questions you asked, to see which got no answer).
-        var mine: Bool? = nil
     }
 
     struct Term: Codable, Hashable {
@@ -79,8 +77,6 @@ final class Sessions: ObservableObject {
         var cardMade = false
         /// When the first second of the session's sound was heard (its sound file starts there).
         var audioStart: Date? = nil
-        /// A call that belongs to a deal (Deals.swift): it never leaves this Mac, not even its voice.
-        var deal: UUID? = nil
     }
 
     @Published private(set) var sessions: [Session] = []
@@ -106,11 +102,10 @@ final class Sessions: ObservableObject {
     // MARK: Recording
 
     /// A call, a video or a podcast starts. A session already running ends first.
-    func begin(kind: String, title: String, people: [String], deal: UUID? = nil) async {
+    func begin(kind: String, title: String, people: [String]) async {
         if current != nil { _ = await end() }
         var s = Session(kind: kind, title: String(title.prefix(200)), people: Array(people.prefix(40)),
                         language: AppSettings.current.heard.rawValue, start: Date())
-        s.deal = deal
         if kind == "call", let days = Profile.shared.callsDeleteDays { s.deleteAfter = s.start.addingTimeInterval(Double(days) * 86_400) }
         current = s
         openAudio(for: s)
@@ -119,7 +114,7 @@ final class Sessions: ObservableObject {
     /// Every few seconds while it lasts: the settled lines of the last minute, and the sound since last time.
     func observe(_ turns: [Turn], clipStart: Date) {
         guard var s = current else { return }
-        for turn in turns where (!turn.isMine || s.deal != nil) && turn.end < 57 {
+        for turn in turns where !turn.isMine && turn.end < 57 {
             let text = turn.text.trimmingCharacters(in: .whitespacesAndNewlines)
             guard text.split(separator: " ").count >= 2 else { continue }
             let start = clipStart.addingTimeInterval(turn.start).timeIntervalSince(s.start)
@@ -132,7 +127,7 @@ final class Sessions: ObservableObject {
                 continue
             }
             guard s.lines.count < 2500 else { break }
-            s.lines.append(Line(i: s.lines.count, start: start, end: end, text: String(text.prefix(2000)), mine: turn.isMine ? true : nil))
+            s.lines.append(Line(i: s.lines.count, start: start, end: end, text: String(text.prefix(2000))))
             s.dirty = true
         }
         s.lines.sort { $0.start < $1.start }
@@ -263,31 +258,6 @@ final class Sessions: ObservableObject {
         }
     }
 
-    /// A deal call's voice: only the seconds of the lines its deal card points at, kept on this Mac;
-    /// the rest of the sound goes at once.
-    func cutDealClips(_ s: Session, lines wanted: Set<Int>) async -> [Int: String] {
-        defer { dropAudio(s.id) }
-        let url = audioURL(s.id)
-        guard !wanted.isEmpty, FileManager.default.fileExists(atPath: url.path), let started = s.audioStart else { return [:] }
-        try? FileManager.default.createDirectory(at: clipFolder(s.id), withIntermediateDirectories: true)
-        let asset = AVURLAsset(url: url)
-        var out: [Int: String] = [:]
-        for line in s.lines where wanted.contains(line.i) && line.end > line.start {
-            let from = s.start.addingTimeInterval(line.start).timeIntervalSince(started) - 0.4
-            let to = s.start.addingTimeInterval(line.end).timeIntervalSince(started) + 0.6
-            guard to > 0.5 else { continue }
-            let file = clipFolder(s.id).appendingPathComponent("deal-\(line.i).m4a")
-            guard let export = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetAppleM4A) else { continue }
-            export.outputURL = file
-            export.outputFileType = .m4a
-            export.timeRange = CMTimeRange(start: CMTime(seconds: max(0, from), preferredTimescale: 600),
-                                           end: CMTime(seconds: min(to, max(0, from) + 30), preferredTimescale: 600))
-            await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in export.exportAsynchronously { c.resume() } }
-            if export.status == .completed { out[line.i] = file.lastPathComponent }
-        }
-        return out
-    }
-
     private func dropAudio(_ id: UUID) {
         try? FileManager.default.removeItem(at: audioURL(id))
     }
@@ -338,21 +308,13 @@ final class Sessions: ObservableObject {
     // MARK: For "Ask LEXALIE"
 
     /// Without the account: this Mac's latest sessions, as the server's ask takes them.
-    /// The sessions for "Ask LEXALIE" without the account. A deal's calls only when asking inside that
-    /// deal's dossier, never mixed with the rest.
-    func inline(limit: Int, deal: UUID? = nil) -> [[String: Any]] {
-        let all = ((current.map { [$0] } ?? []) + sessions).filter { $0.deal == deal }
+    func inline(limit: Int) -> [[String: Any]] {
+        let all = (current.map { [$0] } ?? []) + sessions
         return all.prefix(limit).map { s in
             ["id": s.id.uuidString.lowercased(), "kind": s.kind, "title": s.title, "people": s.people,
              "started_at": SessionSync.iso(s.start),
-             "lines": s.lines.suffix(deal == nil ? 400 : 1500).map { Self.inlineLine($0, deal: deal != nil) }] as [String: Any]
+             "lines": s.lines.suffix(400).map { ["i": $0.i, "who": "them", "text": $0.text, "start": $0.start, "end": $0.end] as [String: Any] }] as [String: Any]
         }
-    }
-
-    private static func inlineLine(_ l: Line, deal: Bool) -> [String: Any] {
-        let who = l.mine == true ? "you" : "them"
-        let text = deal ? Redactor.redact(l.text, keepNumbers: true) : l.text
-        return ["i": l.i, "who": who, "text": text, "start": l.start, "end": l.end]
     }
 
     /// The voice of a line, when it's a moment of that session's card.

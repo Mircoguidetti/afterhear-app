@@ -8,7 +8,6 @@
 "%@: mark it for tonight. %@: help me now." = "%@: márcalo para esta noche. %@: ayúdame ya.";
 "%@: mark it. %@: help me now." = "%@: márcalo. %@: ayúdame ya.";
 "%@: nobody explained it in this session" = "%@: nadie lo explicó en esta sesión";
-"%lld calls" = "%lld llamadas";
 "%lld expressions you now know." = "%lld expresiones que ya conoces.";
 "%lld in calls" = "%lld en llamadas";
 "%lld moments today." = "%lld momentos hoy.";
@@ -26,7 +25,6 @@
 "%lld wk ago" = "hace %lld sem.";
 "%lld you know · %lld back tomorrow" = "%lld las sabes · %lld vuelven mañana";
 "%lld%% followed, up from %lld%%" = "%lld%% seguido, antes %lld%%";
-"1 call" = "1 llamada";
 "1 expression you now know." = "1 expresión que ya conoces.";
 "1 hour before" = "1 hora antes";
 "1 moment today." = "1 momento hoy.";
@@ -40,7 +38,6 @@
 "30 days" = "30 días";
 "90 days" = "90 días";
 "A call app" = "Una app de llamadas";
-"A deal is the folder of one acquisition." = "Una operación es la carpeta de una adquisición.";
 "A meeting from your calendar" = "Una reunión de tu calendario";
 "A one-time download from Apple, then it works offline too." = "Una descarga única de Apple; luego funciona también sin conexión.";
 "A person" = "Una persona";
@@ -70,15 +67,12 @@
 "Anything else" = "Todo lo demás";
 "Anything you heard, even days ago" = "Lo que oíste, aunque sea de hace días";
 "App: %@" = "App: %@";
-"Ask" = "Preguntar";
 "Ask LEXALIE" = "Pregunta a LEXALIE";
-"Ask about this deal: what did management say about churn?" = "Pregunta sobre esta operación: ¿qué dijo la dirección sobre los clientes perdidos?";
 "At the end" = "Al final";
 "Attention" = "Atención";
 "Audio unclear" = "Audio poco claro";
 "Australian" = "Australiano";
 "Back" = "Atrás";
-"Banker" = "Banco";
 "Based on %lld moments." = "Basado en %lld momentos.";
 "Battery low: %lld saved, explained when you charge" = "Batería baja: %lld guardados, se explican al cargar";
 "Before %@" = "Antes de %@";
@@ -89,9 +83,6 @@
 "Call" = "Llamada";
 "Call started: LEXALIE waits until you've told them" = "Llamada iniciada: LEXALIE espera a que los avises";
 "Call started: do you want to tell the others?" = "Llamada iniciada: ¿quieres avisar a los demás?";
-"Calls" = "Llamadas";
-"Calls with no calendar word join this deal" = "Las llamadas sin palabra en el calendario entran en esta operación";
-"Calls with “%@” in the calendar title join by themselves." = "Las llamadas con «%@» en el título del calendario entran solas.";
 "Cancel" = "Cancelar";
 "Careful: a negation" = "Atención: una negación";
 "Catching up…" = "Poniéndote al día…";
@@ -119,15 +110,10 @@
 "Couldn't pause the video. LEXALIE presses play/pause for you: it needs Accessibility (System Settings → Privacy & Security). Or turn off \"Pause the video\" in Settings." = "No se ha podido pausar el vídeo. LEXALIE pulsa reproducir/pausa por ti: necesita Accesibilidad (Ajustes del Sistema → Privacidad y seguridad). O desactiva «Pausar el vídeo» en Ajustes.";
 "Couldn't sync. Will try again soon." = "No se ha podido sincronizar. Lo intentaré pronto.";
 "Cultural reference" = "Referencia cultural";
-"Customer" = "Cliente";
-"Deal name" = "Nombre de la operación";
-"Deals" = "Operaciones";
 "Delete" = "Eliminar";
-"Delete %@?" = "¿Eliminar %@?";
 "Delete all" = "Borrar todo";
 "Delete every moment and clip? If you're signed in, they're deleted from your account too." = "¿Borrar todos los momentos y clips? Si has iniciado sesión, también se borran de tu cuenta.";
 "Delete everything" = "Borrar todo";
-"Delete this deal and its calls" = "Eliminar la operación y sus llamadas";
 "Delete this moment" = "Eliminar este momento";
 "Delete this moment?" = "¿Eliminar este momento?";
 "Diary" = "Diario";
@@ -138,7 +124,6 @@
 "Didn't get this word? Click it." = "¿No entiendes esta palabra? Haz clic.";
 "Disconnect" = "Desconectar";
 "Does the person speaking know LEXALIE is listening?" = "¿La persona que habla sabe que LEXALIE está escuchando?";
-"Doesn't match earlier calls" = "No cuadra con las llamadas anteriores";
 "Don't listen until I've told them" = "No escuchar hasta que los haya avisado";
 "Done" = "Hecho";
 "Done for today." = "Listo por hoy.";
@@ -158,7 +143,6 @@
 "Enter a valid email." = "Escribe un email válido.";
 "Everything is ready." = "Todo está listo.";
 "Everything is transcribed on this Mac: no bot joins your calls and no recording of the whole call is kept. Your sessions (what the others said, as text), their cards and your questions go to your account, protected, so your iPhone and the web see them; we never train anything on them, and you delete them when you want. To explain, our model gets the text without people's names, numbers or your own names; companies, products and places stay, so it can tell you who or what they are. Only the few seconds of voice of each moment on a card leave this Mac, to replay them anywhere." = "Todo se transcribe en este Mac: ningún bot entra en tus llamadas y no se guarda la grabación entera. Tus sesiones (lo que dijeron los demás, como texto), sus tarjetas y tus preguntas van a tu cuenta, protegidas, para que el iPhone y la web las vean; no entrenamos nada con ellas y las borras cuando quieras. Para explicar, nuestro modelo recibe el texto sin nombres de personas, números ni tus propios nombres; empresas, productos y lugares se quedan, para que pueda decirte quién o qué son. Solo salen de este Mac los pocos segundos de voz de cada momento de la tarjeta, para volver a oírlos en cualquier sitio.";
-"Expert or former employee" = "Experto o ex empleado";
 "Explain" = "Explicar";
 "Explain now" = "Explícamelo ya";
 "Explain this sentence instead" = "Explica esta frase en su lugar";
@@ -168,7 +152,6 @@
 "False alarm" = "Falsa alarma";
 "Fast speech" = "Habla rápida";
 "Fewer than last week (%lld): you need it less." = "Menos que la semana pasada (%lld): lo necesitas menos.";
-"Figures" = "Cifras";
 "Finish signing in in your browser." = "Termina de iniciar sesión en el navegador.";
 "Five minutes now, while it's fresh?" = "¿Cinco minutos ahora, mientras está fresco?";
 "For a more natural voice: System Settings → Accessibility → Spoken Content → System voice → Manage voices." = "Para una voz más natural: Ajustes del Sistema → Accesibilidad → Contenido leído → Voz del sistema → Gestionar voces.";
@@ -222,7 +205,6 @@
 "It starts again by itself in an hour, or when this call ends." = "Vuelve a empezar solo en una hora, o cuando termine esta llamada.";
 "It was for you" = "Era para ti";
 "Italian" = "Italiano";
-"Its calls are read against each other: every figure as said, what doesn't match, what wasn't answered. They stay on this Mac." = "Sus llamadas se leen unas contra otras: cada cifra tal como se dijo, lo que no cuadra, lo que quedó sin respuesta. Se quedan en este Mac.";
 "Keep calls" = "Guardar las llamadas";
 "Keep it always open?" = "¿Dejarla siempre abierta?";
 "Know which song is playing in Spotify or Music" = "Saber qué canción suena en Spotify o Música";
@@ -246,7 +228,6 @@
 "Last two weeks" = "Últimas dos semanas";
 "Left open last time" = "Quedó abierto la última vez";
 "Left open last time: %@" = "Quedó abierto la última vez: %@";
-"Lender" = "Prestamista";
 "Less important for you: %@" = "Menos importantes para ti: %@";
 "Listen again" = "Escuchar de nuevo";
 "Listen again. Can you catch what they said?" = "Escucha otra vez. ¿Pillas lo que dijeron?";
@@ -260,7 +241,6 @@
 "Listening to music" = "Escuchando música";
 "Listening…" = "Escuchando…";
 "Loading…" = "Cargando…";
-"Management" = "Dirección";
 "Mark it: nothing stops, it's waiting for you tonight." = "Márcalo: nada se detiene, te espera esta noche.";
 "Marked" = "Marcado";
 "Marked · battery low" = "Marcado · batería baja";
@@ -284,11 +264,9 @@
 "Never" = "Nunca";
 "Never listen in calls like this one" = "No escuchar nunca llamadas como esta";
 "Never listen in these calls" = "No escuchar nunca estas llamadas";
-"New deal" = "Nueva operación";
 "New word" = "Palabra nueva";
 "Next" = "Siguiente";
 "No" = "No";
-"No call yet. Name the deal's word in the calendar event, or set this deal for calls with no word." = "Todavía ninguna llamada. Pon la palabra de la operación en el evento del calendario, o usa esta operación para las llamadas sin palabra.";
 "No hard words in this piece." = "No hay palabras difíciles en este trozo.";
 "No moments yet" = "Aún no hay momentos";
 "No moments yet today." = "Aún no hay momentos hoy.";
@@ -297,7 +275,6 @@
 "No, the meaning is enough" = "No, me basta con el sentido";
 "Nobody answered" = "Nadie respondió";
 "Nobody has spoken in the last few minutes: nothing to go back to." = "Nadie ha hablado en los últimos minutos: no hay nada a lo que volver.";
-"Not answered" = "Sin respuesta";
 "Not downloaded yet" = "Aún no descargado";
 "Not even written" = "Ni siquiera escrita";
 "Not important" = "No importante";
@@ -306,7 +283,6 @@
 "Not listening yet: tell the others first." = "Aún no escucho: primero avisa a los demás.";
 "Not now" = "Ahora no";
 "Not recognised" = "No reconocida";
-"Not right" = "No es correcto";
 "Not set" = "Sin indicar";
 "Not signed in" = "Sin iniciar sesión";
 "Not sure" = "No estoy seguro";
@@ -319,7 +295,6 @@
 "Nothing heard in the last few minutes." = "No se ha oído nada en los últimos minutos.";
 "Nothing interrupts you: explained together when the video, the call or the conversation ends." = "Nada te interrumpe: se explica todo junto cuando acaban el vídeo, la llamada o la conversación.";
 "Nothing slipped past you with %@ yet. Tap whenever something does: it'll be here next time." = "Con %@ aún no se te ha escapado nada. Toca cuando pase: estará aquí la próxima vez.";
-"Nothing to flag in this call." = "Nada que señalar en esta llamada.";
 "Nothing to review right now." = "Nada que repasar ahora.";
 "Nothing yet. Tap when something slips past you: what keeps coming back shows up here." = "Todavía nada. Toca cuando algo se te escape: lo que vuelve a menudo aparece aquí.";
 "Nothing yet: it learns from your taps, your questions and what you remove from a card." = "Nada todavía: aprende de tus toques, tus preguntas y lo que quitas de una tarjeta.";
@@ -342,7 +317,6 @@
 "Or %@" = "O %@";
 "Or your email" = "O tu email";
 "Or: %@" = "O: %@";
-"Other" = "Otro";
 "Other / not sure" = "Otro / no lo sé";
 "Out there: iPhone and Watch" = "Fuera: iPhone y Watch";
 "Password" = "Contraseña";
@@ -356,7 +330,6 @@
 "Play" = "Reproducir";
 "Play any video. When a sentence slips past you:" = "Pon cualquier vídeo. Cuando se te escape una frase:";
 "Play this line" = "Reproducir esta frase";
-"Portfolio company" = "Participada";
 "Portuguese (Brazil)" = "Portugués (Brasil)";
 "Portuguese (Portugal)" = "Portugués (Portugal)";
 "Practise them now" = "Practícalas ahora";
@@ -371,7 +344,6 @@
 "Questions that slipped past you" = "Preguntas que se te escaparon";
 "Quick explanation from this Mac. The full one comes as soon as our server answers." = "Explicación rápida desde este Mac. La completa llega en cuanto responda nuestro servidor.";
 "Quit LEXALIE" = "Salir de LEXALIE";
-"Read it carefully" = "Léelo con atención";
 "Reads the calendars in the Calendar app on this Mac (iCloud, Google, Outlook), or Google Calendar directly. Only meetings with other people or a video link count. Your account gets the call's title, time and the people you track in LEXALIE, never the guest list or the notes." = "Lee los calendarios de la app Calendario de este Mac (iCloud, Google, Outlook), o directamente Google Calendar. Solo cuentan las reuniones con otras personas o con un enlace de vídeo. Tu cuenta recibe el título, la hora y las personas que sigues en LEXALIE, nunca la lista de invitados ni las notas.";
 "Ready" = "Listo";
 "Ready · stays on your device" = "Listo · se queda en tu dispositivo";
@@ -458,7 +430,6 @@
 "That link has expired or was already used. Try again." = "El enlace ha caducado o ya se ha usado. Inténtalo de nuevo.";
 "The accents you hear most" = "Los acentos que más oyes";
 "The audio for this moment has already been deleted (it's kept %lld days)." = "El audio de este momento ya se ha borrado (se guarda %lld días).";
-"The card couldn't be made: the server wasn't reachable. The call is kept on this Mac." = "No se pudo hacer la tarjeta: el servidor no estaba disponible. La llamada se queda en este Mac.";
 "The detailed report couldn't be made this time (no connection or no tester code)." = "Esta vez no se ha podido hacer el informe detallado (sin conexión o sin código de tester).";
 "The doctor, a landlord, a meeting in a room: this Mac's microphone, after you ask them." = "El médico, el casero, una reunión en una sala: el micrófono de este Mac, después de preguntarles.";
 "The download stopped: %@" = "La descarga se detuvo: %@";
@@ -500,10 +471,7 @@
 "This week" = "Esta semana";
 "Three things about you" = "Tres cosas sobre ti";
 "To add the line, connect Google Calendar again and allow editing events." = "Para añadir la frase, vuelve a conectar Google Calendar y permite editar eventos.";
-"To clear up before the next call" = "Por aclarar antes de la próxima llamada";
-"To clear up: %@" = "Por aclarar: %@";
 "To hear the sentence you missed, in a film or a call. macOS asks once." = "Para oír la frase que se te escapó, en una película o una llamada. macOS lo pide una vez.";
-"To verify" = "Por verificar";
 "Today: %lld moments in %lld min of listening%@" = "Hoy: %lld momentos en %lld min de escucha%@";
 "Tonight" = "Esta noche";
 "Tonight (%lld)" = "Esta noche (%lld)";
@@ -555,7 +523,6 @@
 "What slipped past you last time" = "Lo que se te escapó la última vez";
 "What they meant" = "Lo que querían decir";
 "What they really meant" = "Lo que querían decir de verdad";
-"What was said, by topic" = "Lo que se dijo, por tema";
 "What you improved since last time" = "Lo que has mejorado desde la última vez";
 "What you listened to together" = "Lo que escuchasteis juntos";
 "What's this song?" = "¿Qué canción es?";
@@ -567,7 +534,6 @@
 "Who or what is it?" = "¿Quién o qué es?";
 "Who or what it is" = "Quién o qué es";
 "Who said it?" = "¿Quién lo dijo?";
-"Who was it" = "Quién era";
 "Who your calls are with" = "Con quién tienes llamadas";
 "Who's singing?" = "¿Quién canta?";
 "Why do they say it?" = "¿Por qué se dice así?";
@@ -577,7 +543,6 @@
 "With %@" = "Con %@";
 "With the real voice. Five minutes." = "Con la voz real. Cinco minutos.";
 "Without it, LEXALIE doesn't hear your “sorry?” in calls." = "Sin él, LEXALIE no oye tu “¿perdón?” en las llamadas.";
-"Word in the calendar title" = "Palabra en el título del calendario";
 "Words run together" = "Palabras pegadas";
 "Words you'll probably hear" = "Palabras que probablemente oirás";
 "Write what you hear" = "Escribe lo que oyes";
@@ -646,9 +611,7 @@
 "e.g. Scottish, Indian, American" = "p. ej. escocés, indio, estadounidense";
 "e.g. clients in London, a team in India" = "p. ej. clientes en Londres, un equipo en India";
 "e.g. finance, software, a hospital" = "p. ej. finanzas, software, un hospital";
-"estimate" = "estimación";
 "fast speech and accents" = "el habla rápida y los acentos";
-"forecast" = "previsión";
 "in %@" = "en %@";
 "in your language" = "en español";
 "jokes" = "los chistes";
@@ -656,7 +619,6 @@
 "macOS asks again after a new version. Turn LEXALIE on in both, then reopen it." = "macOS los vuelve a pedir tras una nueva versión. Activa LEXALIE en los dos y vuelve a abrirlo.";
 "names and references" = "nombres y referencias";
 "negations" = "las negaciones";
-"not sure it was heard right" = "no estoy seguro de que se oyera bien";
 "numbers and dates" = "números y fechas";
 "numbers said fast" = "los números dichos rápido";
 "of the call followed" = "de la llamada seguida";

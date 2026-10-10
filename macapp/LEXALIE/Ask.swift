@@ -110,7 +110,7 @@ final class Ask {
     /// the budget?", "what's Firebase?", "what did she say at the end of the film?". Signed in, our server
     /// looks in your account (the session going on now included); otherwise this Mac sends its own
     /// sessions. Names never reach Gemini; they come back here.
-    func askAll(_ question: String, deal: UUID? = nil) async -> Found {
+    func askAll(_ question: String) async -> Found {
         let q = question.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !q.isEmpty else { return Found(answer: "", quotes: []) }
         AppModel.syncRedactor()
@@ -120,11 +120,8 @@ final class Ask {
             "question": String(q.prefix(1000)), "names": names, "profile": Profile.shared.summary,
             "now": ISO8601DateFormatter.localNow(),
         ]
-        if let live = Sessions.shared.current, live.deal == deal { body["live"] = live.id.uuidString.lowercased() }
-        if let deal {
-            // A deal's calls are only on this Mac: they go with the question, and nothing is kept on the server.
-            body["sessions"] = Sessions.shared.inline(limit: 60, deal: deal)
-        } else if Account.shared.signedIn {
+        if let live = Sessions.shared.current { body["live"] = live.id.uuidString.lowercased() }
+        if Account.shared.signedIn {
             await SessionSync.shared.flushLive()
         } else {
             body["sessions"] = Sessions.shared.inline(limit: 15)
@@ -137,7 +134,7 @@ final class Ask {
                 let place = [when, q.title].filter { !$0.isEmpty }.joined(separator: " · ")
                 return Quote(sentence: q.sentence, place: place, voice: Sessions.shared.voice(session: q.session_id, line: q.idx))
             }
-            if deal == nil { Questions.shared.add(.init(question: q, answer: reply.answer, reason: reply.reason, sessions: reply.looked_in ?? [])) }
+            Questions.shared.add(.init(question: q, answer: reply.answer, reason: reply.reason, sessions: reply.looked_in ?? []))
             return Found(answer: reply.answer, quotes: quotes)
         } catch {
             return Found(answer: String(localized: "Couldn't explain it now."), quotes: [])
